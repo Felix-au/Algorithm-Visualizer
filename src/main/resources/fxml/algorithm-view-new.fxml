@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.text.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.algorithmvisualizer.ui.AlgorithmViewController">
+   <top>
+      <VBox spacing="10.0">
+         <children>
+            <HBox alignment="CENTER_LEFT" spacing="10.0">
+               <children>
+                  <Button fx:id="backButton" mnemonicParsing="false" onAction="#onBackToMain" text="← Back to Algorithms">
+                     <font>
+                        <Font name="System Bold" size="12.0" />
+                     </font>
+                  </Button>
+                  <Label fx:id="algorithmTitle" styleClass="title" text="Algorithm Name">
+                     <font>
+                        <Font name="System Bold" size="20.0" />
+                     </font>
+                  </Label>
+               </children>
+               <padding>
+                  <Insets bottom="10.0" left="20.0" right="20.0" top="20.0" />
+               </padding>
+            </HBox>
+            <Separator />
+         </children>
+      </VBox>
+   </top>
+   <center>
+      <SplitPane dividerPositions="0.7" orientation="HORIZONTAL">
+         <items>
+            <!-- VISUAL SECTION (70%) -->
+            <VBox fx:id="visualSection" spacing="10.0">
+               <children>
+                  <!-- Play Controls -->
+                  <HBox alignment="CENTER" spacing="15.0">
+                     <children>
+                        <Button fx:id="stepBackButton" mnemonicParsing="false" onAction="#onStepBack" text="⏮ Step Back">
+                           <font>
+                              <Font name="System Bold" size="12.0" />
+                           </font>
+                        </Button>
+                        <Button fx:id="pauseButton" mnemonicParsing="false" onAction="#onPause" text="⏸ Pause" disable="true">
+                           <font>
+                              <Font name="System Bold" size="12.0" />
+                           </font>
+                        </Button>
+                        <Button fx:id="playButton" mnemonicParsing="false" onAction="#onPlay" text="▶ Play">
+                           <font>
+                              <Font name="System Bold" size="12.0" />
+                           </font>
+                        </Button>
+                        <Button fx:id="stepForwardButton" mnemonicParsing="false" onAction="#onStepForward" text="⏭ Step Forward">
+                           <font>
+                              <Font name="System Bold" size="12.0" />
+                           </font>
+                        </Button>
+                        <Button fx:id="resetButton" mnemonicParsing="false" onAction="#onReset" text="⏹ Reset">
+                           <font>
+                              <Font name="System Bold" size="12.0" />
+                           </font>
+                        </Button>
+                        <Separator orientation="VERTICAL" />
+                        <Label text="Speed:" />
+                        <Slider fx:id="speedSlider" max="10.0" min="1.0" value="5.0" prefWidth="100.0" />
+                        <Label fx:id="speedLabel" text="5x" />
+                     </children>
+                     <padding>
+                        <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
+                     </padding>
+                  </HBox>
+                  
+                  <!-- Visual Content Split -->
+                  <SplitPane dividerPositions="0.5" orientation="HORIZONTAL">
+                     <items>
+                        <!-- Chessboard Section -->
+                        <VBox spacing="10.0">
+                           <children>
+                              <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                 <children>
+                                    <Label text="Chessboard" style="-fx-font-weight: bold; -fx-font-size: 14px;" />
+                                    <Separator />
+                                 </children>
+                              </HBox>
+                              <VBox spacing="5.0">
+                                 <children>
+                                    <Label text="Legend:" style="-fx-font-weight: bold;" />
+                                    <HBox spacing="15.0">
+                                       <children>
+                                          <HBox spacing="5.0">
+                                             <children>
+                                                <Rectangle fx:id="queenLegend" fill="DARKRED" height="12.0" stroke="BLACK" strokeWidth="1.0" width="12.0" />
+                                                <Label text="Queen" />
+                                             </children>
+                                          </HBox>
+                                          <HBox spacing="5.0">
+                                             <children>
+                                                <Rectangle fx:id="conflictLegend" fill="RED" height="12.0" stroke="BLACK" strokeWidth="1.0" width="12.0" />
+                                                <Label text="Conflict" />
+                                             </children>
+                                          </HBox>
+                                          <HBox spacing="5.0">
+                                             <children>
+                                                <Rectangle fx:id="safeLegend" fill="WHITE" height="12.0" stroke="BLACK" strokeWidth="1.0" width="12.0" />
+                                                <Label text="Safe" />
+                                             </children>
+                                          </HBox>
+                                          <HBox spacing="5.0">
+                                             <children>
+                                                <Rectangle fx:id="currentLegend" fill="YELLOW" height="12.0" stroke="BLACK" strokeWidth="2.0" width="12.0" />
+                                                <Label text="Current" />
+                                             </children>
+                                          </HBox>
+                                       </children>
+                                    </HBox>
+                                 </children>
+                              </VBox>
+                              <StackPane fx:id="chessboardContainer" prefHeight="400.0" prefWidth="400.0" style="-fx-background-color: white; -fx-border-color: #333333; -fx-border-width: 2;">
+                                 <children>
+                                    <Label text="Chessboard will appear here" />
+                                 </children>
+                              </StackPane>
+                           </children>
+                           <padding>
+                              <Insets bottom="10.0" left="10.0" right="5.0" top="10.0" />
+                           </padding>
+                        </VBox>
+                        
+                        <!-- Backtracking Matrix Section -->
+                        <VBox spacing="10.0">
+                           <children>
+                              <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                 <children>
+                                    <Label text="Backtracking Matrix" style="-fx-font-weight: bold; -fx-font-size: 14px;" />
+                                    <Separator />
+                                 </children>
+                              </HBox>
+                              <VBox spacing="5.0">
+                                 <children>
+                                    <Label text="Legend:" style="-fx-font-weight: bold;" />
+                                    <HBox spacing="15.0">
+                                       <children>
+                                          <HBox spacing="5.0">
+                                             <children>
+                                                <Rectangle fx:id="checkedLegend" fill="LIGHTBLUE" height="12.0" stroke="GRAY" strokeWidth="1.0" width="12.0" />
+                                                <Label text="Checked" />
+                                             </children>
+                                          </HBox>
+                                          <HBox spacing="5.0">
+                                             <children>
+                                                <Rectangle fx:id="placedLegend" fill="LIGHTGREEN" height="12.0" stroke="GRAY" strokeWidth="1.0" width="12.0" />
+                                                <Label text="Placed" />
+                                             </children>
+                                          </HBox>
+                                          <HBox spacing="5.0">
+                                             <children>
+                                                <Rectangle fx:id="backtrackedLegend" fill="PINK" height="12.0" stroke="GRAY" strokeWidth="1.0" width="12.0" />
+                                                <Label text="Backtracked" />
+                                             </children>
+                                          </HBox>
+                                          <HBox spacing="5.0">
+                                             <children>
+                                                <Rectangle fx:id="unvisitedLegend" fill="WHITE" height="12.0" stroke="GRAY" strokeWidth="1.0" width="12.0" />
+                                                <Label text="Unvisited" />
+                                             </children>
+                                          </HBox>
+                                       </children>
+                                    </HBox>
+                                 </children>
+                              </VBox>
+                              <StackPane fx:id="backtrackContainer" prefHeight="400.0" prefWidth="400.0" style="-fx-background-color: white; -fx-border-color: #333333; -fx-border-width: 2;">
+                                 <children>
+                                    <Label text="Backtracking matrix will appear here" />
+                                 </children>
+                              </StackPane>
+                           </children>
+                           <padding>
+                              <Insets bottom="10.0" left="5.0" right="10.0" top="10.0" />
+                           </padding>
+                        </VBox>
+                     </items>
+                  </SplitPane>
+
+                  <!-- Progress + Variables under visuals (80/20 split) -->
+                  <SplitPane dividerPositions="0.8" orientation="HORIZONTAL">
+                     <items>
+                        <!-- Progress (80%) -->
+                        <VBox spacing="5.0">
+                           <children>
+                              <Label text="Progress" style="-fx-font-weight: bold; -fx-font-size: 14px;" />
+                              <TextArea fx:id="progressArea" editable="false" prefHeight="180.0" wrapText="true" />
+                           </children>
+                           <padding>
+                              <Insets bottom="10.0" left="10.0" right="5.0" top="0.0" />
+                           </padding>
+                        </VBox>
+                        <!-- Variables (20%) -->
+                        <VBox spacing="5.0">
+                           <children>
+                              <Label text="Variables" style="-fx-font-weight: bold; -fx-font-size: 14px;" />
+                              <ListView fx:id="variableList" prefHeight="180.0" />
+                           </children>
+                           <padding>
+                              <Insets bottom="10.0" left="5.0" right="10.0" top="0.0" />
+                           </padding>
+                        </VBox>
+                     </items>
+                  </SplitPane>
+               </children>
+            </VBox>
+            
+            <!-- CODE SECTION (30%) -->
+            <VBox fx:id="codeSection" spacing="10.0">
+               <children>
+                  <!-- Parameters Section -->
+                  <VBox spacing="5.0">
+                     <children>
+                        <Label text="Parameters" style="-fx-font-weight: bold; -fx-font-size: 14px;" />
+                        <HBox spacing="10.0">
+                           <children>
+                              <Label text="Board size and number of queens (N):" />
+                              <Spinner fx:id="paramBoardSizeSpinner" editable="true" initialValue="4" max="10" min="1" prefWidth="90.0" />
+                              <Label text="Number of Queens:" visible="false" managed="false" />
+                              <Spinner fx:id="paramNumQueensSpinner" editable="true" initialValue="4" max="10" min="1" prefWidth="90.0" visible="false" managed="false" />
+                              <Button fx:id="paramApplyButton" text="Apply" />
+                           </children>
+                        </HBox>
+                     </children>
+                  </VBox>
+                  
+                  
+                  <!-- Algorithm Code Section -->
+                  <VBox spacing="5.0">
+                     <children>
+                        <Label text="Algorithm Code" style="-fx-font-weight: bold; -fx-font-size: 14px;" />
+                        <TextArea fx:id="codeArea" editable="false" prefHeight="520.0" prefWidth="300.0" style="-fx-font-family: 'Courier New'; -fx-font-size: 11px;" wrapText="false">
+                           <VBox.margin>
+                              <Insets bottom="10.0" />
+                           </VBox.margin>
+                        </TextArea>
+                     </children>
+                  </VBox>
+                  
+                  <!-- Step Description -->
+                  <VBox spacing="5.0">
+                     <children>
+                        <Label text="Current Step" style="-fx-font-weight: bold; -fx-font-size: 14px;" />
+                        <TextArea fx:id="stepDescription" editable="false" prefHeight="80.0" prefWidth="300.0" wrapText="true" />
+                     </children>
+                  </VBox>
+               </children>
+               <padding>
+                  <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+               </padding>
+            </VBox>
+         </items>
+      </SplitPane>
+   </center>
+</BorderPane>

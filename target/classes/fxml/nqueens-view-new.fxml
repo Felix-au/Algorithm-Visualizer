@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<VBox xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.algorithmvisualizer.ui.NQueensController" spacing="10.0">
+   <children>
+      <HBox spacing="20.0">
+         <children>
+            <VBox spacing="10.0">
+               <children>
+                  <Label text="Board Size (N):">
+                     <font>
+                        <Font name="System Bold" size="12.0" />
+                     </font>
+                  </Label>
+                  <Spinner fx:id="boardSizeSpinner" editable="true" initialValue="4" max="10" min="1" prefWidth="80.0" />
+                  <Label text="Number of Queens:">
+                     <font>
+                        <Font name="System Bold" size="12.0" />
+                     </font>
+                  </Label>
+                  <Spinner fx:id="numQueensSpinner" editable="true" initialValue="4" max="10" min="1" prefWidth="80.0" />
+                  <Button fx:id="generateBoardButton" mnemonicParsing="false" onAction="#onGenerateBoard" text="Apply N">
+                     <font>
+                        <Font name="System Bold" size="12.0" />
+                     </font>
+                  </Button>
+               </children>
+            </VBox>
+            <VBox spacing="10.0">
+               <children>
+                  <Label text="Algorithm Status:">
+                     <font>
+                        <Font name="System Bold" size="12.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="statusLabel" text="Ready" />
+                  <Label text="Solutions Found:">
+                     <font>
+                        <Font name="System Bold" size="12.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="solutionsLabel" text="0" />
+               </children>
+            </VBox>
+         </children>
+         <padding>
+            <Insets bottom="10.0" left="20.0" right="20.0" top="20.0" />
+         </padding>
+      </HBox>
+      <Separator />
+      <!-- This will be replaced by the visual containers in the main layout -->
+      <Label text="Visual components are now handled by the main layout" />
+   </children>
+   <padding>
+      <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
+   </padding>
+</VBox>

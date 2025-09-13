@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.algorithmvisualizer.ui.AlgorithmViewController">
+   <top>
+      <VBox spacing="10.0">
+         <children>
+            <HBox alignment="CENTER_LEFT" spacing="10.0">
+               <children>
+                  <Button fx:id="backButton" mnemonicParsing="false" onAction="#onBackToMain" text="← Back to Algorithms">
+                     <font>
+                        <Font name="System Bold" size="12.0" />
+                     </font>
+                  </Button>
+                  <Label fx:id="algorithmTitle" styleClass="title" text="Algorithm Name">
+                     <font>
+                        <Font name="System Bold" size="20.0" />
+                     </font>
+                  </Label>
+               </children>
+               <padding>
+                  <Insets bottom="10.0" left="20.0" right="20.0" top="20.0" />
+               </padding>
+            </HBox>
+            <Separator />
+         </children>
+      </VBox>
+   </top>
+   <center>
+      <SplitPane dividerPositions="0.7" orientation="HORIZONTAL">
+         <items>
+            <VBox fx:id="visualizationPane" spacing="10.0">
+               <children>
+                  <Label text="Visualization">
+                     <font>
+                        <Font name="System Bold" size="16.0" />
+                     </font>
+                  </Label>
+                  <StackPane fx:id="algorithmVisualization" prefHeight="500.0" prefWidth="800.0" style="-fx-background-color: #f0f0f0; -fx-border-color: #cccccc; -fx-border-width: 1;">
+                     <children>
+                        <Label text="Algorithm visualization will appear here" />
+                     </children>
+                  </StackPane>
+               </children>
+               <padding>
+                  <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+               </padding>
+            </VBox>
+            <VBox fx:id="controlPane" spacing="15.0">
+               <children>
+                  <Label text="Controls">
+                     <font>
+                        <Font name="System Bold" size="16.0" />
+                     </font>
+                  </Label>
+                  <VBox fx:id="parameterControls" spacing="10.0">
+                     <children>
+                        <!-- Parameters will be dynamically added here -->
+                     </children>
+                  </VBox>
+                  <Separator />
+                  <VBox spacing="10.0">
+                     <children>
+                        <Label text="Execution Controls">
+                           <font>
+                              <Font name="System Bold" size="14.0" />
+                           </font>
+                        </Label>
+                        <HBox spacing="10.0">
+                           <children>
+                              <Button fx:id="playButton" mnemonicParsing="false" onAction="#onPlay" text="▶ Play">
+                                 <font>
+                                    <Font name="System Bold" size="12.0" />
+                                 </font>
+                              </Button>
+                              <Button fx:id="pauseButton" mnemonicParsing="false" onAction="#onPause" text="⏸ Pause" disable="true">
+                                 <font>
+                                    <Font name="System Bold" size="12.0" />
+                                 </font>
+                              </Button>
+                              <Button fx:id="stepButton" mnemonicParsing="false" onAction="#onStep" text="⏭ Step">
+                                 <font>
+                                    <Font name="System Bold" size="12.0" />
+                                 </font>
+                              </Button>
+                              <Button fx:id="resetButton" mnemonicParsing="false" onAction="#onReset" text="⏹ Reset">
+                                 <font>
+                                    <Font name="System Bold" size="12.0" />
+                                 </font>
+                              </Button>
+                           </children>
+                        </HBox>
+                        <HBox spacing="10.0">
+                           <children>
+                              <Label text="Speed:" />
+                              <Slider fx:id="speedSlider" max="10.0" min="1.0" value="5.0" />
+                              <Label fx:id="speedLabel" text="5x" />
+                           </children>
+                        </HBox>
+                     </children>
+                  </VBox>
+                  <Separator />
+                  <VBox spacing="10.0">
+                     <children>
+                        <Label text="Variable Tracking">
+                           <font>
+                              <Font name="System Bold" size="14.0" />
+                           </font>
+                        </Label>
+                        <ListView fx:id="variableList" prefHeight="200.0" prefWidth="300.0">
+                           <VBox.margin>
+                              <Insets bottom="10.0" />
+                           </VBox.margin>
+                        </ListView>
+                        <Label text="Current Step:">
+                           <font>
+                              <Font name="System Bold" size="12.0" />
+                           </font>
+                        </Label>
+                        <TextArea fx:id="stepDescription" editable="false" prefHeight="100.0" prefWidth="300.0" wrapText="true" />
+                     </children>
+                  </VBox>
+               </children>
+               <padding>
+                  <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+               </padding>
+            </VBox>
+         </items>
+      </SplitPane>
+   </center>
+</BorderPane>

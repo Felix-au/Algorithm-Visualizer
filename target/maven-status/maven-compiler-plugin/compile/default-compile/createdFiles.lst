@@ -1,0 +1,16 @@
+com\algorithmvisualizer\algorithm\NQueensSolver$StepListener.class
+com\algorithmvisualizer\visualization\BacktrackMatrixRenderer$CellState.class
+com\algorithmvisualizer\algorithm\NQueensSolver$StepType.class
+com\algorithmvisualizer\model\NQueensAlgorithm.class
+com\algorithmvisualizer\algorithm\NQueensSolver.class
+com\algorithmvisualizer\Main.class
+com\algorithmvisualizer\ui\AlgorithmViewController$AlgorithmSpecificController.class
+com\algorithmvisualizer\ui\AlgorithmViewController.class
+com\algorithmvisualizer\model\Algorithm.class
+com\algorithmvisualizer\ui\NQueensController.class
+com\algorithmvisualizer\visualization\ChessboardRenderer.class
+com\algorithmvisualizer\algorithm\NQueensSolver$VisualizationCallback.class
+com\algorithmvisualizer\visualization\BacktrackMatrixRenderer$1.class
+com\algorithmvisualizer\visualization\BacktrackMatrixRenderer.class
+com\algorithmvisualizer\ui\MainController.class
+com\algorithmvisualizer\ui\NQueensController$1.class
