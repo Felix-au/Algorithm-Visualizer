@@ -30,7 +30,10 @@ public class AlgorithmViewController {
     protected StackPane chessboardContainer;
     
     @FXML
-    protected StackPane backtrackContainer;
+    protected ScrollPane solutionsContainer;
+    
+    @FXML
+    protected VBox solutionsContent;
     
     @FXML
     protected VBox controlPane;

@@ -1,7 +1,6 @@
 package com.algorithmvisualizer.ui;
 
 import com.algorithmvisualizer.algorithm.NQueensSolver;
-import com.algorithmvisualizer.visualization.BacktrackMatrixRenderer;
 import com.algorithmvisualizer.visualization.ChessboardRenderer;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
@@ -9,6 +8,8 @@ import javafx.animation.Timeline;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.layout.HBox;
 import javafx.util.Duration;
 
 /**
@@ -34,15 +35,12 @@ public class NQueensController implements AlgorithmViewController.AlgorithmSpeci
     @FXML
     private StackPane chessboardContainer;
     
-    @FXML
-    private StackPane backtrackContainer;
     
     @FXML
     private TextArea codeArea;
     
     private AlgorithmViewController parentController;
     private ChessboardRenderer chessboardRenderer;
-    private BacktrackMatrixRenderer backtrackRenderer;
     private NQueensSolver solver;
     private int currentBoardSize = 4;
     private int solutionsFound = 0;
@@ -135,11 +133,10 @@ public class NQueensController implements AlgorithmViewController.AlgorithmSpeci
             parentController.chessboardContainer.getChildren().add(chessboardRenderer.getChessboard());
         }
 
-        // Backtracking matrix - use parent controller's containers
-        if (parentController != null && parentController.backtrackContainer != null) {
-            parentController.backtrackContainer.getChildren().clear();
-            backtrackRenderer = new BacktrackMatrixRenderer(currentBoardSize);
-            parentController.backtrackContainer.getChildren().add(backtrackRenderer.getGrid());
+        // Initialize solutions display
+        if (parentController != null && parentController.solutionsContent != null) {
+            parentController.solutionsContent.getChildren().clear();
+            parentController.solutionsContent.getChildren().add(new Label("No solutions found yet"));
         }
 
         // Solver
@@ -166,20 +163,18 @@ public class NQueensController implements AlgorithmViewController.AlgorithmSpeci
     private void onStepEvent(NQueensSolver.StepType type, int row, int col) {
         switch (type) {
             case CHECK:
-                if (backtrackRenderer != null) backtrackRenderer.markChecked(row, col);
+                if (chessboardRenderer != null) chessboardRenderer.highlightCurrentPosition(row, col);
                 if (parentController != null) parentController.stepDescription.setText("Check row " + row + ", col " + col);
                 highlightCode("CHECK");
                 appendProgress("Trying queen " + solver.getQueensPlaced() + " at row " + row + " & col " + col);
                 break;
             case PLACE:
                 if (chessboardRenderer != null) chessboardRenderer.placeQueen(row, col);
-                if (backtrackRenderer != null) backtrackRenderer.markPlaced(row, col);
                 highlightCode("PLACE");
                 appendProgress("Placed queen at row " + row + " & col " + col);
                 break;
             case BACKTRACK:
                 if (chessboardRenderer != null) chessboardRenderer.removeQueen(row, col);
-                if (backtrackRenderer != null) backtrackRenderer.markBacktracked(row, col);
                 highlightCode("BACKTRACK");
                 appendProgress("row " + row + " & col " + col + " didn't work out. Backtracking");
                 break;
@@ -189,7 +184,7 @@ public class NQueensController implements AlgorithmViewController.AlgorithmSpeci
                 updateStatus("Solution found: " + solutionsFound);
                 highlightCode("SOLUTION");
                 appendProgress("Found a solution (#" + solutionsFound + ")");
-                appendProgress(formatCurrentSolution());
+                displaySolution(solver.getSolutions().get(solver.getSolutions().size() - 1), solutionsFound);
                 break;
             case DONE:
                 updateStatus("Completed. Solutions: " + solver.getSolutionsFound());
@@ -248,7 +243,11 @@ public class NQueensController implements AlgorithmViewController.AlgorithmSpeci
         stopTimeline();
         solver.reset();
         chessboardRenderer.clearBoard();
-        backtrackRenderer.clear();
+        // Clear solutions display
+        if (parentController != null && parentController.solutionsContent != null) {
+            parentController.solutionsContent.getChildren().clear();
+            parentController.solutionsContent.getChildren().add(new Label("No solutions found yet"));
+        }
         updateStatus("Algorithm reset. Ready to solve.");
         updateVariableTracking();
     }
@@ -491,41 +490,59 @@ public class NQueensController implements AlgorithmViewController.AlgorithmSpeci
         }
     }
 
-    private String formatCurrentSolution() {
-        // Represent current queen positions as an array of (row->col)
-        int[] colsByRow = solver.getQueenColumnByRow();
-        StringBuilder sb = new StringBuilder();
-        sb.append("Solution ").append(solutionsFound).append(": ");
-        boolean first = true;
-        for (int r = 0; r < colsByRow.length; r++) {
-            int c = colsByRow[r];
-            if (c >= 0) {
-                if (!first) sb.append(", ");
-                sb.append("(r=").append(r).append(", c=").append(c).append(")");
-                first = false;
-            }
-        }
-        return sb.toString();
-    }
 
+    private void displaySolution(int[] solution, int solutionNumber) {
+        if (parentController == null || parentController.solutionsContent == null) return;
+        
+        // Create a VBox for this solution
+        VBox solutionBox = new VBox(5);
+        solutionBox.setStyle("-fx-background-color: #f0f0f0; -fx-border-color: #ccc; -fx-border-width: 1; -fx-padding: 10;");
+        
+        // Add solution title
+        Label titleLabel = new Label("Solution " + solutionNumber + ":");
+        titleLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
+        solutionBox.getChildren().add(titleLabel);
+        
+        // Create grid representation
+        VBox gridBox = new VBox(2);
+        for (int row = 0; row < currentBoardSize; row++) {
+            HBox rowBox = new HBox(2);
+            for (int col = 0; col < currentBoardSize; col++) {
+                Label cellLabel = new Label(solution[row] == col ? "Q" : "0");
+                cellLabel.setStyle("-fx-font-family: 'Courier New'; -fx-font-size: 16px; -fx-min-width: 20; -fx-alignment: center;");
+                if (solution[row] == col) {
+                    cellLabel.setStyle("-fx-font-family: 'Courier New'; -fx-font-size: 16px; -fx-min-width: 20; -fx-alignment: center; -fx-text-fill: red; -fx-font-weight: bold;");
+                }
+                rowBox.getChildren().add(cellLabel);
+            }
+            gridBox.getChildren().add(rowBox);
+        }
+        solutionBox.getChildren().add(gridBox);
+        
+        // Add to solutions container
+        parentController.solutionsContent.getChildren().add(solutionBox);
+    }
+    
     private void finalizeProgressSummary() {
         if (parentController == null || parentController.progressArea == null) return;
         appendProgress("--------------------------------------------------");
         appendProgress("Total solutions found: " + solver.getSolutionsFound());
         int idx = 1;
         for (int[] sol : solver.getSolutions()) {
-            StringBuilder sb = new StringBuilder();
-            sb.append("Solution ").append(idx++).append(": ");
-            boolean first = true;
-            for (int r = 0; r < sol.length; r++) {
-                int c = sol[r];
-                if (c >= 0) {
-                    if (!first) sb.append(", ");
-                    sb.append("(r=").append(r).append(", c=").append(c).append(")");
-                    first = false;
+            appendProgress("\nSolution " + idx++ + ":");
+            
+            // Create grid representation
+            for (int row = 0; row < currentBoardSize; row++) {
+                StringBuilder rowBuilder = new StringBuilder();
+                for (int col = 0; col < currentBoardSize; col++) {
+                    if (sol[row] == col) {
+                        rowBuilder.append("Q ");
+                    } else {
+                        rowBuilder.append("0 ");
+                    }
                 }
+                appendProgress(rowBuilder.toString());
             }
-            appendProgress(sb.toString());
         }
     }
 }

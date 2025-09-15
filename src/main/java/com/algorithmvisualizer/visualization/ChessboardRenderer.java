@@ -4,8 +4,6 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.text.Font;
-import javafx.scene.text.Text;
 
 /**
  * Renders a chessboard for the N-Queens visualization
@@ -108,6 +106,16 @@ public class ChessboardRenderer {
             for (int col = 0; col < boardSize; col++) {
                 squares[row][col].setFill((row + col) % 2 == 0 ? LIGHT_COLOR : DARK_COLOR);
             }
+        }
+    }
+    
+    public void highlightCurrentPosition(int row, int col) {
+        // Reset all squares to original colors first
+        clearConflicts();
+        
+        // Highlight current position in yellow
+        if (isValidPosition(row, col)) {
+            squares[row][col].setFill(Color.YELLOW);
         }
     }
     

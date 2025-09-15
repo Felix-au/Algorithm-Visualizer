@@ -131,53 +131,32 @@
                            </padding>
                         </VBox>
                         
-                        <!-- Backtracking Matrix Section -->
+                        <!-- Solutions Section -->
                         <VBox spacing="10.0">
                            <children>
                               <HBox alignment="CENTER_LEFT" spacing="10.0">
                                  <children>
-                                    <Label text="Backtracking Matrix" style="-fx-font-weight: bold; -fx-font-size: 14px;" />
+                                    <Label text="Solutions Found" style="-fx-font-weight: bold; -fx-font-size: 14px;" />
                                     <Separator />
                                  </children>
                               </HBox>
                               <VBox spacing="5.0">
                                  <children>
-                                    <Label text="Legend:" style="-fx-font-weight: bold;" />
-                                    <HBox spacing="15.0">
-                                       <children>
-                                          <HBox spacing="5.0">
-                                             <children>
-                                                <Rectangle fx:id="checkedLegend" fill="LIGHTBLUE" height="12.0" stroke="GRAY" strokeWidth="1.0" width="12.0" />
-                                                <Label text="Checked" />
-                                             </children>
-                                          </HBox>
-                                          <HBox spacing="5.0">
-                                             <children>
-                                                <Rectangle fx:id="placedLegend" fill="LIGHTGREEN" height="12.0" stroke="GRAY" strokeWidth="1.0" width="12.0" />
-                                                <Label text="Placed" />
-                                             </children>
-                                          </HBox>
-                                          <HBox spacing="5.0">
-                                             <children>
-                                                <Rectangle fx:id="backtrackedLegend" fill="PINK" height="12.0" stroke="GRAY" strokeWidth="1.0" width="12.0" />
-                                                <Label text="Backtracked" />
-                                             </children>
-                                          </HBox>
-                                          <HBox spacing="5.0">
-                                             <children>
-                                                <Rectangle fx:id="unvisitedLegend" fill="WHITE" height="12.0" stroke="GRAY" strokeWidth="1.0" width="12.0" />
-                                                <Label text="Unvisited" />
-                                             </children>
-                                          </HBox>
-                                       </children>
-                                    </HBox>
+                                    <Label text="Solutions will appear here as they are found" style="-fx-font-style: italic;" />
                                  </children>
                               </VBox>
-                              <StackPane fx:id="backtrackContainer" prefHeight="400.0" prefWidth="400.0" style="-fx-background-color: white; -fx-border-color: #333333; -fx-border-width: 2;">
-                                 <children>
-                                    <Label text="Backtracking matrix will appear here" />
-                                 </children>
-                              </StackPane>
+                              <ScrollPane fx:id="solutionsContainer" prefHeight="400.0" prefWidth="400.0" style="-fx-background-color: white; -fx-border-color: #333333; -fx-border-width: 2;">
+                                 <content>
+                                    <VBox fx:id="solutionsContent" spacing="10.0">
+                                       <children>
+                                          <Label text="No solutions found yet" />
+                                       </children>
+                                       <padding>
+                                          <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                       </padding>
+                                    </VBox>
+                                 </content>
+                              </ScrollPane>
                            </children>
                            <padding>
                               <Insets bottom="10.0" left="5.0" right="10.0" top="10.0" />
