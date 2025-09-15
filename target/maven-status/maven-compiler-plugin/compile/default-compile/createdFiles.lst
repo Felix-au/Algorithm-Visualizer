@@ -10,7 +10,6 @@ com\algorithmvisualizer\model\Algorithm.class
 com\algorithmvisualizer\ui\NQueensController.class
 com\algorithmvisualizer\visualization\ChessboardRenderer.class
 com\algorithmvisualizer\algorithm\NQueensSolver$VisualizationCallback.class
-com\algorithmvisualizer\visualization\BacktrackMatrixRenderer$1.class
 com\algorithmvisualizer\visualization\BacktrackMatrixRenderer.class
 com\algorithmvisualizer\ui\MainController.class
 com\algorithmvisualizer\ui\NQueensController$1.class
