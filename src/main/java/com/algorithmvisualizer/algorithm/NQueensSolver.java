@@ -14,6 +14,56 @@ public class NQueensSolver {
         void onStep(StepType type, int row, int col);
     }
 
+    // --- State snapshotting for step-back support ---
+    public static class State {
+        public int currentRow;
+        public int currentColumn;
+        public int queensPlaced;
+        public int solutionsFound;
+        public boolean isCompleted;
+        public int[] queens;
+        public boolean[] usedColumns;
+        public boolean[] usedDiagonals1;
+        public boolean[] usedDiagonals2;
+        public int solutionsSize;
+    }
+
+    public State snapshot() {
+        State s = new State();
+        s.currentRow = currentRow;
+        s.currentColumn = currentColumn;
+        s.queensPlaced = queensPlaced;
+        s.solutionsFound = solutionsFound;
+        s.isCompleted = isCompleted;
+        s.queens = new int[queens.length];
+        System.arraycopy(queens, 0, s.queens, 0, queens.length);
+        s.usedColumns = new boolean[usedColumns.length];
+        System.arraycopy(usedColumns, 0, s.usedColumns, 0, usedColumns.length);
+        s.usedDiagonals1 = new boolean[usedDiagonals1.length];
+        System.arraycopy(usedDiagonals1, 0, s.usedDiagonals1, 0, usedDiagonals1.length);
+        s.usedDiagonals2 = new boolean[usedDiagonals2.length];
+        System.arraycopy(usedDiagonals2, 0, s.usedDiagonals2, 0, usedDiagonals2.length);
+        s.solutionsSize = solutions.size();
+        return s;
+    }
+
+    public void restore(State s) {
+        if (s == null) return;
+        currentRow = s.currentRow;
+        currentColumn = s.currentColumn;
+        queensPlaced = s.queensPlaced;
+        solutionsFound = s.solutionsFound;
+        isCompleted = s.isCompleted;
+        System.arraycopy(s.queens, 0, queens, 0, queens.length);
+        System.arraycopy(s.usedColumns, 0, usedColumns, 0, usedColumns.length);
+        System.arraycopy(s.usedDiagonals1, 0, usedDiagonals1, 0, usedDiagonals1.length);
+        System.arraycopy(s.usedDiagonals2, 0, usedDiagonals2, 0, usedDiagonals2.length);
+        // Truncate recorded solutions to match restored state
+        while (solutions.size() > s.solutionsSize) {
+            solutions.remove(solutions.size() - 1);
+        }
+    }
+
     private int boardSize;
     private int[] queens; // queens[i] = column position of queen in row i
     private boolean[] usedColumns;

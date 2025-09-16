@@ -13,6 +13,8 @@ import javafx.scene.layout.VBox;
 import javafx.scene.layout.HBox;
 import javafx.util.Duration;
 import javafx.geometry.Pos;
+import java.util.ArrayDeque;
+import java.util.Deque;
 
 /**
  * Controller for the N-Queens algorithm visualization
@@ -54,6 +56,9 @@ public class NQueensController implements AlgorithmViewController.AlgorithmSpeci
     private boolean isBacktrackingInProgress = false;
     private Timeline blinkTimeline;
     private Label backtrackingIndicator;
+    
+    // Step-back history
+    private Deque<com.algorithmvisualizer.algorithm.NQueensSolver.State> history = new ArrayDeque<>();
     
     @FXML
     private void initialize() {
@@ -98,6 +103,13 @@ public class NQueensController implements AlgorithmViewController.AlgorithmSpeci
         generateViews();
         setupCodeBindings();
         initProgressLog();
+
+        // Live speed adjustment mid-run
+        if (parentController != null && parentController.speedSlider != null) {
+            parentController.speedSlider.valueProperty().addListener((obs, ov, nv) -> {
+                updatePlaybackSpeed();
+            });
+        }
     }
     
     @Override
@@ -121,6 +133,10 @@ public class NQueensController implements AlgorithmViewController.AlgorithmSpeci
         }
         if (parentController.paramApplyButton != null) {
             parentController.paramApplyButton.setOnAction(e -> onGenerateBoard());
+        }
+        // Ensure live speed adjustment listener is attached (parent available here)
+        if (parentController.speedSlider != null) {
+            parentController.speedSlider.valueProperty().addListener((obs, ov, nv) -> updatePlaybackSpeed());
         }
     }
     
@@ -162,6 +178,8 @@ public class NQueensController implements AlgorithmViewController.AlgorithmSpeci
         solver = new NQueensSolver(currentBoardSize);
         solver.setVisualizationCallback(this::legacyPlaceBacktrack);
         solver.setStepListener(this::onStepEvent);
+        // Clear step-back history when creating a new solver/board
+        history.clear();
 
         // Code view
         renderCode();
@@ -295,10 +313,15 @@ public class NQueensController implements AlgorithmViewController.AlgorithmSpeci
         stopTimeline();
         solver.reset();
         chessboardRenderer.clearBoard();
+        history.clear();
         // Clear solutions display
         if (parentController != null && parentController.solutionsContent != null) {
             parentController.solutionsContent.getChildren().clear();
             parentController.solutionsContent.getChildren().add(new Label("No solutions found yet"));
+        }
+        // Clear progress area per request
+        if (parentController != null && parentController.progressArea != null) {
+            parentController.progressArea.clear();
         }
         updateStatus("Algorithm reset. Ready to solve.");
         updateVariableTracking();
@@ -306,34 +329,36 @@ public class NQueensController implements AlgorithmViewController.AlgorithmSpeci
     
     // Methods called by parent controller
     public void onStepBack() {
-        if (solver != null && !solver.isCompleted()) {
-            // TODO: Implement step backward functionality
-            updateStatus("Step backward not yet implemented");
+        if (solver == null) return;
+        // Pause if playing
+        if (isPlaying) onPause();
+        if (!history.isEmpty()) {
+            com.algorithmvisualizer.algorithm.NQueensSolver.State prev = history.pop();
+            solver.restore(prev);
+            // Re-render board from restored state
+            rerenderBoardFromSolver();
+            // Sync solutions UI with model to remove any solutions beyond restored point
+            syncSolutionsUIFromModel();
+            // Update solutions count label
+            solutionsFound = solver.getSolutionsFound();
+            solutionsLabel.setText(String.valueOf(solutionsFound));
+            updateVariableTracking();
+            updateStatus("Stepped backward.");
+        } else {
+            updateStatus("No previous step to go back to.");
         }
     }
     
     public void onPlay() {
         if (solver == null) return;
-        if (isPlaying) return;
+        if (isPlaying) {
+            onPause();
+            return;
+        }
         
         isPlaying = true;
-        double speed = parentController != null ? parentController.speedSlider.getValue() : 5.0;
-        double fps = Math.max(1.0, speed);
-        Duration frame = Duration.millis(1000.0 / fps);
-        
-        timeline = new Timeline(new KeyFrame(frame, e -> {
-            if (isBacktrackingInProgress) {
-                // Skip stepping while backtracking animation is in progress
-                return;
-            }
-            if (solver.isCompleted()) {
-                stopTimeline();
-                return;
-            }
-            solver.step();
-        }));
-        timeline.setCycleCount(Animation.INDEFINITE);
-        timeline.play();
+        rebuildTimelineWithCurrentSpeed();
+        if (timeline != null) timeline.play();
         updateStatus("Playing...");
         updatePlayButtonStates();
     }
@@ -347,6 +372,8 @@ public class NQueensController implements AlgorithmViewController.AlgorithmSpeci
     public void onStepForward() {
         if (isBacktrackingInProgress) return;
         if (solver != null && !solver.isCompleted()) {
+            // Snapshot before stepping for step-back support
+            history.push(solver.snapshot());
             solver.step();
             updateVariableTracking();
         }
@@ -410,10 +437,67 @@ public class NQueensController implements AlgorithmViewController.AlgorithmSpeci
         updateVariableTracking();
     }
     
+    private void rerenderBoardFromSolver() {
+        if (chessboardRenderer == null || solver == null) return;
+        chessboardRenderer.clearBoard();
+        int[] q = solver.getQueenColumnByRow();
+        for (int r = 0; r < q.length; r++) {
+            int c = q[r];
+            if (c >= 0) chessboardRenderer.placeQueen(r, c);
+        }
+    }
+    
+    private void syncSolutionsUIFromModel() {
+        if (parentController == null || parentController.solutionsContent == null || solver == null) return;
+        parentController.solutionsContent.getChildren().clear();
+        java.util.List<int[]> sols = solver.getSolutions();
+        if (sols.isEmpty()) {
+            parentController.solutionsContent.getChildren().add(new Label("No solutions found yet"));
+            return;
+        }
+        for (int i = 0; i < sols.size(); i++) {
+            displaySolution(sols.get(i), i + 1);
+        }
+    }
+    
+    // --- Playback speed helpers ---
+    private void updatePlaybackSpeed() {
+        if (!isPlaying) return;
+        rebuildTimelineWithCurrentSpeed();
+        if (timeline != null) timeline.play();
+    }
+    
+    private void rebuildTimelineWithCurrentSpeed() {
+        if (timeline != null) {
+            timeline.stop();
+            timeline = null;
+        }
+        double speed = parentController != null ? parentController.speedSlider.getValue() : 5.0;
+        double fps = Math.max(1.0, speed);
+        Duration frame = Duration.millis(1000.0 / fps);
+        timeline = new Timeline(new KeyFrame(frame, e -> {
+            if (isBacktrackingInProgress) return;
+            if (solver.isCompleted()) {
+                stopTimeline();
+                return;
+            }
+            // Snapshot before stepping for step-back support
+            history.push(solver.snapshot());
+            solver.step();
+        }));
+        timeline.setCycleCount(Animation.INDEFINITE);
+    }
+    
     private void updatePlayButtonStates() {
         if (parentController != null) {
-            parentController.playButton.setDisable(isPlaying);
-            parentController.pauseButton.setDisable(!isPlaying);
+            // Toggle single play/pause button
+            parentController.playButton.setText(isPlaying ? "⏸ Pause" : "▶ Play");
+            parentController.playButton.setDisable(false);
+            // Hide dedicated pause button
+            if (parentController.pauseButton != null) {
+                parentController.pauseButton.setVisible(false);
+                parentController.pauseButton.setManaged(false);
+            }
         }
     }
 
