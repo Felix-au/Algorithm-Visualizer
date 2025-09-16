@@ -1,5 +1,7 @@
 package com.algorithmvisualizer.visualization;
 
+import javafx.geometry.HPos;
+import javafx.geometry.VPos;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -50,6 +52,9 @@ public class ChessboardRenderer {
                 
                 queens[row][col] = queen;
                 chessboard.add(queen, col, row);
+                // Center the queen within the grid cell
+                GridPane.setHalignment(queen, HPos.CENTER);
+                GridPane.setValignment(queen, VPos.CENTER);
             }
         }
         // Labels removed: GridPane does not support negative indices for headers
@@ -138,5 +143,15 @@ public class ChessboardRenderer {
     
     public GridPane getChessboard() {
         return chessboard;
+    }
+
+    /**
+     * Get the Circle node representing a queen at the given row/col, or null if out of bounds.
+     */
+    public Circle getQueenNode(int row, int col) {
+        if (isValidPosition(row, col)) {
+            return queens[row][col];
+        }
+        return null;
     }
 }

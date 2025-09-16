@@ -8,6 +8,7 @@ import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.layout.FlowPane;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -33,7 +34,7 @@ public class AlgorithmViewController {
     protected ScrollPane solutionsContainer;
     
     @FXML
-    protected VBox solutionsContent;
+    protected FlowPane solutionsContent;
     
     @FXML
     protected VBox controlPane;

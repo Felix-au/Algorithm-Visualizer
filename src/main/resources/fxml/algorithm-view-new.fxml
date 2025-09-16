@@ -147,14 +147,14 @@
                               </VBox>
                               <ScrollPane fx:id="solutionsContainer" prefHeight="400.0" prefWidth="400.0" style="-fx-background-color: white; -fx-border-color: #333333; -fx-border-width: 2;">
                                  <content>
-                                    <VBox fx:id="solutionsContent" spacing="10.0">
+                                    <FlowPane fx:id="solutionsContent" hgap="10.0" vgap="10.0" prefWrapLength="360.0" alignment="CENTER">
                                        <children>
                                           <Label text="No solutions found yet" />
                                        </children>
                                        <padding>
                                           <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                                        </padding>
-                                    </VBox>
+                                    </FlowPane>
                                  </content>
                               </ScrollPane>
                            </children>

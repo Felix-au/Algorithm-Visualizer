@@ -5,12 +5,14 @@ import com.algorithmvisualizer.visualization.ChessboardRenderer;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.animation.PauseTransition;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.HBox;
 import javafx.util.Duration;
+import javafx.geometry.Pos;
 
 /**
  * Controller for the N-Queens algorithm visualization
@@ -46,6 +48,12 @@ public class NQueensController implements AlgorithmViewController.AlgorithmSpeci
     private int solutionsFound = 0;
     private Timeline timeline;
     private boolean isPlaying = false;
+    
+    // Backtracking animation fields
+    private double backtrackDelay = 1.0; // seconds
+    private boolean isBacktrackingInProgress = false;
+    private Timeline blinkTimeline;
+    private Label backtrackingIndicator;
     
     @FXML
     private void initialize() {
@@ -131,6 +139,17 @@ public class NQueensController implements AlgorithmViewController.AlgorithmSpeci
             parentController.chessboardContainer.getChildren().clear();
             chessboardRenderer = new ChessboardRenderer(currentBoardSize);
             parentController.chessboardContainer.getChildren().add(chessboardRenderer.getChessboard());
+            // Add backtracking indicator overlay (top center)
+            if (backtrackingIndicator == null) {
+                backtrackingIndicator = new Label();
+                backtrackingIndicator.setStyle("-fx-background-color: #ff6b6b; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 6 12; -fx-background-radius: 6;");
+                backtrackingIndicator.setVisible(false);
+                backtrackingIndicator.setManaged(false);
+            }
+            if (!parentController.chessboardContainer.getChildren().contains(backtrackingIndicator)) {
+                parentController.chessboardContainer.getChildren().add(backtrackingIndicator);
+                StackPane.setAlignment(backtrackingIndicator, Pos.TOP_CENTER);
+            }
         }
 
         // Initialize solutions display
@@ -155,8 +174,13 @@ public class NQueensController implements AlgorithmViewController.AlgorithmSpeci
     }
 
     private void legacyPlaceBacktrack(int row, int col, boolean isPlacing, boolean isBacktracking) {
-        if (isPlacing) chessboardRenderer.placeQueen(row, col);
-        else if (isBacktracking) chessboardRenderer.removeQueen(row, col);
+        if (isPlacing) {
+            if (chessboardRenderer != null) chessboardRenderer.placeQueen(row, col);
+        } else if (isBacktracking) {
+            // Start animated backtracking: blink then remove after a pause
+            startBacktrackingAnimation(row, col);
+            return; // defer updateVariableTracking until animation tick
+        }
         updateVariableTracking();
     }
 
@@ -174,16 +198,20 @@ public class NQueensController implements AlgorithmViewController.AlgorithmSpeci
                 appendProgress("Placed queen at row " + row + " & col " + col);
                 break;
             case BACKTRACK:
-                if (chessboardRenderer != null) chessboardRenderer.removeQueen(row, col);
+                // Visual handling is initiated in legacyPlaceBacktrack; keep logs here
                 highlightCode("BACKTRACK");
+                appendProgress("");
                 appendProgress("row " + row + " & col " + col + " didn't work out. Backtracking");
+                appendProgress("");
                 break;
             case SOLUTION:
                 solutionsFound = solver.getSolutionsFound();
                 solutionsLabel.setText(String.valueOf(solutionsFound));
                 updateStatus("Solution found: " + solutionsFound);
                 highlightCode("SOLUTION");
+                appendProgress("");
                 appendProgress("Found a solution (#" + solutionsFound + ")");
+                appendProgress("");
                 displaySolution(solver.getSolutions().get(solver.getSolutions().size() - 1), solutionsFound);
                 break;
             case DONE:
@@ -294,6 +322,10 @@ public class NQueensController implements AlgorithmViewController.AlgorithmSpeci
         Duration frame = Duration.millis(1000.0 / fps);
         
         timeline = new Timeline(new KeyFrame(frame, e -> {
+            if (isBacktrackingInProgress) {
+                // Skip stepping while backtracking animation is in progress
+                return;
+            }
             if (solver.isCompleted()) {
                 stopTimeline();
                 return;
@@ -313,6 +345,7 @@ public class NQueensController implements AlgorithmViewController.AlgorithmSpeci
     }
     
     public void onStepForward() {
+        if (isBacktrackingInProgress) return;
         if (solver != null && !solver.isCompleted()) {
             solver.step();
             updateVariableTracking();
@@ -330,6 +363,51 @@ public class NQueensController implements AlgorithmViewController.AlgorithmSpeci
             timeline = null;
         }
         isPlaying = false;
+    }
+
+    // --- Backtracking visuals ---
+    private void startBacktrackingAnimation(int row, int col) {
+        if (isBacktrackingInProgress) return;
+        isBacktrackingInProgress = true;
+        // Ensure the queen is visible to blink (in case it was hidden previously)
+        if (chessboardRenderer != null) chessboardRenderer.placeQueen(row, col);
+
+        // Show indicator
+        if (backtrackingIndicator != null) {
+            backtrackingIndicator.setText("BACKTRACKING: Row " + row + ", Col " + col);
+            backtrackingIndicator.setVisible(true);
+        }
+
+        // Start blink timeline (toggle visibility)
+        if (blinkTimeline != null) {
+            blinkTimeline.stop();
+        }
+        javafx.scene.shape.Circle queenNode = chessboardRenderer != null ? chessboardRenderer.getQueenNode(row, col) : null;
+        blinkTimeline = new Timeline(
+                new KeyFrame(Duration.millis(200), ev -> { if (queenNode != null) queenNode.setVisible(false); }),
+                new KeyFrame(Duration.millis(400), ev -> { if (queenNode != null) queenNode.setVisible(true); })
+        );
+        blinkTimeline.setCycleCount(Timeline.INDEFINITE);
+        blinkTimeline.play();
+
+        // Pause before final removal
+        PauseTransition pause = new PauseTransition(Duration.seconds(backtrackDelay));
+        pause.setOnFinished(ev -> finishBacktrackingAnimation(row, col));
+        pause.play();
+    }
+
+    private void finishBacktrackingAnimation(int row, int col) {
+        // Stop blinking
+        if (blinkTimeline != null) {
+            blinkTimeline.stop();
+            blinkTimeline = null;
+        }
+        // Remove queen
+        if (chessboardRenderer != null) chessboardRenderer.removeQueen(row, col);
+        // Hide indicator
+        if (backtrackingIndicator != null) backtrackingIndicator.setVisible(false);
+        isBacktrackingInProgress = false;
+        updateVariableTracking();
     }
     
     private void updatePlayButtonStates() {
@@ -513,6 +591,16 @@ public class NQueensController implements AlgorithmViewController.AlgorithmSpeci
     private void displaySolution(int[] solution, int solutionNumber) {
         if (parentController == null || parentController.solutionsContent == null) return;
         
+        // Remove the placeholder label if it's still present
+        if (!parentController.solutionsContent.getChildren().isEmpty()
+                && parentController.solutionsContent.getChildren().size() == 1
+                && parentController.solutionsContent.getChildren().get(0) instanceof Label) {
+            Label placeholder = (Label) parentController.solutionsContent.getChildren().get(0);
+            if ("No solutions found yet".equals(placeholder.getText())) {
+                parentController.solutionsContent.getChildren().clear();
+            }
+        }
+
         // Create a VBox for this solution
         VBox solutionBox = new VBox(5);
         solutionBox.setStyle("-fx-background-color: #f0f0f0; -fx-border-color: #ccc; -fx-border-width: 1; -fx-padding: 10;");
