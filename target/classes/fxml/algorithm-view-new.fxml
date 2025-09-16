@@ -165,14 +165,14 @@
                      </items>
                   </SplitPane>
 
-                  <!-- Progress + Variables under visuals (80/20 split) -->
-                  <SplitPane dividerPositions="0.8" orientation="HORIZONTAL">
+                  <!-- Progress + Variables under visuals (75/25 split) -->
+                  <SplitPane dividerPositions="0.75" orientation="HORIZONTAL">
                      <items>
-                        <!-- Progress (80%) -->
+                        <!-- Progress (75%) -->
                         <VBox spacing="5.0">
                            <children>
                               <Label text="Progress" style="-fx-font-weight: bold; -fx-font-size: 14px;" />
-                              <TextArea fx:id="progressArea" editable="false" prefHeight="180.0" wrapText="true" />
+                              <TextArea fx:id="progressArea" editable="false" prefHeight="250.0" wrapText="true" />
                            </children>
                            <padding>
                               <Insets bottom="10.0" left="10.0" right="5.0" top="0.0" />
@@ -182,7 +182,7 @@
                         <VBox spacing="5.0">
                            <children>
                               <Label text="Variables" style="-fx-font-weight: bold; -fx-font-size: 14px;" />
-                              <ListView fx:id="variableList" prefHeight="180.0" />
+                              <ListView fx:id="variableList" prefHeight="250.0" />
                            </children>
                            <padding>
                               <Insets bottom="10.0" left="5.0" right="10.0" top="0.0" />
