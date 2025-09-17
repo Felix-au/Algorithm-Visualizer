@@ -6,8 +6,12 @@ import com.algorithmvisualizer.visualization.BarChartRenderer;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.animation.PauseTransition;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
 import java.util.ArrayDeque;
@@ -20,6 +24,7 @@ public class SelectionSortController implements AlgorithmViewController.Algorith
     // Local controls (in selectionsort-view.fxml)
     @FXML private Spinner<Integer> arraySizeSpinner;
     @FXML private TextField arrayElementsField;
+    @FXML private FlowPane arrayElementsBox;
     @FXML private Button randomizeButton;
     @FXML private Button applyArrayButton;
     @FXML private Label statusLabel;
@@ -39,6 +44,9 @@ public class SelectionSortController implements AlgorithmViewController.Algorith
 
     private int[] currentArray = new int[] {5, 3, 8, 4, 2};
 
+    // Helper to track if we should delay after swap during play
+    private boolean pendingSwapDelay = false;
+
     @FXML
     private void initialize() {
         if (arraySizeSpinner != null) {
@@ -46,6 +54,9 @@ public class SelectionSortController implements AlgorithmViewController.Algorith
         }
         if (arrayElementsField != null) {
             arrayElementsField.setText(join(currentArray));
+        }
+        if (arrayElementsBox != null) {
+            rebuildLocalElementBoxes();
         }
         if (randomizeButton != null) randomizeButton.setOnAction(e -> onRandomize());
         if (applyArrayButton != null) applyArrayButton.setOnAction(e -> onApplyArray());
@@ -66,16 +77,10 @@ public class SelectionSortController implements AlgorithmViewController.Algorith
     public void setParentController(AlgorithmViewController parent) {
         this.parent = parent;
 
-        // Place visuals in parent's chessboard container
+        // Place visuals in parent's chessboard container; titles/legends go outside the bordered box
         if (parent.chessboardContainer != null) {
             parent.chessboardContainer.getChildren().clear();
-            javafx.scene.layout.VBox vbox = new javafx.scene.layout.VBox(10.0);
-            vbox.setAlignment(javafx.geometry.Pos.CENTER);
-            // Add legend above chart
-            javafx.scene.control.Label chartLegend = new javafx.scene.control.Label("Legend: Compare = Yellow, Min = Orange, Swap = Red, Sorted = Green");
-            chartLegend.setStyle("-fx-font-style: italic;");
-            vbox.getChildren().addAll(chartLegend, barChart.getNode());
-            parent.chessboardContainer.getChildren().add(vbox);
+            parent.chessboardContainer.getChildren().add(barChart.getNode());
         }
 
         // Wire controls
@@ -94,11 +99,16 @@ public class SelectionSortController implements AlgorithmViewController.Algorith
             parent.paramBoardSizeSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 50, currentArray.length));
             parent.paramBoardSizeSpinner.valueProperty().addListener((obs, o, n) -> onParamSizeChanged(n));
         }
-        // Elements field + Randomize button in shared panel
+        // Prefer element boxes in shared panel
+        if (parent.paramElementsBox != null) {
+            parent.paramElementsBox.setVisible(true);
+            parent.paramElementsBox.setManaged(true);
+            rebuildParentElementBoxes();
+        }
+        // Hide CSV field in shared panel
         if (parent.paramElementsField != null) {
-            parent.paramElementsField.setVisible(true);
-            parent.paramElementsField.setManaged(true);
-            parent.paramElementsField.setText(join(currentArray));
+            parent.paramElementsField.setVisible(false);
+            parent.paramElementsField.setManaged(false);
         }
         if (parent.paramRandomizeButton != null) {
             parent.paramRandomizeButton.setVisible(true);
@@ -112,16 +122,76 @@ public class SelectionSortController implements AlgorithmViewController.Algorith
         }
         if (parent.paramApplyButton != null) parent.paramApplyButton.setOnAction(e -> onApplyArrayFromParent());
 
-        // Hide N-Queens specific bits
-        if (parent.chessboardHeaderBox != null) { parent.chessboardHeaderBox.setVisible(false); parent.chessboardHeaderBox.setManaged(false); }
-        if (parent.chessboardLegendBox != null) { parent.chessboardLegendBox.setVisible(false); parent.chessboardLegendBox.setManaged(false); }
+        // Configure header and legend outside the chart box
+        if (parent.chessboardHeaderBox != null) {
+            parent.chessboardHeaderBox.setVisible(true);
+            parent.chessboardHeaderBox.setManaged(true);
+            // Replace header label text to Selection Sort Visualization
+            parent.chessboardHeaderBox.getChildren().clear();
+            Label chartHeader = new Label("Selection Sort Visualization");
+            chartHeader.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
+            parent.chessboardHeaderBox.getChildren().addAll(chartHeader, new Separator());
+        }
+        if (parent.chessboardLegendBox != null) {
+            parent.chessboardLegendBox.setVisible(true);
+            parent.chessboardLegendBox.setManaged(true);
+            parent.chessboardLegendBox.getChildren().clear();
+            Label legendTitle = new Label("Legend:");
+            legendTitle.setStyle("-fx-font-weight: bold;");
+            HBox legendRow = new HBox(15.0);
+            // Compare = Yellow
+            HBox l1 = new HBox(5.0);
+            javafx.scene.shape.Rectangle r1 = new javafx.scene.shape.Rectangle(12, 12);
+            r1.setFill(javafx.scene.paint.Color.GOLD);
+            r1.setStroke(javafx.scene.paint.Color.BLACK);
+            l1.getChildren().addAll(r1, new Label("Compare"));
+            // Min = Orange
+            HBox l2 = new HBox(5.0);
+            javafx.scene.shape.Rectangle r2 = new javafx.scene.shape.Rectangle(12, 12);
+            r2.setFill(javafx.scene.paint.Color.DARKORANGE);
+            r2.setStroke(javafx.scene.paint.Color.BLACK);
+            l2.getChildren().addAll(r2, new Label("Minimum"));
+            // Swap = Red
+            HBox l3 = new HBox(5.0);
+            javafx.scene.shape.Rectangle r3 = new javafx.scene.shape.Rectangle(12, 12);
+            r3.setFill(javafx.scene.paint.Color.CRIMSON);
+            r3.setStroke(javafx.scene.paint.Color.BLACK);
+            l3.getChildren().addAll(r3, new Label("Swap"));
+            // Sorted = Green
+            HBox l4 = new HBox(5.0);
+            javafx.scene.shape.Rectangle r4 = new javafx.scene.shape.Rectangle(12, 12);
+            r4.setFill(javafx.scene.paint.Color.FORESTGREEN);
+            r4.setStroke(javafx.scene.paint.Color.BLACK);
+            l4.getChildren().addAll(r4, new Label("Sorted Prefix"));
+            legendRow.getChildren().addAll(l1, l2, l3, l4);
+            parent.chessboardLegendBox.getChildren().addAll(legendTitle, legendRow);
+        }
         if (parent.paramSizeLabel != null) parent.paramSizeLabel.setText("Array size:");
+        // Hide Pause button (Play is toggle)
+        if (parent.pauseButton != null) { parent.pauseButton.setVisible(false); parent.pauseButton.setManaged(false); }
 
         // Code and logs
         renderCode();
         initProgressLog();
         updateVariablesPanel();
 
+        // Update solutions panel to show Array View header/legend above the array
+        if (parent.solutionsHeaderBox != null) {
+            parent.solutionsHeaderBox.setVisible(true);
+            parent.solutionsHeaderBox.setManaged(true);
+            parent.solutionsHeaderBox.getChildren().clear();
+            Label solHeader = new Label("Array View");
+            solHeader.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
+            parent.solutionsHeaderBox.getChildren().addAll(solHeader, new Separator());
+        }
+        if (parent.solutionsSubHeaderBox != null) {
+            parent.solutionsSubHeaderBox.setVisible(true);
+            parent.solutionsSubHeaderBox.setManaged(true);
+            parent.solutionsSubHeaderBox.getChildren().clear();
+            Label arrayLegend = new Label("Legend: Compare = Yellow, Min = Orange, Swap = Red, Sorted Prefix = Green");
+            arrayLegend.setStyle("-fx-font-style: italic;");
+            parent.solutionsSubHeaderBox.getChildren().add(arrayLegend);
+        }
         // Move the array view into the solutions area
         moveArrayViewToSolutions();
     }
@@ -129,11 +199,11 @@ public class SelectionSortController implements AlgorithmViewController.Algorith
     private void onParamSizeChanged(int size) {
         if (size <= 0) size = 1;
         if (arraySizeSpinner != null) arraySizeSpinner.getValueFactory().setValue(size);
-        if (arrayElementsField != null) {
-            currentArray = randomArray(size);
-            arrayElementsField.setText(join(currentArray));
-            refreshAll();
-        }
+        currentArray = randomArray(size);
+        if (arrayElementsField != null) arrayElementsField.setText(join(currentArray));
+        rebuildLocalElementBoxes();
+        rebuildParentElementBoxes();
+        refreshAll();
         if (parent != null && parent.paramElementsField != null) {
             parent.paramElementsField.setText(join(currentArray));
         }
@@ -143,11 +213,13 @@ public class SelectionSortController implements AlgorithmViewController.Algorith
         int size = arraySizeSpinner != null ? arraySizeSpinner.getValue() : currentArray.length;
         currentArray = randomArray(size);
         if (arrayElementsField != null) arrayElementsField.setText(join(currentArray));
+        rebuildLocalElementBoxes();
+        rebuildParentElementBoxes();
         refreshAll();
     }
 
     private void onApplyArray() {
-        int[] parsed = parseArray(arrayElementsField.getText());
+        int[] parsed = readArrayFromLocalBoxes();
         if (parsed == null) {
             if (statusLabel != null) statusLabel.setText("Invalid input. Use comma-separated integers.");
             return;
@@ -158,15 +230,13 @@ public class SelectionSortController implements AlgorithmViewController.Algorith
     }
 
     private void onApplyArrayFromParent() {
-        if (parent != null && parent.paramElementsField != null) {
-            int[] parsed = parseArray(parent.paramElementsField.getText());
-            if (parsed != null) {
-                currentArray = parsed;
-                if (arraySizeSpinner != null) arraySizeSpinner.getValueFactory().setValue(currentArray.length);
-                if (arrayElementsField != null) arrayElementsField.setText(join(currentArray));
-            } else if (statusLabel != null) {
-                statusLabel.setText("Invalid input. Use comma-separated integers.");
-            }
+        int[] parsed = readArrayFromParentBoxes();
+        if (parsed != null) {
+            currentArray = parsed;
+            if (arraySizeSpinner != null) arraySizeSpinner.getValueFactory().setValue(currentArray.length);
+            if (arrayElementsField != null) arrayElementsField.setText(join(currentArray));
+        } else if (statusLabel != null) {
+            statusLabel.setText("Invalid input. Please enter integers in the boxes.");
         }
         refreshAll();
     }
@@ -186,26 +256,14 @@ public class SelectionSortController implements AlgorithmViewController.Algorith
         arrayView.setData(currentArray);
         if (parent != null && parent.chessboardContainer != null) {
             parent.chessboardContainer.getChildren().clear();
-            javafx.scene.layout.VBox vbox = new javafx.scene.layout.VBox(10.0);
-            vbox.setAlignment(javafx.geometry.Pos.CENTER);
-            vbox.getChildren().addAll(barChart.getNode());
-            parent.chessboardContainer.getChildren().add(vbox);
+            parent.chessboardContainer.getChildren().add(barChart.getNode());
         }
-        if (parent != null && parent.paramElementsField != null) {
-            parent.paramElementsField.setText(join(currentArray));
-        }
+        rebuildParentElementBoxes();
     }
 
     private void moveArrayViewToSolutions() {
         if (parent == null || parent.solutionsContent == null) return;
         parent.solutionsContent.getChildren().clear();
-        javafx.scene.layout.VBox header = new javafx.scene.layout.VBox(4.0);
-        Label title = new Label("Array View");
-        title.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
-        Label arrayLegend = new Label("Legend: Compare = Yellow, Min = Orange, Swap = Red, Sorted Prefix = Green");
-        arrayLegend.setStyle("-fx-font-style: italic;");
-        header.getChildren().addAll(title, arrayLegend);
-        parent.solutionsContent.getChildren().add(header);
         parent.solutionsContent.getChildren().add(arrayView.getNode());
     }
 
@@ -232,6 +290,7 @@ public class SelectionSortController implements AlgorithmViewController.Algorith
                 break;
             case END_SCAN:
                 appendProgress("End scan for i=" + i);
+                appendProgress("");
                 break;
             case SWAP:
                 barChart.highlightSwap(i, minIndex);
@@ -239,11 +298,25 @@ public class SelectionSortController implements AlgorithmViewController.Algorith
                 barChart.updateData(solver.getArray());
                 arrayView.updateData(solver.getArray());
                 appendProgress("Swap i=" + i + " with minIndex=" + minIndex);
+                appendProgress("");
+                // Add 1-second pause after swaps during play
+                if (isPlaying) {
+                    pendingSwapDelay = true;
+                    PauseTransition pause = new PauseTransition(Duration.seconds(1));
+                    pause.setOnFinished(ev -> {
+                        pendingSwapDelay = false;
+                        if (isPlaying) { rebuildTimelineWithCurrentSpeed(); if (timeline != null) timeline.play(); }
+                    });
+                    // Temporarily stop timeline to respect the delay
+                    stopTimeline();
+                    pause.play();
+                }
                 break;
             case MARK_SORTED:
                 barChart.markSortedPrefix(i);
                 arrayView.markSortedPrefix(i);
                 appendProgress("Marked index " + i + " as sorted");
+                appendProgress("");
                 break;
             case DONE:
                 barChart.markSortedPrefix(solver.getArray().length - 1);
@@ -322,6 +395,7 @@ public class SelectionSortController implements AlgorithmViewController.Algorith
         Duration frame = Duration.millis(1000.0 / fps);
         timeline = new Timeline(new KeyFrame(frame, e -> {
             if (solver.isDone()) { stopTimeline(); return; }
+            if (pendingSwapDelay) { return; }
             history.push(solver.snapshot());
             solver.step();
         }));
@@ -362,9 +436,9 @@ public class SelectionSortController implements AlgorithmViewController.Algorith
         parent.variableList.getItems().clear();
         parent.variableList.getItems().addAll(
                 "array: " + Arrays.toString(solver.getArray()),
-                "i: " + solver.getI(),
-                "j: " + solver.getJ(),
-                "minIndex: " + solver.getMinIndex(),
+                "i (current pass / sorted boundary): " + solver.getI(),
+                "j (current index): " + solver.getJ(),
+                "Minimum Index: " + solver.getMinIndex(),
                 "state: " + (solver.isDone() ? "DONE" : "RUNNING")
         );
     }
@@ -396,6 +470,61 @@ public class SelectionSortController implements AlgorithmViewController.Algorith
         int[] a = new int[n];
         for (int i = 0; i < n; i++) a[i] = rnd.nextInt(100) - 50; // [-50,49]
         return a;
+    }
+
+    // Build local element input boxes (selectionsort-view.fxml)
+    private void rebuildLocalElementBoxes() {
+        if (arrayElementsBox == null) return;
+        arrayElementsBox.getChildren().clear();
+        for (int i = 0; i < currentArray.length; i++) {
+            TextField tf = new TextField(String.valueOf(currentArray[i]));
+            tf.setPrefWidth(60);
+            tf.setPromptText("a[" + i + "]");
+            arrayElementsBox.getChildren().add(tf);
+        }
+    }
+
+    private int[] readArrayFromLocalBoxes() {
+        if (arrayElementsBox == null || arrayElementsBox.getChildren().isEmpty()) return parseArray(arrayElementsField != null ? arrayElementsField.getText() : null);
+        int n = arrayElementsBox.getChildren().size();
+        int[] arr = new int[n];
+        try {
+            for (int i = 0; i < n; i++) {
+                String txt = ((TextField) arrayElementsBox.getChildren().get(i)).getText();
+                arr[i] = Integer.parseInt(txt.trim());
+            }
+        } catch (Exception ex) {
+            return null;
+        }
+        return arr;
+    }
+
+    // Build parent panel element input boxes
+    private void rebuildParentElementBoxes() {
+        if (parent == null || parent.paramElementsBox == null) return;
+        FlowPane pane = parent.paramElementsBox;
+        pane.getChildren().clear();
+        for (int i = 0; i < currentArray.length; i++) {
+            TextField tf = new TextField(String.valueOf(currentArray[i]));
+            tf.setPrefWidth(60);
+            tf.setPromptText("a[" + i + "]");
+            pane.getChildren().add(tf);
+        }
+    }
+
+    private int[] readArrayFromParentBoxes() {
+        if (parent == null || parent.paramElementsBox == null || parent.paramElementsBox.getChildren().isEmpty()) return null;
+        int n = parent.paramElementsBox.getChildren().size();
+        int[] arr = new int[n];
+        try {
+            for (int i = 0; i < n; i++) {
+                String txt = ((TextField) parent.paramElementsBox.getChildren().get(i)).getText();
+                arr[i] = Integer.parseInt(txt.trim());
+            }
+        } catch (Exception ex) {
+            return null;
+        }
+        return arr;
     }
 }
 

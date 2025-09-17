@@ -95,10 +95,26 @@ public class AlgorithmViewController {
     protected Label paramSizeLabel;
     
     @FXML
+    protected javafx.scene.layout.FlowPane paramElementsBox;
+
+    @FXML
+    protected Label paramElementsLabel;
+    
+    @FXML
     protected HBox chessboardHeaderBox;
     
     @FXML
     protected VBox chessboardLegendBox;
+
+    // Solutions section headers (to be hidden for Selection Sort)
+    @FXML
+    protected HBox solutionsHeaderBox;
+    @FXML
+    protected Label solutionsHeaderLabel;
+    @FXML
+    protected VBox solutionsSubHeaderBox;
+    @FXML
+    protected Label solutionsSubHeaderLabel;
     
     protected Algorithm currentAlgorithm;
     protected AlgorithmSpecificController algorithmController;

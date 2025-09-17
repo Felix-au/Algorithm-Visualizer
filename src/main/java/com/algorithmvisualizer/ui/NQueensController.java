@@ -138,6 +138,24 @@ public class NQueensController implements AlgorithmViewController.AlgorithmSpeci
         if (parentController.speedSlider != null) {
             parentController.speedSlider.valueProperty().addListener((obs, ov, nv) -> updatePlaybackSpeed());
         }
+
+        // Hide Selection Sort specific elements in shared Parameters panel
+        if (parentController.paramElementsLabel != null) {
+            parentController.paramElementsLabel.setVisible(false);
+            parentController.paramElementsLabel.setManaged(false);
+        }
+        if (parentController.paramElementsField != null) {
+            parentController.paramElementsField.setVisible(false);
+            parentController.paramElementsField.setManaged(false);
+        }
+        if (parentController.paramElementsBox != null) {
+            parentController.paramElementsBox.setVisible(false);
+            parentController.paramElementsBox.setManaged(false);
+        }
+        if (parentController.paramRandomizeButton != null) {
+            parentController.paramRandomizeButton.setVisible(false);
+            parentController.paramRandomizeButton.setManaged(false);
+        }
     }
     
     @FXML

@@ -134,16 +134,16 @@
                         <!-- Solutions Section -->
                         <VBox spacing="10.0">
                            <children>
-                              <HBox alignment="CENTER_LEFT" spacing="10.0">
+                              <HBox fx:id="solutionsHeaderBox" alignment="CENTER_LEFT" spacing="10.0">
                                  <children>
-                                    <Label text="Solutions Found" style="-fx-font-weight: bold; -fx-font-size: 14px;" />
+                                    <Label fx:id="solutionsHeaderLabel" text="Solutions Found" style="-fx-font-weight: bold; -fx-font-size: 14px;" />
                                     <Separator />
                                  </children>
                               </HBox>
-                              <VBox spacing="5.0">
+                              <VBox fx:id="solutionsSubHeaderBox" spacing="5.0">
                                  <children>
-                                    <Label text="Solutions will appear here as they are found" style="-fx-font-style: italic;" />
-                                 </children>
+                                    <Label fx:id="solutionsSubHeaderLabel" text="Solutions will appear here as they are found" style="-fx-font-style: italic;" />
+                                  </children>
                               </VBox>
                               <ScrollPane fx:id="solutionsContainer" prefHeight="400.0" prefWidth="400.0" style="-fx-background-color: white; -fx-border-color: #333333; -fx-border-width: 2;">
                                  <content>
@@ -200,18 +200,37 @@
                   <VBox spacing="5.0">
                      <children>
                         <Label text="Parameters" style="-fx-font-weight: bold; -fx-font-size: 14px;" />
-                        <HBox spacing="10.0">
+                        <!-- Two-row parameters layout to support Selection Sort input -->
+                        <VBox spacing="6.0">
                            <children>
-                              <Label fx:id="paramSizeLabel" text="Board size and number of queens (N):" />
-                              <Spinner fx:id="paramBoardSizeSpinner" editable="true" initialValue="4" max="10" min="1" prefWidth="90.0" />
-                              <Label text="Number of Queens:" visible="false" managed="false" />
-                              <Spinner fx:id="paramNumQueensSpinner" editable="true" initialValue="4" max="10" min="1" prefWidth="90.0" visible="false" managed="false" />
-                              <Label text="Elements:" />
-                              <TextField fx:id="paramElementsField" promptText="e.g. 5, 3, 8, 4, 2" prefWidth="220.0" />
-                              <Button fx:id="paramRandomizeButton" text="Randomize" />
-                              <Button fx:id="paramApplyButton" text="Apply" />
+                              <!-- Row 1: Size -->
+                              <HBox spacing="10.0">
+                                 <children>
+                                    <Label fx:id="paramSizeLabel" text="Board size and number of queens (N):" />
+                                    <Spinner fx:id="paramBoardSizeSpinner" editable="true" initialValue="4" max="50" min="1" prefWidth="90.0" />
+                                    <Label text="Number of Queens:" visible="false" managed="false" />
+                                    <Spinner fx:id="paramNumQueensSpinner" editable="true" initialValue="4" max="10" min="1" prefWidth="90.0" visible="false" managed="false" />
+                                    <Region HBox.hgrow="ALWAYS" />
+                                 </children>
+                              </HBox>
+                              <!-- Row 2: Elements -->
+                              <VBox spacing="6.0">
+                                 <children>
+                                    <Label fx:id="paramElementsLabel" text="Value of elements:" />
+                                    <!-- Selection Sort will use this FlowPane; default hidden for others -->
+                                    <FlowPane fx:id="paramElementsBox" hgap="6.0" vgap="6.0" visible="false" managed="false" />
+                                    <!-- Backward-compatible CSV field (Selection Sort will hide this) -->
+                                    <TextField fx:id="paramElementsField" promptText="e.g. 5, 3, 8, 4, 2" prefWidth="220.0" />
+                                    <HBox spacing="8.0">
+                                       <children>
+                                          <Button fx:id="paramRandomizeButton" text="Randomize" />
+                                          <Button fx:id="paramApplyButton" text="Apply" />
+                                       </children>
+                                    </HBox>
+                                 </children>
+                              </VBox>
                            </children>
-                        </HBox>
+                        </VBox>
                      </children>
                   </VBox>
                   
