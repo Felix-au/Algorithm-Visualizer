@@ -1,5 +1,4 @@
 com\algorithmvisualizer\algorithm\NQueensSolver$State.class
-com\algorithmvisualizer\visualization\BarChartRenderer.class
 com\algorithmvisualizer\visualization\BacktrackMatrixRenderer$CellState.class
 com\algorithmvisualizer\algorithm\NQueensSolver$StepType.class
 com\algorithmvisualizer\ui\SelectionSortController$1.class
@@ -13,7 +12,6 @@ com\algorithmvisualizer\algorithm\SelectionSortSolver$StepType.class
 com\algorithmvisualizer\model\NQueensAlgorithm.class
 com\algorithmvisualizer\algorithm\NQueensSolver.class
 com\algorithmvisualizer\Main.class
-com\algorithmvisualizer\visualization\ArrayRenderer.class
 com\algorithmvisualizer\algorithm\SelectionSortSolver.class
 com\algorithmvisualizer\ui\AlgorithmViewController$AlgorithmSpecificController.class
 com\algorithmvisualizer\ui\AlgorithmViewController.class

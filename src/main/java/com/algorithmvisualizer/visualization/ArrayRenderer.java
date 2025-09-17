@@ -2,25 +2,24 @@ package com.algorithmvisualizer.visualization;
 
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
 
 /**
  * Renders an array as boxes with index and value.
  */
 public class ArrayRenderer {
 
-    private final HBox container;
+    private final FlowPane container;
     private VBox[] cells;
     private int[] data;
 
     private int previousMinIndex = -1;
 
     public ArrayRenderer() {
-        container = new HBox(6.0);
+        container = new FlowPane(6.0, 6.0);
         container.setAlignment(Pos.CENTER);
+        container.setPrefWrapLength(400.0); // Set preferred wrap length
     }
 
     public void setData(int[] data) {
@@ -40,8 +39,12 @@ public class ArrayRenderer {
     }
 
     public void highlightCompare(int i, int j) {
-        if (valid(i)) cells[i].setStyle("-fx-background-color: GOLD; -fx-border-color: #333; -fx-padding: 6;");
-        if (valid(j)) cells[j].setStyle("-fx-background-color: GOLD; -fx-border-color: #333; -fx-padding: 6;");
+        if (valid(i) && !cells[i].getStyle().contains("FORESTGREEN")) {
+            cells[i].setStyle("-fx-background-color: GOLD; -fx-border-color: #333; -fx-padding: 6;");
+        }
+        if (valid(j) && !cells[j].getStyle().contains("FORESTGREEN")) {
+            cells[j].setStyle("-fx-background-color: GOLD; -fx-border-color: #333; -fx-padding: 6;");
+        }
     }
 
     public void highlightMin(int minIndex) {
@@ -56,8 +59,12 @@ public class ArrayRenderer {
     }
 
     public void highlightSwap(int i, int j) {
-        if (valid(i)) cells[i].setStyle("-fx-background-color: CRIMSON; -fx-border-color: #333; -fx-padding: 6;");
-        if (valid(j)) cells[j].setStyle("-fx-background-color: CRIMSON; -fx-border-color: #333; -fx-padding: 6;");
+        if (valid(i) && !cells[i].getStyle().contains("FORESTGREEN")) {
+            cells[i].setStyle("-fx-background-color: RED; -fx-border-color: #333; -fx-padding: 6;");
+        }
+        if (valid(j) && !cells[j].getStyle().contains("FORESTGREEN")) {
+            cells[j].setStyle("-fx-background-color: RED; -fx-border-color: #333; -fx-padding: 6;");
+        }
     }
 
     public void markSortedPrefix(int uptoInclusive) {
@@ -66,7 +73,13 @@ public class ArrayRenderer {
         }
     }
 
-    public HBox getNode() { return container; }
+    // Force red highlighting for blinking animation (overrides green)
+    public void forceHighlightSwap(int i, int j) {
+        if (valid(i)) cells[i].setStyle("-fx-background-color: RED; -fx-border-color: #333; -fx-padding: 6;");
+        if (valid(j)) cells[j].setStyle("-fx-background-color: RED; -fx-border-color: #333; -fx-padding: 6;");
+    }
+
+    public FlowPane getNode() { return container; }
 
     private void rebuild() {
         container.getChildren().clear();
