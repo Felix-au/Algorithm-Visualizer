@@ -187,36 +187,36 @@ public class AlgorithmViewController {
     
     @FXML
     protected void onStepBack() {
-        if (algorithmController instanceof com.algorithmvisualizer.ui.NQueensController) {
-            ((com.algorithmvisualizer.ui.NQueensController) algorithmController).onStepBack();
+        if (algorithmController != null) {
+            algorithmController.onStepBack();
         }
     }
     
     @FXML
     protected void onPlay() {
-        if (algorithmController instanceof com.algorithmvisualizer.ui.NQueensController) {
-            ((com.algorithmvisualizer.ui.NQueensController) algorithmController).onPlay();
+        if (algorithmController != null) {
+            algorithmController.onPlay();
         }
     }
     
     @FXML
     protected void onPause() {
-        if (algorithmController instanceof com.algorithmvisualizer.ui.NQueensController) {
-            ((com.algorithmvisualizer.ui.NQueensController) algorithmController).onPause();
+        if (algorithmController != null) {
+            algorithmController.onPause();
         }
     }
     
     @FXML
     protected void onStepForward() {
-        if (algorithmController instanceof com.algorithmvisualizer.ui.NQueensController) {
-            ((com.algorithmvisualizer.ui.NQueensController) algorithmController).onStepForward();
+        if (algorithmController != null) {
+            algorithmController.onStepForward();
         }
     }
     
     @FXML
     protected void onReset() {
-        if (algorithmController instanceof com.algorithmvisualizer.ui.NQueensController) {
-            ((com.algorithmvisualizer.ui.NQueensController) algorithmController).onReset();
+        if (algorithmController != null) {
+            algorithmController.onReset();
         }
     }
     

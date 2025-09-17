@@ -10,6 +10,7 @@ import javafx.animation.PauseTransition;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
@@ -80,15 +81,11 @@ public class SelectionSortController implements AlgorithmViewController.Algorith
         // Place visuals in parent's chessboard container; titles/legends go outside the bordered box
         if (parent.chessboardContainer != null) {
             parent.chessboardContainer.getChildren().clear();
-            parent.chessboardContainer.getChildren().add(barChart.getNode());
+            StackPane centeredChart = new StackPane(barChart.getNode());
+            parent.chessboardContainer.getChildren().add(centeredChart);
         }
 
-        // Wire controls
-        if (parent.playButton != null) parent.playButton.setOnAction(e -> onPlay());
-        if (parent.pauseButton != null) parent.pauseButton.setOnAction(e -> onPause());
-        if (parent.stepForwardButton != null) parent.stepForwardButton.setOnAction(e -> onStepForward());
-        if (parent.stepBackButton != null) parent.stepBackButton.setOnAction(e -> onStepBack());
-        if (parent.resetButton != null) parent.resetButton.setOnAction(e -> onReset());
+        
 
         if (parent.speedSlider != null) parent.speedSlider.valueProperty().addListener((obs, o, n) -> updatePlaybackSpeed());
 
@@ -188,9 +185,33 @@ public class SelectionSortController implements AlgorithmViewController.Algorith
             parent.solutionsSubHeaderBox.setVisible(true);
             parent.solutionsSubHeaderBox.setManaged(true);
             parent.solutionsSubHeaderBox.getChildren().clear();
-            Label arrayLegend = new Label("Legend: Compare = Yellow, Min = Orange, Swap = Red, Sorted Prefix = Green");
-            arrayLegend.setStyle("-fx-font-style: italic;");
-            parent.solutionsSubHeaderBox.getChildren().add(arrayLegend);
+            HBox legendRow = new HBox(15.0);
+            // Compare = Yellow
+            HBox l1 = new HBox(5.0);
+            javafx.scene.shape.Rectangle r1 = new javafx.scene.shape.Rectangle(12, 12);
+            r1.setFill(javafx.scene.paint.Color.GOLD);
+            r1.setStroke(javafx.scene.paint.Color.BLACK);
+            l1.getChildren().addAll(r1, new Label("Compare"));
+            // Min = Orange
+            HBox l2 = new HBox(5.0);
+            javafx.scene.shape.Rectangle r2 = new javafx.scene.shape.Rectangle(12, 12);
+            r2.setFill(javafx.scene.paint.Color.DARKORANGE);
+            r2.setStroke(javafx.scene.paint.Color.BLACK);
+            l2.getChildren().addAll(r2, new Label("Minimum"));
+            // Swap = Red
+            HBox l3 = new HBox(5.0);
+            javafx.scene.shape.Rectangle r3 = new javafx.scene.shape.Rectangle(12, 12);
+            r3.setFill(javafx.scene.paint.Color.CRIMSON);
+            r3.setStroke(javafx.scene.paint.Color.BLACK);
+            l3.getChildren().addAll(r3, new Label("Swap"));
+            // Sorted = Green
+            HBox l4 = new HBox(5.0);
+            javafx.scene.shape.Rectangle r4 = new javafx.scene.shape.Rectangle(12, 12);
+            r4.setFill(javafx.scene.paint.Color.FORESTGREEN);
+            r4.setStroke(javafx.scene.paint.Color.BLACK);
+            l4.getChildren().addAll(r4, new Label("Sorted Prefix"));
+            legendRow.getChildren().addAll(l1, l2, l3, l4);
+            parent.solutionsSubHeaderBox.getChildren().add(legendRow);
         }
         // Move the array view into the solutions area
         moveArrayViewToSolutions();
@@ -271,14 +292,14 @@ public class SelectionSortController implements AlgorithmViewController.Algorith
         switch (type) {
             case INIT_OUTER:
             case INIT_MIN:
-                barChart.clearHighlights();
-                arrayView.clearHighlights();
                 if (parent != null) parent.stepDescription.setText("Start outer iteration i=" + i);
                 break;
             case COMPARE:
-                barChart.highlightCompare(i, Math.max(0, j));
+                barChart.clearHighlights();
+                arrayView.clearHighlights();
+                barChart.highlightCompare(j, minIndex);
+                arrayView.highlightCompare(j, minIndex);
                 barChart.highlightMin(minIndex);
-                arrayView.highlightCompare(i, Math.max(0, j));
                 arrayView.highlightMin(minIndex);
                 appendProgress("Compare j=" + j + " with minIndex=" + minIndex);
                 if (parent != null) parent.stepDescription.setText("Comparing j=" + j + " with current min at " + minIndex);
@@ -302,13 +323,18 @@ public class SelectionSortController implements AlgorithmViewController.Algorith
                 // Add 1-second pause after swaps during play
                 if (isPlaying) {
                     pendingSwapDelay = true;
+                    if (timeline != null) {
+                        timeline.pause();
+                    }
                     PauseTransition pause = new PauseTransition(Duration.seconds(1));
                     pause.setOnFinished(ev -> {
                         pendingSwapDelay = false;
-                        if (isPlaying) { rebuildTimelineWithCurrentSpeed(); if (timeline != null) timeline.play(); }
+                        if (isPlaying) {
+                            if (timeline != null) {
+                                timeline.play();
+                            }
+                        }
                     });
-                    // Temporarily stop timeline to respect the delay
-                    stopTimeline();
                     pause.play();
                 }
                 break;
@@ -437,7 +463,7 @@ public class SelectionSortController implements AlgorithmViewController.Algorith
         parent.variableList.getItems().addAll(
                 "array: " + Arrays.toString(solver.getArray()),
                 "i (current pass / sorted boundary): " + solver.getI(),
-                "j (current index): " + solver.getJ(),
+                "j (current index): " + (solver.getJ() == currentArray.length ? solver.getJ() + " (exhausted)" : solver.getJ()),
                 "Minimum Index: " + solver.getMinIndex(),
                 "state: " + (solver.isDone() ? "DONE" : "RUNNING")
         );

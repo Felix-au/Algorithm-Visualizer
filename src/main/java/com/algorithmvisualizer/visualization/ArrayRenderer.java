@@ -16,6 +16,8 @@ public class ArrayRenderer {
     private VBox[] cells;
     private int[] data;
 
+    private int previousMinIndex = -1;
+
     public ArrayRenderer() {
         container = new HBox(6.0);
         container.setAlignment(Pos.CENTER);
@@ -30,30 +32,37 @@ public class ArrayRenderer {
 
     public void clearHighlights() {
         if (cells == null) return;
-        for (VBox cell : cells) {
-            cell.setStyle("-fx-background-color: #f7f7f7; -fx-border-color: #333; -fx-padding: 6;");
+        for (int i = 0; i < cells.length; i++) {
+            if (!cells[i].getStyle().contains("FORESTGREEN")) {
+                cells[i].setStyle("-fx-background-color: #f7f7f7; -fx-border-color: #333; -fx-padding: 6;");
+            }
         }
     }
 
     public void highlightCompare(int i, int j) {
-        clearHighlights();
-        if (valid(i)) cells[i].setStyle("-fx-background-color: #ffe680; -fx-border-color: #333; -fx-padding: 6;");
-        if (valid(j)) cells[j].setStyle("-fx-background-color: #ffe680; -fx-border-color: #333; -fx-padding: 6;");
+        if (valid(i)) cells[i].setStyle("-fx-background-color: GOLD; -fx-border-color: #333; -fx-padding: 6;");
+        if (valid(j)) cells[j].setStyle("-fx-background-color: GOLD; -fx-border-color: #333; -fx-padding: 6;");
     }
 
     public void highlightMin(int minIndex) {
+        if (valid(previousMinIndex) && previousMinIndex != minIndex) {
+            if (!cells[previousMinIndex].getStyle().contains("FORESTGREEN")) {
+                cells[previousMinIndex].setStyle("-fx-background-color: #f7f7f7; -fx-border-color: #333; -fx-padding: 6;");
+            }
+        }
         if (!valid(minIndex)) return;
-        cells[minIndex].setStyle("-fx-background-color: #ffa64d; -fx-border-color: #333; -fx-padding: 6;");
+        cells[minIndex].setStyle("-fx-background-color: DARKORANGE; -fx-border-color: #333; -fx-padding: 6;");
+        previousMinIndex = minIndex;
     }
 
     public void highlightSwap(int i, int j) {
-        if (valid(i)) cells[i].setStyle("-fx-background-color: #ff6b6b; -fx-border-color: #333; -fx-padding: 6;");
-        if (valid(j)) cells[j].setStyle("-fx-background-color: #ff6b6b; -fx-border-color: #333; -fx-padding: 6;");
+        if (valid(i)) cells[i].setStyle("-fx-background-color: CRIMSON; -fx-border-color: #333; -fx-padding: 6;");
+        if (valid(j)) cells[j].setStyle("-fx-background-color: CRIMSON; -fx-border-color: #333; -fx-padding: 6;");
     }
 
     public void markSortedPrefix(int uptoInclusive) {
         for (int k = 0; k <= uptoInclusive && k < cells.length; k++) {
-            cells[k].setStyle("-fx-background-color: #b7f0b1; -fx-border-color: #333; -fx-padding: 6;");
+            cells[k].setStyle("-fx-background-color: FORESTGREEN; -fx-border-color: #333; -fx-padding: 6;");
         }
     }
 
@@ -64,6 +73,7 @@ public class ArrayRenderer {
         if (data == null) return;
         int n = data.length;
         cells = new VBox[n];
+        previousMinIndex = -1;
         for (int i = 0; i < n; i++) {
             VBox cell = new VBox(4.0);
             cell.setAlignment(Pos.CENTER);
