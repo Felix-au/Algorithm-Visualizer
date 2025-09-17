@@ -7,6 +7,7 @@ import javafx.scene.Scene;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.FlowPane;
 import javafx.stage.Stage;
@@ -83,6 +84,21 @@ public class AlgorithmViewController {
     
     @FXML
     protected Button paramApplyButton;
+    
+    @FXML
+    protected TextField paramElementsField;
+    
+    @FXML
+    protected Button paramRandomizeButton;
+    
+    @FXML
+    protected Label paramSizeLabel;
+    
+    @FXML
+    protected HBox chessboardHeaderBox;
+    
+    @FXML
+    protected VBox chessboardLegendBox;
     
     protected Algorithm currentAlgorithm;
     protected AlgorithmSpecificController algorithmController;
@@ -191,5 +207,11 @@ public class AlgorithmViewController {
     // Interface for algorithm-specific controllers
     public interface AlgorithmSpecificController {
         void setParentController(AlgorithmViewController parent);
+        // Common control hooks
+        default void onStepBack() {}
+        default void onPlay() {}
+        default void onPause() {}
+        default void onStepForward() {}
+        default void onReset() {}
     }
 }

@@ -79,15 +79,15 @@
                   <SplitPane dividerPositions="0.5" orientation="HORIZONTAL">
                      <items>
                         <!-- Chessboard Section -->
-                        <VBox spacing="10.0">
+                        <VBox fx:id="chessboardSection" spacing="10.0">
                            <children>
-                              <HBox alignment="CENTER_LEFT" spacing="10.0">
+                              <HBox fx:id="chessboardHeaderBox" alignment="CENTER_LEFT" spacing="10.0">
                                  <children>
                                     <Label text="Chessboard" style="-fx-font-weight: bold; -fx-font-size: 14px;" />
                                     <Separator />
                                  </children>
                               </HBox>
-                              <VBox spacing="5.0">
+                              <VBox fx:id="chessboardLegendBox" spacing="5.0">
                                  <children>
                                     <Label text="Legend:" style="-fx-font-weight: bold;" />
                                     <HBox spacing="15.0">
@@ -202,10 +202,13 @@
                         <Label text="Parameters" style="-fx-font-weight: bold; -fx-font-size: 14px;" />
                         <HBox spacing="10.0">
                            <children>
-                              <Label text="Board size and number of queens (N):" />
+                              <Label fx:id="paramSizeLabel" text="Board size and number of queens (N):" />
                               <Spinner fx:id="paramBoardSizeSpinner" editable="true" initialValue="4" max="10" min="1" prefWidth="90.0" />
                               <Label text="Number of Queens:" visible="false" managed="false" />
                               <Spinner fx:id="paramNumQueensSpinner" editable="true" initialValue="4" max="10" min="1" prefWidth="90.0" visible="false" managed="false" />
+                              <Label text="Elements:" />
+                              <TextField fx:id="paramElementsField" promptText="e.g. 5, 3, 8, 4, 2" prefWidth="220.0" />
+                              <Button fx:id="paramRandomizeButton" text="Randomize" />
                               <Button fx:id="paramApplyButton" text="Apply" />
                            </children>
                         </HBox>

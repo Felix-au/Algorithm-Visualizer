@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<VBox xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.algorithmvisualizer.ui.SelectionSortController" spacing="10.0">
+   <children>
+      <HBox spacing="15.0">
+         <children>
+            <Label text="Array size:" />
+            <Spinner fx:id="arraySizeSpinner" editable="true" initialValue="5" max="50" min="1" prefWidth="90.0" />
+            <Label text="Elements:" />
+            <TextField fx:id="arrayElementsField" prefWidth="420.0" promptText="e.g. 5, 3, 8, 4, 2" />
+            <Button fx:id="randomizeButton" text="Randomize" />
+            <Button fx:id="applyArrayButton" text="Apply" />
+            <Label fx:id="statusLabel" text="" />
+         </children>
+         <padding>
+            <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
+         </padding>
+      </HBox>
+      <Separator />
+      <Label text="Visuals appear in the main layout area" />
+   </children>
+   <padding>
+      <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
+   </padding>
+</VBox>
+
+
