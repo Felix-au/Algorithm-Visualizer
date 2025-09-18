@@ -41,6 +41,10 @@ public class SelectionSortController implements AlgorithmViewController.Algorith
     private Timeline timeline;
     private boolean isPlaying = false;
     private final Deque<SelectionSortSolver.State> history = new ArrayDeque<>();
+    // Track progress log lines per algorithm step to support step-back removal
+    private final Deque<Integer> progressHistory = new ArrayDeque<>();
+    private int currentStepLogLines = 0;
+    private boolean countLogsForStep = false;
 
     private int[] currentArray = new int[] {5, 3, 8, 4, 2};
 
@@ -295,6 +299,11 @@ public class SelectionSortController implements AlgorithmViewController.Algorith
         switch (type) {
             case INIT_OUTER:
             case INIT_MIN:
+                // Start counting logs for a new step at outer init
+                if (type == SelectionSortSolver.StepType.INIT_OUTER) {
+                    countLogsForStep = true;
+                    currentStepLogLines = 0;
+                }
                 if (parent != null) parent.stepDescription.setText("Start outer iteration i=" + i);
                 break;
             case COMPARE:
@@ -312,118 +321,74 @@ public class SelectionSortController implements AlgorithmViewController.Algorith
                 arrayView.highlightMin(minIndex);
                 appendProgress("🔄 Found new minimum! Element at index " + minIndex + " (value: " + solver.getArray()[minIndex] + ") is smaller than previous minimum");
                 appendProgress("");
-                // Add 2-second delay after new min
+                // Add 2-second delay after new min (only during Play)
                 if (isPlaying) {
                     pendingMinDelay = true;
-                    if (timeline != null) {
-                        timeline.pause();
-                    }
-                    PauseTransition pause = new PauseTransition(Duration.seconds(2));
-                    pause.setOnFinished(ev -> {
+                    if (timeline != null) { timeline.pause(); }
+                    PauseTransition pauseMin = new PauseTransition(Duration.seconds(2));
+                    pauseMin.setOnFinished(ev -> {
                         pendingMinDelay = false;
-                        if (isPlaying) {
-                            if (timeline != null) {
-                                timeline.play();
-                            }
-                        }
-                        // Check if algorithm is done and show completion
-                        if (solver.isDone()) {
-                            showCompletion();
-                        }
+                        if (isPlaying && timeline != null) { timeline.play(); }
+                        if (solver.isDone()) { showCompletion(); }
                     });
-                    pause.play();
+                    pauseMin.play();
                 }
                 break;
             case END_SCAN:
                 appendProgress("✅ Finished scanning unsorted portion for position " + i);
                 appendProgress("   → Found minimum element at index " + minIndex + " (value: " + solver.getArray()[minIndex] + ")");
                 appendProgress("");
-                // Add 2-second delay after end scan
+                // Add 2-second delay after end scan (only during Play)
                 if (isPlaying) {
                     pendingEndScanDelay = true;
-                    if (timeline != null) {
-                        timeline.pause();
-                    }
-                    PauseTransition pause = new PauseTransition(Duration.seconds(2));
-                    pause.setOnFinished(ev -> {
+                    if (timeline != null) { timeline.pause(); }
+                    PauseTransition pauseEnd = new PauseTransition(Duration.seconds(2));
+                    pauseEnd.setOnFinished(ev -> {
                         pendingEndScanDelay = false;
-                        if (isPlaying) {
-                            if (timeline != null) {
-                                timeline.play();
-                            }
-                        }
-                        // Check if algorithm is done and show completion
-                        if (solver.isDone()) {
-                            showCompletion();
-                        }
+                        if (isPlaying && timeline != null) { timeline.play(); }
+                        if (solver.isDone()) { showCompletion(); }
                     });
-                    pause.play();
+                    pauseEnd.play();
                 }
                 break;
             case SWAP:
-                // Blink elements for 2 seconds before swapping
-                if (isPlaying) {
-                    pendingBlinkDelay = true;
-                    if (timeline != null) {
-                        timeline.pause();
-                    }
-                    startBlinkingAnimation(i, minIndex, () -> {
-                        // Perform actual swap after blinking
-                        barChart.updateData(solver.getArray());
-                        arrayView.updateData(solver.getArray());
-                        // Restore sorted prefix highlighting after swap
-                        barChart.markSortedPrefix(i);
-                        arrayView.markSortedPrefix(i);
-                        appendProgress("🔄 SWAPPED! Moved element from position " + i + " to position " + minIndex);
-                        appendProgress("   → Element " + solver.getArray()[minIndex] + " is now in its correct sorted position");
-                        appendProgress("");
-                        pendingBlinkDelay = false;
-                        if (isPlaying) {
-                            if (timeline != null) {
-                                timeline.play();
-                            }
-                        }
-                        // Check if algorithm is done and show completion
-                        if (solver.isDone()) {
-                            showCompletion();
-                        }
-                    });
-                } else {
-                    // For step-by-step mode, just highlight and swap immediately
-                    barChart.highlightSwap(i, minIndex);
-                    arrayView.highlightSwap(i, minIndex);
+                // Blink elements for 2 seconds before swapping (play and manual step)
+                pendingBlinkDelay = true;
+                if (isPlaying && timeline != null) { timeline.pause(); }
+                startBlinkingAnimation(i, minIndex, () -> {
+                    // Perform actual swap after blinking
                     barChart.updateData(solver.getArray());
                     arrayView.updateData(solver.getArray());
                     appendProgress("🔄 SWAPPED! Moved element from position " + i + " to position " + minIndex);
                     appendProgress("   → Element " + solver.getArray()[minIndex] + " is now in its correct sorted position");
                     appendProgress("");
-                }
+                    pendingBlinkDelay = false;
+                    if (isPlaying && timeline != null) { timeline.play(); }
+                    if (solver.isDone()) { showCompletion(); }
+                });
                 break;
             case MARK_SORTED:
                 barChart.markSortedPrefix(i);
                 arrayView.markSortedPrefix(i);
                 appendProgress("✓ Element at index " + i + " is now in its correct sorted position");
                 appendProgress("");
-                // Add 2-second delay after marked index
+                // End of this step: record how many lines were written and reset counter
+                if (countLogsForStep) {
+                    progressHistory.push(currentStepLogLines);
+                    countLogsForStep = false;
+                    currentStepLogLines = 0;
+                }
+                // Add 2-second delay after marked index (only during Play)
                 if (isPlaying) {
                     pendingMarkedDelay = true;
-                    if (timeline != null) {
-                        timeline.pause();
-                    }
-                    PauseTransition pause = new PauseTransition(Duration.seconds(2));
-                    pause.setOnFinished(ev -> {
+                    if (timeline != null) { timeline.pause(); }
+                    PauseTransition pauseMark = new PauseTransition(Duration.seconds(2));
+                    pauseMark.setOnFinished(ev -> {
                         pendingMarkedDelay = false;
-                        if (isPlaying) {
-                            if (timeline != null) {
-                                timeline.play();
-                            }
-                        }
-                        // Check if algorithm is done and show completion
-                        if (solver.isDone()) {
-                            showCompletion();
-                        }
+                        if (isPlaying && timeline != null) { timeline.play(); }
+                        if (solver.isDone()) { showCompletion(); }
                     });
-                    pause.play();
+                    pauseMark.play();
                 }
                 break;
             case DONE:
@@ -434,6 +399,12 @@ public class SelectionSortController implements AlgorithmViewController.Algorith
                     return;
                 } else {
                     showCompletion();
+                }
+                // Safeguard: if a step was in progress but didn't hit MARK_SORTED due to edge cases
+                if (countLogsForStep) {
+                    progressHistory.push(currentStepLogLines);
+                    countLogsForStep = false;
+                    currentStepLogLines = 0;
                 }
                 break;
         }
@@ -469,22 +440,96 @@ public class SelectionSortController implements AlgorithmViewController.Algorith
 
     public void onStepForward() {
         if (solver == null || solver.isDone()) return;
+        // Prevent stepping while any delay/animation is active (ensures manual mode respects waits)
+        if (pendingSwapDelay || pendingMinDelay || pendingEndScanDelay || pendingMarkedDelay || pendingBlinkDelay) return;
         history.push(solver.snapshot());
         solver.step();
     }
 
     public void onStepBack() {
+        // Pause if playing
+        if (isPlaying) { onPause(); }
         if (history.isEmpty()) return;
         SelectionSortSolver.State s = history.pop();
         solver.restore(s);
+
+        // Reset any pending UI delays/flags
+        pendingSwapDelay = false;
+        pendingMinDelay = false;
+        pendingEndScanDelay = false;
+        pendingMarkedDelay = false;
+        pendingBlinkDelay = false;
+
+        // Update data views
         barChart.updateData(solver.getArray());
         arrayView.updateData(solver.getArray());
+
+        // Clear and reapply highlights based on restored algorithm state
+        barChart.clearHighlights();
+        arrayView.clearHighlights();
+
+        int n = solver.getArray().length;
+        int i = solver.getI();
+        int j = solver.getJ();
+        int minIndex = solver.getMinIndex();
+
+        // Mark sorted prefix up to (i - 1)
+        if (n > 0) {
+            if (solver.isDone()) {
+                // Entire array sorted
+                int lastIndex = n - 1;
+                barChart.markSortedPrefix(lastIndex);
+                arrayView.markSortedPrefix(lastIndex);
+            } else if (i > 0) {
+                barChart.markSortedPrefix(i - 1);
+                arrayView.markSortedPrefix(i - 1);
+            }
+        }
+
+        if (!solver.isDone()) {
+            if (j < n) {
+                // Currently scanning: highlight comparison and current min
+                barChart.highlightCompare(j, minIndex);
+                arrayView.highlightCompare(j, minIndex);
+                barChart.highlightMin(minIndex);
+                arrayView.highlightMin(minIndex);
+            } else {
+                // Finished scanning for this i; show intention (swap or mark)
+                barChart.highlightMin(minIndex);
+                arrayView.highlightMin(minIndex);
+                if (minIndex != i) {
+                    barChart.highlightSwap(i, minIndex);
+                    arrayView.highlightSwap(i, minIndex);
+                }
+            }
+        }
+
+        // Remove the logs written during the step we just stepped back from
+        if (parent != null && parent.progressArea != null) {
+            if (countLogsForStep && currentStepLogLines > 0) {
+                // Step was in progress; remove what has been logged so far for this step
+                removeLastLogLines(currentStepLogLines);
+                currentStepLogLines = 0;
+                countLogsForStep = false;
+            } else if (!progressHistory.isEmpty()) {
+                int toRemove = progressHistory.pop();
+                removeLastLogLines(toRemove);
+            }
+        }
+
+        // Update variables and step description
         updateVariablesPanel();
+        if (parent != null) {
+            parent.stepDescription.setText(solver.getCurrentStepDescription());
+        }
     }
 
     public void onReset() {
         stopTimeline();
         history.clear();
+        progressHistory.clear();
+        countLogsForStep = false;
+        currentStepLogLines = 0;
         solver.reset();
         barChart.updateData(solver.getArray());
         arrayView.updateData(solver.getArray());
@@ -586,11 +631,33 @@ public class SelectionSortController implements AlgorithmViewController.Algorith
         parent.progressArea.clear();
         appendProgress("Selection Sort: n = " + currentArray.length);
         appendProgress("Starting...");
+        // Reset step log tracking at start of a new run
+        progressHistory.clear();
+        currentStepLogLines = 0;
+        countLogsForStep = false;
     }
 
     private void appendProgress(String line) {
         if (parent == null || parent.progressArea == null) return;
         parent.progressArea.appendText(line + "\n");
+        if (countLogsForStep) {
+            currentStepLogLines++;
+        }
+    }
+
+    private void removeLastLogLines(int count) {
+        if (parent == null || parent.progressArea == null || count <= 0) return;
+        String text = parent.progressArea.getText();
+        if (text == null || text.isEmpty()) return;
+        String[] lines = text.split("\n", -1); // keep trailing empty
+        int total = lines.length;
+        int newLen = Math.max(0, total - count);
+        StringBuilder sb = new StringBuilder();
+        for (int idx = 0; idx < newLen; idx++) {
+            sb.append(lines[idx]);
+            if (idx < newLen - 1) sb.append('\n');
+        }
+        parent.progressArea.setText(sb.toString());
     }
 
     private void updateVariablesPanel() {

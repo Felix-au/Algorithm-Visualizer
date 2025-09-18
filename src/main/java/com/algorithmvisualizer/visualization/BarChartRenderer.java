@@ -72,6 +72,11 @@ public class BarChartRenderer {
             }
         }
         if (!valid(minIndex)) return;
+        // Do not override a bar that's already marked as sorted
+        if (bars[minIndex] != null && bars[minIndex].getFill() == Color.FORESTGREEN) {
+            previousMinIndex = minIndex;
+            return;
+        }
         bars[minIndex].setFill(Color.DARKORANGE);
         previousMinIndex = minIndex;
     }

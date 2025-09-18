@@ -122,6 +122,30 @@ public class SelectionSortSolver {
     public int getJ() { return j; }
     public int getMinIndex() { return minIndex; }
     public boolean isDone() { return done; }
+
+    public String getCurrentStepDescription() {
+        int n = array != null ? array.length : 0;
+        if (done) {
+            return "Done. Array sorted (n=" + n + ")";
+        }
+        // When starting an outer iteration, j = i+1
+        if (j == i + 1) {
+            return "Start outer iteration: i=" + i + ", scanning from j=" + j + " (minIndex=" + minIndex + ")";
+        }
+        // If still scanning
+        if (j < n) {
+            return "Comparing j=" + j + " with current minIndex=" + minIndex + " at i=" + i;
+        }
+        // Finished scanning, deciding swap/mark
+        if (j >= n) {
+            if (minIndex != i) {
+                return "Swap needed: i=" + i + " and minIndex=" + minIndex;
+            } else {
+                return "No swap. Mark index i=" + i + " as sorted";
+            }
+        }
+        return "i=" + i + ", j=" + j + ", minIndex=" + minIndex;
+    }
 }
 
 
