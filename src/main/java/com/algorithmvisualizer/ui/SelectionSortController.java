@@ -441,6 +441,7 @@ public class SelectionSortController implements AlgorithmViewController.Algorith
     }
 
     private void showCompletion() {
+        updateVariablesPanel(); // Update variables one last time
         // Mark all elements as sorted when algorithm is complete
         int lastIndex = solver.getArray().length - 1;
         barChart.markSortedPrefix(lastIndex);
@@ -598,7 +599,7 @@ public class SelectionSortController implements AlgorithmViewController.Algorith
         parent.variableList.getItems().addAll(
                 "array: " + Arrays.toString(solver.getArray()),
                 "i (current pass / sorted boundary): " + solver.getI(),
-                "j (current index): " + (solver.getJ() == currentArray.length ? solver.getJ() + " (exhausted)" : solver.getJ()),
+                "j (current index): " + (solver.getJ() == currentArray.length ? (solver.getJ() - 1) : solver.getJ()),
                 "Minimum Index: " + solver.getMinIndex(),
                 "state: " + (solver.isDone() ? "DONE" : "RUNNING")
         );
