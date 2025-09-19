@@ -226,18 +226,18 @@ public class NQueensController implements AlgorithmViewController.AlgorithmSpeci
                 if (chessboardRenderer != null) chessboardRenderer.highlightCurrentPosition(row, col);
                 if (parentController != null) parentController.stepDescription.setText("Check row " + row + ", col " + col);
                 highlightCode("CHECK");
-                appendProgress("Trying queen " + solver.getQueensPlaced() + " at row " + row + " & col " + col);
+                appendProgress("🔍 Checking position for queen #" + (solver.getQueensPlaced() + 1) + ": row " + row + ", col " + col);
                 break;
             case PLACE:
                 if (chessboardRenderer != null) chessboardRenderer.placeQueen(row, col);
                 highlightCode("PLACE");
-                appendProgress("Placed queen at row " + row + " & col " + col);
+                appendProgress("✅ Placed queen at (" + row + ", " + col + ") • total placed: " + solver.getQueensPlaced());
                 break;
             case BACKTRACK:
                 // Visual handling is initiated in legacyPlaceBacktrack; keep logs here
                 highlightCode("BACKTRACK");
                 appendProgress("");
-                appendProgress("row " + row + " & col " + col + " didn't work out. Backtracking");
+                appendProgress("Backtracking from (" + row + ", " + col + ") — removing queen and trying next option");
                 appendProgress("");
                 break;
             case SOLUTION:
@@ -246,7 +246,7 @@ public class NQueensController implements AlgorithmViewController.AlgorithmSpeci
                 updateStatus("Solution found: " + solutionsFound);
                 highlightCode("SOLUTION");
                 appendProgress("");
-                appendProgress("Found a solution (#" + solutionsFound + ")");
+                appendProgress("🏆 Found a solution (#" + solutionsFound + ")");
                 appendProgress("");
                 displaySolution(solver.getSolutions().get(solver.getSolutions().size() - 1), solutionsFound);
                 break;
@@ -254,7 +254,7 @@ public class NQueensController implements AlgorithmViewController.AlgorithmSpeci
                 updateStatus("Completed. Solutions: " + solver.getSolutionsFound());
                 stopTimeline();
                 highlightCode("DONE");
-                appendProgress("Search completed.");
+                appendProgress("🎉 Search complete. Total solutions: " + solver.getSolutionsFound());
                 finalizeProgressSummary();
                 break;
         }
@@ -676,9 +676,9 @@ public class NQueensController implements AlgorithmViewController.AlgorithmSpeci
     private void initProgressLog() {
         if (parentController != null && parentController.progressArea != null) {
             parentController.progressArea.clear();
-            appendProgress("N Queens: " + currentBoardSize + "X" + currentBoardSize + " matrix, " + numQueensSpinner.getValue() + " queens");
-            appendProgress("Starting execution");
-            appendProgress("Starting new iteration of nQueens() with currentQueen = 0 & currentCol = 0");
+            appendProgress("N-Queens: " + currentBoardSize + "×" + currentBoardSize + " board • queens: " + numQueensSpinner.getValue());
+            appendProgress("🚀 Starting search");
+            appendProgress("🔁 Begin with currentRow = 0, currentCol = 0");
             appendProgress("--------------------------------------------------");
         }
     }
