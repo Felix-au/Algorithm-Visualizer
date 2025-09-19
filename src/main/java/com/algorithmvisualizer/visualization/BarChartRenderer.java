@@ -112,6 +112,47 @@ public class BarChartRenderer {
 
     public Node getNode() { return container; }
 
+    // ---- Additional helpers for Binary Search visualization ----
+    public void highlightMid(int idx) {
+        if (!valid(idx)) return;
+        if (bars[idx].getFill() == Color.FORESTGREEN) return; // do not override found
+        bars[idx].setFill(Color.GOLD);
+    }
+
+    public void markFound(int idx) {
+        if (!valid(idx)) return;
+        bars[idx].setFill(Color.FORESTGREEN);
+    }
+
+    public void markEliminatedRange(int fromInclusive, int toInclusive) {
+        if (bars == null) return;
+        int from = Math.max(0, fromInclusive);
+        int to = Math.min(bars.length - 1, toInclusive);
+        if (from > to) return;
+        for (int k = from; k <= to; k++) {
+            if (bars[k] != null && bars[k].getFill() != Color.FORESTGREEN) {
+                bars[k].setFill(Color.RED);
+            }
+        }
+    }
+
+    public void setIndexColor(int idx, Color color) {
+        if (!valid(idx)) return;
+        bars[idx].setFill(color);
+    }
+
+    public void setRangeColor(int fromInclusive, int toInclusive, Color color) {
+        if (bars == null) return;
+        int from = Math.max(0, fromInclusive);
+        int to = Math.min(bars.length - 1, toInclusive);
+        if (from > to) return;
+        for (int k = from; k <= to; k++) {
+            if (bars[k] != null) {
+                bars[k].setFill(color);
+            }
+        }
+    }
+
     private void rebuild() {
         container.getChildren().clear();
         if (data == null || data.length == 0) return;

@@ -1,4 +1,5 @@
 com\algorithmvisualizer\algorithm\NQueensSolver$State.class
+com\algorithmvisualizer\ui\BinarySearchController$1.class
 com\algorithmvisualizer\visualization\BacktrackMatrixRenderer$CellState.class
 com\algorithmvisualizer\algorithm\NQueensSolver$StepType.class
 com\algorithmvisualizer\ui\BubbleSortController$1.class

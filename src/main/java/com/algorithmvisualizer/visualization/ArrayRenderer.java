@@ -89,6 +89,43 @@ public class ArrayRenderer {
 
     public FlowPane getNode() { return container; }
 
+    // ---- Additional helpers for Binary Search visualization ----
+    public void highlightMid(int idx) {
+        if (!valid(idx)) return;
+        if (cells[idx].getStyle().contains("FORESTGREEN")) return; // don't override found
+        cells[idx].setStyle("-fx-background-color: GOLD; -fx-border-color: #333; -fx-padding: 6;");
+    }
+
+    public void markFound(int idx) {
+        if (!valid(idx)) return;
+        cells[idx].setStyle("-fx-background-color: FORESTGREEN; -fx-border-color: #333; -fx-padding: 6;");
+    }
+
+    public void markEliminatedRange(int fromInclusive, int toInclusive) {
+        if (cells == null) return;
+        int from = Math.max(0, fromInclusive);
+        int to = Math.min(cells.length - 1, toInclusive);
+        if (from > to) return;
+        for (int k = from; k <= to; k++) {
+            cells[k].setStyle("-fx-background-color: RED; -fx-border-color: #333; -fx-padding: 6;");
+        }
+    }
+
+    public void setIndexColor(int idx, String cssColorName) {
+        if (!valid(idx)) return;
+        cells[idx].setStyle("-fx-background-color: " + cssColorName + "; -fx-border-color: #333; -fx-padding: 6;");
+    }
+
+    public void setRangeColor(int fromInclusive, int toInclusive, String cssColorName) {
+        if (cells == null) return;
+        int from = Math.max(0, fromInclusive);
+        int to = Math.min(cells.length - 1, toInclusive);
+        if (from > to) return;
+        for (int k = from; k <= to; k++) {
+            cells[k].setStyle("-fx-background-color: " + cssColorName + "; -fx-border-color: #333; -fx-padding: 6;");
+        }
+    }
+
     private void rebuild() {
         container.getChildren().clear();
         if (data == null) return;

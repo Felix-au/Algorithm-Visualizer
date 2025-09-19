@@ -4,6 +4,7 @@ import com.algorithmvisualizer.model.Algorithm;
 import com.algorithmvisualizer.model.NQueensAlgorithm;
 import com.algorithmvisualizer.model.SelectionSortAlgorithm;
 import com.algorithmvisualizer.model.BubbleSortAlgorithm;
+import com.algorithmvisualizer.model.BinarySearchAlgorithm;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -35,6 +36,7 @@ public class MainController {
         algorithms.add(new NQueensAlgorithm());
         algorithms.add(new SelectionSortAlgorithm());
         algorithms.add(new BubbleSortAlgorithm());
+        algorithms.add(new BinarySearchAlgorithm());
         
         algorithmList.setItems(algorithms);
         algorithmList.getSelectionModel().selectFirst();

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.algorithmvisualizer.ui.BinarySearchController">
+    <!-- This view is intentionally minimal. The main shared layout is algorithm-view-new.fxml.
+         We only need this FXML to provide an instance of BinarySearchController so that
+         AlgorithmViewController can call setParentController(...) on it. -->
+</AnchorPane>
