@@ -147,13 +147,40 @@ public class BinarySearchController implements AlgorithmViewController.Algorithm
             parent.solutionsHeaderBox.getChildren().addAll(solHeader, new Separator());
         }
         if (parent.solutionsSubHeaderBox != null) {
-            parent.solutionsSubHeaderBox.setVisible(false);
-            parent.solutionsSubHeaderBox.setManaged(false);
+            parent.solutionsSubHeaderBox.setVisible(true);
+            parent.solutionsSubHeaderBox.setManaged(true);
+            parent.solutionsSubHeaderBox.getChildren().clear();
+            HBox legendRow = new HBox(15.0);
+            // Mid = Yellow
+            HBox lMid = new HBox(5.0);
+            javafx.scene.shape.Rectangle rMid = new javafx.scene.shape.Rectangle(12, 12);
+            rMid.setFill(javafx.scene.paint.Color.GOLD);
+            rMid.setStroke(javafx.scene.paint.Color.BLACK);
+            lMid.getChildren().addAll(rMid, new Label("Mid"));
+            // Eliminated = Red
+            HBox lElim = new HBox(5.0);
+            javafx.scene.shape.Rectangle rElim = new javafx.scene.shape.Rectangle(12, 12);
+            rElim.setFill(javafx.scene.paint.Color.RED);
+            rElim.setStroke(javafx.scene.paint.Color.BLACK);
+            lElim.getChildren().addAll(rElim, new Label("Eliminated"));
+            // Found = Green
+            HBox lFound = new HBox(5.0);
+            javafx.scene.shape.Rectangle rFound = new javafx.scene.shape.Rectangle(12, 12);
+            rFound.setFill(javafx.scene.paint.Color.FORESTGREEN);
+            rFound.setStroke(javafx.scene.paint.Color.BLACK);
+            lFound.getChildren().addAll(rFound, new Label("Found"));
+            legendRow.getChildren().addAll(lMid, lElim, lFound);
+            parent.solutionsSubHeaderBox.getChildren().add(legendRow);
         }
         moveArrayViewToSolutions();
 
         // Controls
         if (parent.speedSlider != null) parent.speedSlider.valueProperty().addListener((obs, o, n) -> updatePlaybackSpeed());
+        // Unify Play/Pause behavior: hide dedicated Pause button; Play acts as toggle
+        if (parent.pauseButton != null) {
+            parent.pauseButton.setVisible(false);
+            parent.pauseButton.setManaged(false);
+        }
 
         // Code + logs + variables
         renderCode();
@@ -256,10 +283,16 @@ public class BinarySearchController implements AlgorithmViewController.Algorithm
         arrayView.updateData(solver.getArray());
         // Repaint full state for both visuals
         repaintState(solver.getLow(), solver.getMid(), solver.getHigh());
-        // Remove logs of last step
-        if (parent != null && parent.progressArea != null && !progressHistory.isEmpty()) {
-            int toRemove = progressHistory.pop();
-            removeLastLogLines(toRemove);
+        // Remove logs of last step or any in-progress logs for the current step
+        if (parent != null && parent.progressArea != null) {
+            if (countLogsForStep && currentStepLogLines > 0) {
+                removeLastLogLines(currentStepLogLines);
+                currentStepLogLines = 0;
+                countLogsForStep = false;
+            } else if (!progressHistory.isEmpty()) {
+                int toRemove = progressHistory.pop();
+                removeLastLogLines(toRemove);
+            }
         }
         updateVariablesPanel();
         if (parent != null) parent.stepDescription.setText(solver.getCurrentStepDescription());
@@ -314,6 +347,9 @@ public class BinarySearchController implements AlgorithmViewController.Algorithm
                 if (parent != null) parent.stepDescription.setText("Initialized. low=0, high=" + (currentArray.length - 1));
                 break;
             case HIGHLIGHT_MID:
+                // Start counting logs for this step so we can remove them on step-back
+                countLogsForStep = true;
+                currentStepLogLines = 0;
                 // Stop any ongoing blinks to avoid them overriding the mid yellow highlight
                 stopOngoingBlinks();
                 // Repaint full state to ensure eliminated reds persist and new mid is highlighted yellow
@@ -344,15 +380,33 @@ public class BinarySearchController implements AlgorithmViewController.Algorithm
                 break;
             case MOVE_BOUNDS:
                 if (parent != null) parent.stepDescription.setText(solver.getCurrentStepDescription());
+                // End of this step: record how many lines were written and reset counter
+                if (countLogsForStep) {
+                    progressHistory.push(currentStepLogLines);
+                    countLogsForStep = false;
+                    currentStepLogLines = 0;
+                }
                 break;
             case DONE_FOUND:
                 // handled via green blink persistence
                 stopTimeline();
+                // Finalize any pending step logs
+                if (countLogsForStep) {
+                    progressHistory.push(currentStepLogLines);
+                    countLogsForStep = false;
+                    currentStepLogLines = 0;
+                }
                 break;
             case DONE_NOT_FOUND:
                 appendProgress("❌ Target not found.");
                 if (parent != null) parent.stepDescription.setText("Not found.");
                 stopTimeline();
+                // Finalize any pending step logs
+                if (countLogsForStep) {
+                    progressHistory.push(currentStepLogLines);
+                    countLogsForStep = false;
+                    currentStepLogLines = 0;
+                }
                 break;
         }
         updateVariablesPanel();

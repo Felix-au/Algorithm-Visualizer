@@ -18,9 +18,9 @@ public class BubbleSortAlgorithm extends Algorithm {
 
     @Override
     public Class<?> getControllerClass() {
-        // Note: Controller class is resolved via FXML; this value is not used by loader.
-        // Return an existing controller class to satisfy compile-time availability.
-        return com.algorithmvisualizer.ui.SelectionSortController.class;
+        // Note: Controller class is resolved via FXML at runtime.
+        // Returning the matching controller improves clarity for maintainers.
+        return com.algorithmvisualizer.ui.BubbleSortController.class;
     }
 }
 
