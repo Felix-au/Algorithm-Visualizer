@@ -45,6 +45,12 @@ public class SelectionSortController implements AlgorithmViewController.Algorith
     private final Deque<Integer> progressHistory = new ArrayDeque<>();
     private int currentStepLogLines = 0;
     private boolean countLogsForStep = false;
+    
+    // Track number of completed passes (sorted boundary)
+    private int passesCompleted = 0;
+    
+    // Flag to prevent duplicate completion messages
+    private boolean completionShown = false;
 
     private int[] currentArray = new int[] {5, 3, 8, 4, 2};
 
@@ -272,6 +278,7 @@ public class SelectionSortController implements AlgorithmViewController.Algorith
     private void refreshAll() {
         stopTimeline();
         solver.setArray(currentArray);
+        completionShown = false; // Reset completion flag for new run
         renderVisuals();
         renderCode();
         initProgressLog();
@@ -309,6 +316,7 @@ public class SelectionSortController implements AlgorithmViewController.Algorith
             case COMPARE:
                 barChart.clearHighlights();
                 arrayView.clearHighlights();
+                restoreSortedHighlighting(); // Restore green highlighting for completed passes
                 barChart.highlightCompare(j, minIndex);
                 arrayView.highlightCompare(j, minIndex);
                 barChart.highlightMin(minIndex);
@@ -359,15 +367,33 @@ public class SelectionSortController implements AlgorithmViewController.Algorith
                     // Perform actual swap after blinking
                     barChart.updateData(solver.getArray());
                     arrayView.updateData(solver.getArray());
+                    // Restore green highlighting for completed passes
+                    restoreSortedHighlighting();
                     appendProgress("🔄 SWAPPED! Moved element from position " + i + " to position " + minIndex);
-                    appendProgress("   → Element " + solver.getArray()[minIndex] + " is now in its correct sorted position");
+                    appendProgress("   → Element " + solver.getArray()[i] + " is now in its correct sorted position");
                     appendProgress("");
                     pendingBlinkDelay = false;
+                    
+                    // Now handle the MARK_SORTED case that was delayed
+                    passesCompleted = i + 1; // Update pass counter (i is 0-indexed, so +1 for count)
+                    barChart.markSortedPrefix(i);
+                    arrayView.markSortedPrefix(i);
+                    appendProgress("✓ Element at index " + i + " is now in its correct sorted position");
+                    appendProgress("");
+                    
                     if (isPlaying && timeline != null) { timeline.play(); }
                     if (solver.isDone()) { showCompletion(); }
                 });
                 break;
             case MARK_SORTED:
+                // If there's a pending swap delay, wait for it to complete before processing MARK_SORTED
+                if (pendingBlinkDelay) {
+                    // Store the MARK_SORTED action to be executed after swap completes
+                    // The swap completion callback will handle this
+                    return;
+                }
+                
+                passesCompleted = i + 1; // Update pass counter (i is 0-indexed, so +1 for count)
                 barChart.markSortedPrefix(i);
                 arrayView.markSortedPrefix(i);
                 appendProgress("✓ Element at index " + i + " is now in its correct sorted position");
@@ -393,11 +419,12 @@ public class SelectionSortController implements AlgorithmViewController.Algorith
                 break;
             case DONE:
                 // Only show completion if no delays are pending
-                if (isPlaying && (pendingMarkedDelay || pendingMinDelay || pendingEndScanDelay || pendingBlinkDelay)) {
+                if (pendingMarkedDelay || pendingMinDelay || pendingEndScanDelay || pendingBlinkDelay) {
                     // Don't show completion yet - wait for delays to finish
                     // The completion will be shown when the last delay finishes
                     return;
                 } else {
+                    // Show completion immediately when no delays are pending
                     showCompletion();
                 }
                 // Safeguard: if a step was in progress but didn't hit MARK_SORTED due to edge cases
@@ -412,18 +439,27 @@ public class SelectionSortController implements AlgorithmViewController.Algorith
     }
 
     private void showCompletion() {
+        if (completionShown) return; // Prevent duplicate completion messages
+        completionShown = true;
+        
         updateVariablesPanel(); // Update variables one last time
         // Mark all elements as sorted when algorithm is complete
         int lastIndex = solver.getArray().length - 1;
         barChart.markSortedPrefix(lastIndex);
         arrayView.markSortedPrefix(lastIndex);
         
-        appendProgress("🎉 SORTING COMPLETE!");
-        appendProgress("✓ All " + (lastIndex + 1) + " elements are now in their correct sorted positions");
-        appendProgress("✓ Array is fully sorted in ascending order");
-        appendProgress("");
+        // Add a small delay before showing completion to ensure it appears after any final operations
+        PauseTransition completionDelay = new PauseTransition(Duration.seconds(0.5));
+        completionDelay.setOnFinished(ev -> {
+            appendProgress("🎉 SORTING COMPLETE!");
+            appendProgress("✓ All " + (lastIndex + 1) + " elements are now in their correct sorted positions");
+            appendProgress("✓ Array is fully sorted in ascending order");
+            appendProgress("");
+            
+            if (parent != null) parent.stepDescription.setText("🎉 Sorting Complete! All elements are sorted.");
+        });
+        completionDelay.play();
         
-        if (parent != null) parent.stepDescription.setText("🎉 Sorting Complete! All elements are sorted.");
         stopTimeline();
     }
 
@@ -472,6 +508,13 @@ public class SelectionSortController implements AlgorithmViewController.Algorith
         int i = solver.getI();
         int j = solver.getJ();
         int minIndex = solver.getMinIndex();
+
+        // Update pass counter based on current state
+        if (solver.isDone()) {
+            passesCompleted = n; // All elements sorted
+        } else {
+            passesCompleted = i; // i represents the current pass, so completed passes = i
+        }
 
         // Mark sorted prefix up to (i - 1)
         if (n > 0) {
@@ -530,6 +573,8 @@ public class SelectionSortController implements AlgorithmViewController.Algorith
         progressHistory.clear();
         countLogsForStep = false;
         currentStepLogLines = 0;
+        passesCompleted = 0;
+        completionShown = false;
         solver.reset();
         barChart.updateData(solver.getArray());
         arrayView.updateData(solver.getArray());
@@ -611,17 +656,59 @@ public class SelectionSortController implements AlgorithmViewController.Algorith
 
     private void renderCode() {
         if (parent == null || parent.codeArea == null) return;
+        
+        // Get current array values for dynamic display
+        int size = currentArray.length;
+        String arrayValues = java.util.Arrays.toString(currentArray).replaceAll("[\\[\\]]", "");
+        
         String[] lines = new String[] {
-                "void selectionSort(int[] a) {",
-                "  int n = a.length;",
-                "  for (int i = 0; i < n - 1; i++) {",
-                "    int min = i;",
-                "    for (int j = i + 1; j < n; j++) {",
-                "      if (a[j] < a[min]) min = j;",
+                "public class SelectionSortExample {",
+                "    static final int SIZE = " + size + ";",
+                "    static int[] arr = {" + arrayValues + "};",
+                "",
+                "    public static void main(String[] args) {",
+                "        System.out.println(\"Selection Sort for array of size \" + SIZE);",
+                "        System.out.println(\"=====================================\");",
+                "",
+                "        System.out.print(\"Original Array: \");",
+                "        printArray(arr);",
+                "",
+                "        long startTime = System.currentTimeMillis();",
+                "",
+                "        selectionSort(arr);",
+                "",
+                "        long endTime = System.currentTimeMillis();",
+                "        System.out.println(\"=====================================\");",
+                "        System.out.print(\"Sorted Array:   \");",
+                "        printArray(arr);",
+                "        System.out.println(\"Execution time: \" + (endTime - startTime) + \" ms\");",
                 "    }",
-                "    if (min != i) swap(a, i, min);",
-                "  }",
-                "}",
+                "",
+                "    static void selectionSort(int[] arr) {",
+                "        int n = arr.length;",
+                "        for (int i = 0; i < n - 1; i++) {",
+                "            int minIdx = i;",
+                "            for (int j = i + 1; j < n; j++) {",
+                "                if (arr[j] < arr[minIdx]) {",
+                "                    minIdx = j;",
+                "                }",
+                "            }",
+                "            int temp = arr[minIdx];",
+                "            arr[minIdx] = arr[i];",
+                "            arr[i] = temp;",
+                "",
+                "            System.out.print(\"After pass \" + (i + 1) + \": \");",
+                "            printArray(arr);",
+                "        }",
+                "    }",
+                "",
+                "    static void printArray(int[] arr) {",
+                "        for (int num : arr) {",
+                "            System.out.print(num + \" \");",
+                "        }",
+                "        System.out.println();",
+                "    }",
+                "}"
         };
         parent.codeArea.setText(String.join("\n", lines));
     }
@@ -668,8 +755,27 @@ public class SelectionSortController implements AlgorithmViewController.Algorith
                 "i (current pass / sorted boundary): " + solver.getI(),
                 "j (current index): " + (solver.getJ() == currentArray.length ? (solver.getJ() - 1) : solver.getJ()),
                 "Minimum Index: " + solver.getMinIndex(),
+                "passes completed: " + passesCompleted,
                 "state: " + (solver.isDone() ? "DONE" : "RUNNING")
         );
+    }
+    
+    private void restoreSortedHighlighting() {
+        // Restore green highlighting for all completed passes
+        if (passesCompleted > 0) {
+            barChart.markSortedPrefix(passesCompleted - 1);
+            arrayView.markSortedPrefix(passesCompleted - 1);
+        }
+        
+        // Special case: if we're in the final pass (i = size - 1), highlight all elements
+        // This handles the case where a swap occurs in the last pass and the last element
+        // needs to be highlighted as sorted
+        int currentI = solver.getI();
+        int arraySize = solver.getArray().length;
+        if (currentI == arraySize - 1) {
+            barChart.markSortedPrefix(arraySize - 1);
+            arrayView.markSortedPrefix(arraySize - 1);
+        }
     }
 
     // Helpers
