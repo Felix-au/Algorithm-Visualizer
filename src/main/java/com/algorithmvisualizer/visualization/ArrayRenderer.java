@@ -73,6 +73,14 @@ public class ArrayRenderer {
         }
     }
 
+    // Mark all elements from 'fromIndex' to end as sorted (for bubble sort suffix)
+    public void markSortedSuffix(int fromIndex) {
+        if (cells == null) return;
+        for (int k = Math.max(0, fromIndex); k < cells.length; k++) {
+            cells[k].setStyle("-fx-background-color: FORESTGREEN; -fx-border-color: #333; -fx-padding: 6;");
+        }
+    }
+
     // Force red highlighting for blinking animation (overrides green)
     public void forceHighlightSwap(int i, int j) {
         if (valid(i)) cells[i].setStyle("-fx-background-color: RED; -fx-border-color: #333; -fx-padding: 6;");

@@ -1,6 +1,7 @@
 com\algorithmvisualizer\algorithm\NQueensSolver$State.class
 com\algorithmvisualizer\visualization\BacktrackMatrixRenderer$CellState.class
 com\algorithmvisualizer\algorithm\NQueensSolver$StepType.class
+com\algorithmvisualizer\ui\BubbleSortController$1.class
 com\algorithmvisualizer\ui\SelectionSortController$1.class
 com\algorithmvisualizer\algorithm\SelectionSortSolver$StepListener.class
 com\algorithmvisualizer\visualization\BacktrackMatrixRenderer.class
@@ -20,5 +21,3 @@ com\algorithmvisualizer\ui\NQueensController.class
 com\algorithmvisualizer\visualization\ChessboardRenderer.class
 com\algorithmvisualizer\algorithm\NQueensSolver$VisualizationCallback.class
 com\algorithmvisualizer\visualization\BacktrackMatrixRenderer$1.class
-com\algorithmvisualizer\model\SelectionSortAlgorithm.class
-com\algorithmvisualizer\ui\SelectionSortController.class

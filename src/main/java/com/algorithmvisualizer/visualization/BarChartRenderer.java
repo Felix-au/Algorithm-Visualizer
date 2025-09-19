@@ -94,6 +94,16 @@ public class BarChartRenderer {
         }
     }
 
+    // Mark all elements from 'fromIndex' to end as sorted (for bubble sort suffix)
+    public void markSortedSuffix(int fromIndex) {
+        if (bars == null) return;
+        for (int k = Math.max(0, fromIndex); k < bars.length; k++) {
+            if (bars[k] != null) {
+                bars[k].setFill(Color.FORESTGREEN);
+            }
+        }
+    }
+
     // Force red highlighting for blinking animation (overrides green)
     public void forceHighlightSwap(int i, int j) {
         if (valid(i)) bars[i].setFill(Color.RED);
