@@ -34,6 +34,8 @@ public class BinarySearchController implements AlgorithmViewController.Algorithm
     private BinarySearchSolver solver;
     private Timeline timeline;
     private boolean isPlaying = false;
+    private Timeline compareBlinkTimeline;
+    private Timeline elimBlinkTimeline;
 
     // Flags to block stepping during waits/blinks
     private boolean pendingMidWait = false;
@@ -312,6 +314,8 @@ public class BinarySearchController implements AlgorithmViewController.Algorithm
                 if (parent != null) parent.stepDescription.setText("Initialized. low=0, high=" + (currentArray.length - 1));
                 break;
             case HIGHLIGHT_MID:
+                // Stop any ongoing blinks to avoid them overriding the mid yellow highlight
+                stopOngoingBlinks();
                 // Repaint full state to ensure eliminated reds persist and new mid is highlighted yellow
                 repaintState(low, mid, high);
                 int n = currentArray.length;
@@ -369,7 +373,8 @@ public class BinarySearchController implements AlgorithmViewController.Algorithm
     private void blinkIndex(int idx, javafx.scene.paint.Color color, double seconds, boolean persistFound) {
         pendingCompareBlink = true;
         if (isPlaying && timeline != null) timeline.pause();
-        Timeline blink = new Timeline(
+        if (compareBlinkTimeline != null) { compareBlinkTimeline.stop(); compareBlinkTimeline = null; }
+        compareBlinkTimeline = new Timeline(
                 new KeyFrame(Duration.seconds(0.0), e -> {
                     barChart.setIndexColor(idx, color);
                     arrayView.setIndexColor(idx, color == javafx.scene.paint.Color.FORESTGREEN ? "FORESTGREEN" : "RED");
@@ -388,16 +393,18 @@ public class BinarySearchController implements AlgorithmViewController.Algorithm
                         arrayView.setIndexColor(idx, "RED");
                     }
                     pendingCompareBlink = false;
+                    compareBlinkTimeline = null;
                     if (isPlaying && timeline != null) timeline.play();
                 })
         );
-        blink.play();
+        compareBlinkTimeline.play();
     }
 
     private void blinkRange(int from, int to, double seconds) {
         pendingElimBlink = true;
         if (isPlaying && timeline != null) timeline.pause();
-        Timeline blink = new Timeline(
+        if (elimBlinkTimeline != null) { elimBlinkTimeline.stop(); elimBlinkTimeline = null; }
+        elimBlinkTimeline = new Timeline(
                 new KeyFrame(Duration.seconds(0.0), e -> {
                     barChart.setRangeColor(from, to, javafx.scene.paint.Color.RED);
                     arrayView.setRangeColor(from, to, "RED");
@@ -411,10 +418,11 @@ public class BinarySearchController implements AlgorithmViewController.Algorithm
                     barChart.markEliminatedRange(from, to);
                     arrayView.markEliminatedRange(from, to);
                     pendingElimBlink = false;
+                    elimBlinkTimeline = null;
                     if (isPlaying && timeline != null) timeline.play();
                 })
         );
-        blink.play();
+        elimBlinkTimeline.play();
     }
 
     // --- Logging & variables ---
@@ -470,19 +478,59 @@ public class BinarySearchController implements AlgorithmViewController.Algorithm
         String arrayValues = Arrays.toString(currentArray).replaceAll("[\\[\\]]", "");
         String[] lines = new String[] {
                 "public class BinarySearchExample {",
+                "    static final int[] arr = {" + arrayValues + "};",
                 "    static final int SIZE = " + size + ";",
                 "    static final int TARGET = " + targetValue + ";",
-                "    static int[] arr = {" + arrayValues + "};",
                 "",
-                "    public static int binarySearch(int[] arr, int target) {",
-                "        int low = 0, high = arr.length - 1;",
-                "        while (low <= high) {",
-                "            int mid = low + (high - low) / 2;",
-                "            if (arr[mid] == target) return mid;",
-                "            if (arr[mid] < target) low = mid + 1;",
-                "            else high = mid - 1;",
+                "    public static void main(String[] args) {",
+                "        System.out.println(\"Binary Search in sorted array of size \" + SIZE);",
+                "        System.out.println(\"=====================================\");",
+                "        System.out.print(\"Array: \");",
+                "        printArray(arr);",
+                "        System.out.println(\"Element to search: \" + TARGET);",
+                "",
+                "        long startTime = System.currentTimeMillis();",
+                "",
+                "        int result = binarySearch(arr, TARGET);",
+                "",
+                "        long endTime = System.currentTimeMillis();",
+                "        System.out.println(\"=====================================\");",
+                "",
+                "        if (result == -1) {",
+                "            System.out.println(\"Element \" + TARGET + \" not found.\");",
+                "        } else {",
+                "            System.out.println(\"Element \" + TARGET + \" found at index \" + result);",
+                "        }",
+                "",
+                "        System.out.println(\"Execution time: \" + (endTime - startTime) + \" ms\");",
+                "    }",
+                "",
+                "    static int binarySearch(int[] arr, int target) {",
+                "        int left = 0, right = arr.length - 1;",
+                "        int step = 1;",
+                "",
+                "        while (left <= right) {",
+                "            int mid = (left + right) / 2;",
+                "            System.out.println(\"Step \" + step + ": left=" + left + \" right=\" + right + \" mid=\" + mid + \" (value=\" + arr[mid] + ")\");",
+                "            step++;",
+                "",
+                "            if (arr[mid] == target) {",
+                "                return mid;",
+                "            }",
+                "            if (arr[mid] < target) {",
+                "                left = mid + 1;",
+                "            } else {",
+                "                right = mid - 1;",
+                "            }",
                 "        }",
                 "        return -1;",
+                "    }",
+                "",
+                "    static void printArray(int[] arr) {",
+                "        for (int num : arr) {",
+                "            System.out.print(num + \" \");",
+                "        }",
+                "        System.out.println();",
                 "    }",
                 "}",
         };
@@ -569,5 +617,10 @@ public class BinarySearchController implements AlgorithmViewController.Algorithm
             barChart.highlightMid(mid);
             arrayView.highlightMid(mid);
         }
+    }
+
+    private void stopOngoingBlinks() {
+        if (compareBlinkTimeline != null) { compareBlinkTimeline.stop(); compareBlinkTimeline = null; }
+        if (elimBlinkTimeline != null) { elimBlinkTimeline.stop(); elimBlinkTimeline = null; }
     }
 }
