@@ -1,10 +1,12 @@
 package com.algorithmvisualizer.visualization;
 
+import javafx.animation.PauseTransition;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
+import javafx.util.Duration;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -88,6 +90,20 @@ public class MazeGridRenderer {
         Rectangle rect = cells[r][c];
         if (rect != null) rect.setFill(Color.ORANGE);
         reapplyStartGoalStrokes();
+    }
+
+    public void pulseBacktrack(int r, int c) {
+        Rectangle rect = cells[r][c];
+        if (rect == null) return;
+        rect.setStroke(Color.CRIMSON);
+        rect.setStrokeWidth(3.0);
+        PauseTransition pt = new PauseTransition(Duration.millis(220));
+        pt.setOnFinished(e -> {
+            rect.setStroke(Color.TRANSPARENT);
+            rect.setStrokeWidth(1.0);
+            reapplyStartGoalStrokes();
+        });
+        pt.play();
     }
 
     public void setStartGoal(int sR, int sC, int gR, int gC) {

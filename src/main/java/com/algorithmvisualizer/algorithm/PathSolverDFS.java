@@ -123,6 +123,7 @@ public class PathSolverDFS {
             }
         }
         stack.pop();
+        emit(PathSolverBFS.StepType.BACKTRACK, r, c);
     }
 
     private void buildPath() {

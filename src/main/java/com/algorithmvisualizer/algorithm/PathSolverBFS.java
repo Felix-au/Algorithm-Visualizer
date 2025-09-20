@@ -3,7 +3,7 @@ package com.algorithmvisualizer.algorithm;
 import java.util.*;
 
 public class PathSolverBFS {
-    public enum StepType { INIT, VISIT, FRONTIER, FOUND, RECON_PATH, NO_PATH, DONE }
+    public enum StepType { INIT, VISIT, FRONTIER, FOUND, RECON_PATH, BACKTRACK, NO_PATH, DONE }
     public interface StepListener { void onStep(StepType type, int r, int c); }
 
     private int rows, cols;
