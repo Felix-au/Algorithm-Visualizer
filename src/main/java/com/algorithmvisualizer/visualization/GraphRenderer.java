@@ -1,11 +1,17 @@
 package com.algorithmvisualizer.visualization;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.ParallelTransition;
+import javafx.animation.StrokeTransition;
+import javafx.animation.Timeline;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.text.Text;
+import javafx.util.Duration;
 
 import java.util.*;
 
@@ -19,6 +25,7 @@ public class GraphRenderer {
     private final Map<Integer, Circle> nodeCircles = new HashMap<>();
     private final Map<Integer, Text> nodeLabels = new HashMap<>();
     private final Map<String, Line> edgeLines = new HashMap<>();
+    private final Map<String, Boolean> activePath = new HashMap<>();
     private int nodeCount = 0;
 
     public GraphRenderer() {
@@ -37,6 +44,7 @@ public class GraphRenderer {
         nodeCircles.clear();
         nodeLabels.clear();
         edgeLines.clear();
+        activePath.clear();
 
         // Pre-create nodes
         for (int i = 0; i < nodeCount; i++) {
@@ -80,7 +88,9 @@ public class GraphRenderer {
         }
         for (Line l : edgeLines.values()) {
             l.setStroke(Color.GRAY);
+            l.setStrokeWidth(2.0);
         }
+        // keep activePath state but visual reset to baseline until setActivePathEdge called again
     }
 
     public void highlightCurrent(int v) {
@@ -103,6 +113,66 @@ public class GraphRenderer {
         if (l != null) {
             l.setStroke(Color.DARKORANGE);
         }
+    }
+
+    /**
+     * Mark or unmark an edge as part of the active DFS path (stack). Active edges are thicker and blue.
+     */
+    public void setActivePathEdge(int u, int v, boolean active) {
+        String key = edgeKey(u, v);
+        Line l = edgeLines.get(key);
+        if (l == null) l = edgeLines.get(edgeKey(v, u));
+        if (l == null) return;
+        activePath.put(edgeKey(Math.min(u, v), Math.max(u, v)), active);
+        if (active) {
+            l.setStroke(Color.CORNFLOWERBLUE);
+            l.setStrokeWidth(4.0);
+        } else {
+            l.setStroke(Color.GRAY);
+            l.setStrokeWidth(2.0);
+        }
+    }
+
+    /**
+     * Animate unwinding of an active edge during backtracking.
+     */
+    public void animateBacktrackEdge(int u, int v) {
+        Line l = edgeLines.get(edgeKey(u, v));
+        if (l == null) l = edgeLines.get(edgeKey(v, u));
+        if (l == null) return;
+        Color from = (l.getStroke() instanceof Color) ? (Color) l.getStroke() : Color.CORNFLOWERBLUE;
+        StrokeTransition color = new StrokeTransition(Duration.millis(220), l, from, Color.GRAY);
+        Timeline widthShrink = new Timeline(
+                new KeyFrame(Duration.ZERO, new KeyValue(l.strokeWidthProperty(), l.getStrokeWidth())),
+                new KeyFrame(Duration.millis(220), new KeyValue(l.strokeWidthProperty(), 2.0))
+        );
+        ParallelTransition pt = new ParallelTransition(color, widthShrink);
+        pt.play();
+    }
+
+    /**
+     * Brief pulse on the node to indicate backtracking from it.
+     */
+    public void flashBacktrackNode(int v) {
+        Circle c = nodeCircles.get(v);
+        if (c == null) return;
+        Circle ring = new Circle(c.getCenterX(), c.getCenterY(), c.getRadius());
+        ring.setFill(Color.TRANSPARENT);
+        ring.setStroke(Color.CRIMSON);
+        ring.setStrokeWidth(3.0);
+        container.getChildren().add(ring);
+        Timeline tl = new Timeline(
+                new KeyFrame(Duration.ZERO,
+                        new KeyValue(ring.opacityProperty(), 1.0),
+                        new KeyValue(ring.radiusProperty(), c.getRadius())
+                ),
+                new KeyFrame(Duration.millis(250),
+                        new KeyValue(ring.opacityProperty(), 0.0),
+                        new KeyValue(ring.radiusProperty(), c.getRadius() + 16)
+                )
+        );
+        tl.setOnFinished(e -> container.getChildren().remove(ring));
+        tl.play();
     }
 
     private void rebuildPositions() {

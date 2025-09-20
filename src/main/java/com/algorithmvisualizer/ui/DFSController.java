@@ -3,6 +3,7 @@ package com.algorithmvisualizer.ui;
 import com.algorithmvisualizer.algorithm.DFSSolver;
 import com.algorithmvisualizer.visualization.GraphRenderer;
 import com.algorithmvisualizer.visualization.ArrayRenderer;
+import com.algorithmvisualizer.visualization.VisitedMatrixRenderer;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -25,6 +26,7 @@ public class DFSController implements AlgorithmViewController.AlgorithmSpecificC
     // Visuals
     private GraphRenderer graphView;
     private ArrayRenderer traversalView;
+    private VisitedMatrixRenderer visitedMatrixView;
 
     // Model / Solver
     private DFSSolver solver;
@@ -37,6 +39,10 @@ public class DFSController implements AlgorithmViewController.AlgorithmSpecificC
     private int currentStepLogLines = 0;
     private boolean countLogsForStep = false;
 
+    // DFS active path (stack) and its history for step-back
+    private final Deque<Integer> pathStack = new ArrayDeque<>();
+    private final Deque<Deque<Integer>> pathHistory = new ArrayDeque<>();
+
     // Graph data
     private int nodeCount = 6;
     private List<List<Integer>> adj = new ArrayList<>();
@@ -46,6 +52,7 @@ public class DFSController implements AlgorithmViewController.AlgorithmSpecificC
     private void initialize() {
         graphView = new GraphRenderer();
         traversalView = new ArrayRenderer();
+        visitedMatrixView = new VisitedMatrixRenderer();
         initDefaultGraph();
         renderVisuals();
 
@@ -88,9 +95,9 @@ public class DFSController implements AlgorithmViewController.AlgorithmSpecificC
             vis.setStroke(javafx.scene.paint.Color.BLACK);
             javafx.scene.layout.HBox lVis = new javafx.scene.layout.HBox(5.0, vis, new Label("Visited"));
             javafx.scene.shape.Rectangle ex = new javafx.scene.shape.Rectangle(12,12);
-            ex.setFill(javafx.scene.paint.Color.DARKORANGE);
+            ex.setFill(javafx.scene.paint.Color.CORNFLOWERBLUE);
             ex.setStroke(javafx.scene.paint.Color.BLACK);
-            javafx.scene.layout.HBox lEx = new javafx.scene.layout.HBox(5.0, ex, new Label("Exploring edge"));
+            javafx.scene.layout.HBox lEx = new javafx.scene.layout.HBox(5.0, ex, new Label("Active path"));
             row.getChildren().addAll(lCur, lVis, lEx);
             parent.chessboardLegendBox.getChildren().addAll(legendTitle, row);
         }
@@ -126,7 +133,7 @@ public class DFSController implements AlgorithmViewController.AlgorithmSpecificC
             parent.solutionsHeaderBox.setVisible(true);
             parent.solutionsHeaderBox.setManaged(true);
             parent.solutionsHeaderBox.getChildren().clear();
-            Label solHeader = new Label("Traversal Order");
+            Label solHeader = new Label("Traversal + Visited");
             solHeader.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
             parent.solutionsHeaderBox.getChildren().addAll(solHeader, new Separator());
         }
@@ -180,6 +187,9 @@ public class DFSController implements AlgorithmViewController.AlgorithmSpecificC
     private void renderVisuals() {
         graphView.setGraph(nodeCount, adj);
         updateTraversalView();
+        // visited matrix sizing
+        if (visitedMatrixView != null) visitedMatrixView.setSize(nodeCount);
+        updateVisitedMatrix();
         if (parent != null && parent.chessboardContainer != null) {
             parent.chessboardContainer.getChildren().clear();
             parent.chessboardContainer.getChildren().add(graphView.getNode());
@@ -191,6 +201,13 @@ public class DFSController implements AlgorithmViewController.AlgorithmSpecificC
         if (parent == null || parent.solutionsContent == null) return;
         parent.solutionsContent.getChildren().clear();
         parent.solutionsContent.getChildren().add(traversalView.getNode());
+        if (visitedMatrixView != null) {
+            // Add spacing between traversal and visited matrix
+            javafx.scene.layout.Region spacer = new javafx.scene.layout.Region();
+            spacer.setPrefHeight(20.0);
+            parent.solutionsContent.getChildren().add(spacer);
+            parent.solutionsContent.getChildren().add(visitedMatrixView.getNode());
+        }
     }
 
     // --- Controls ---
@@ -207,6 +224,7 @@ public class DFSController implements AlgorithmViewController.AlgorithmSpecificC
     public void onStepForward() {
         if (solver == null || solver.isDone()) return;
         history.push(solver.snapshot());
+        pushPathHistory();
         solver.step();
     }
 
@@ -222,12 +240,23 @@ public class DFSController implements AlgorithmViewController.AlgorithmSpecificC
             for (int i = 0; i < s.visited.length; i++) if (s.visited[i]) graphView.markVisited(i);
         }
         // Highlight current node on top of stack if present
-        if (s.stack != null && !s.stack.isEmpty()) {
+        if (!pathHistory.isEmpty()) {
+            pathStack.clear();
+            Deque<Integer> restored = pathHistory.pop();
+            pathStack.addAll(restored);
+            Integer prev = null;
+            for (Integer node : pathStack) {
+                if (prev != null) graphView.setActivePathEdge(prev, node, true);
+                prev = node;
+            }
+            if (prev != null) graphView.highlightCurrent(prev);
+        } else if (s.stack != null && !s.stack.isEmpty()) {
             DFSSolver.Frame top = s.stack.peekLast();
             if (top != null) graphView.highlightCurrent(top.u);
         }
         // Update traversal array view
         updateTraversalView();
+        updateVisitedMatrix();
 
         // Remove the logs of the last step
         if (parent != null && parent.progressArea != null) {
@@ -250,6 +279,8 @@ public class DFSController implements AlgorithmViewController.AlgorithmSpecificC
         progressHistory.clear();
         currentStepLogLines = 0;
         countLogsForStep = false;
+        pathStack.clear();
+        pathHistory.clear();
         solver.reset();
         renderVisuals();
         initProgressLog();
@@ -277,6 +308,7 @@ public class DFSController implements AlgorithmViewController.AlgorithmSpecificC
         timeline = new Timeline(new KeyFrame(frame, e -> {
             if (solver.isDone()) { stopTimeline(); return; }
             history.push(solver.snapshot());
+            pushPathHistory();
             solver.step();
         }));
         timeline.setCycleCount(Animation.INDEFINITE);
@@ -290,6 +322,9 @@ public class DFSController implements AlgorithmViewController.AlgorithmSpecificC
         switch (type) {
             case INIT:
                 graphView.clearHighlights();
+                // start a new component or continue
+                pathStack.clear();
+                pathStack.addLast(u);
                 graphView.highlightCurrent(u);
                 appendProgress("🚀 Start/continue DFS at node " + u);
                 if (parent != null) parent.stepDescription.setText("Start at node " + u);
@@ -302,11 +337,22 @@ public class DFSController implements AlgorithmViewController.AlgorithmSpecificC
                 break;
             case EXPLORE_EDGE:
                 graphView.highlightEdge(u, v);
+                graphView.setActivePathEdge(u, v, true);
+                pathStack.addLast(v);
                 graphView.highlightCurrent(v);
                 appendProgress("➡ Exploring edge " + u + "→" + v);
                 if (parent != null) parent.stepDescription.setText("Exploring edge " + u + "→" + v);
                 break;
             case BACKTRACK:
+                // pop current u from path and animate unwinding
+                if (!pathStack.isEmpty() && Objects.equals(pathStack.peekLast(), u)) pathStack.removeLast();
+                int parentNode = pathStack.isEmpty() ? -1 : pathStack.peekLast();
+                graphView.flashBacktrackNode(u);
+                if (parentNode >= 0) {
+                    graphView.animateBacktrackEdge(parentNode, u);
+                    graphView.setActivePathEdge(parentNode, u, false);
+                    graphView.highlightCurrent(parentNode);
+                }
                 appendProgress("↩ Backtrack from node " + u);
                 if (parent != null) parent.stepDescription.setText("Backtrack from node " + u);
                 break;
@@ -317,6 +363,7 @@ public class DFSController implements AlgorithmViewController.AlgorithmSpecificC
                 break;
         }
         updateTraversalView();
+        updateVisitedMatrix();
         updateVariablesPanel();
         // finalize log group
         if (countLogsForStep) {
@@ -342,6 +389,17 @@ public class DFSController implements AlgorithmViewController.AlgorithmSpecificC
         currentStepLogLines = 0;
         countLogsForStep = false;
         appendProgress("DFS: n = " + nodeCount + ", start = " + startNode);
+    }
+
+    private void updateVisitedMatrix() {
+        if (visitedMatrixView == null) return;
+        boolean[] vis = solver != null ? solver.getVisited() : new boolean[nodeCount];
+        visitedMatrixView.updateVisited(vis);
+    }
+
+    private void pushPathHistory() {
+        Deque<Integer> copy = new ArrayDeque<>(pathStack);
+        pathHistory.push(copy);
     }
 
     private void appendProgress(String line) {
@@ -378,17 +436,46 @@ public class DFSController implements AlgorithmViewController.AlgorithmSpecificC
 
     private void renderCode() {
         if (parent == null || parent.codeArea == null) return;
+        // Build edges literal from current adjacency (unique undirected pairs i<j)
+        List<String> edgePairs = new ArrayList<>();
+        for (int i = 0; i < adj.size(); i++) {
+            for (int j : adj.get(i)) {
+                if (i < j) edgePairs.add("{" + i + ", " + j + "}");
+            }
+        }
+        String edgesLiteral = edgePairs.isEmpty() ? "" : String.join(", ", edgePairs);
         String[] lines = new String[] {
+                "import java.util.*;",
+                "",
                 "public class DFSExample {",
-                "    static void dfs(int start, List<List<Integer>> adj) {",
+                "    static final int N = " + nodeCount + ";",
+                "    static final int START = " + startNode + ";",
+                "    static final int[][] EDGES = { " + edgesLiteral + " };",
+                "",
+                "    public static void main(String[] args) {",
+                "        List<List<Integer>> adj = new ArrayList<>();",
+                "        for (int i = 0; i < N; i++) adj.add(new ArrayList<>());",
+                "        for (int[] e : EDGES) { int u = e[0], v = e[1]; adj.get(u).add(v); adj.get(v).add(u); }",
+                "        for (int i = 0; i < N; i++) Collections.sort(adj.get(i));",
+                "",
+                "        long startTime = System.currentTimeMillis();",
+                "        List<Integer> order = dfsIterative(START, adj);",
+                "        long endTime = System.currentTimeMillis();",
+                "",
+                "        System.out.println(\"DFS traversal order: \" + order);",
+                "        System.out.println(\"Execution time: \" + (endTime - startTime) + \" ms\");",
+                "    }",
+                "",
+                "    static List<Integer> dfsIterative(int start, List<List<Integer>> adj) {",
                 "        boolean[] visited = new boolean[adj.size()];",
                 "        Deque<Integer> stack = new ArrayDeque<>();",
+                "        List<Integer> order = new ArrayList<>();",
                 "        stack.push(start);",
                 "        while (!stack.isEmpty()) {",
                 "            int u = stack.peek();",
                 "            if (!visited[u]) {",
                 "                visited[u] = true;",
-                "                System.out.println(\"discover \" + u);",
+                "                order.add(u);",
                 "            }",
                 "            boolean advanced = false;",
                 "            for (int v : adj.get(u)) {",
@@ -400,6 +487,7 @@ public class DFSController implements AlgorithmViewController.AlgorithmSpecificC
                 "            }",
                 "            if (!advanced) stack.pop();",
                 "        }",
+                "        return order;",
                 "    }",
                 "}",
         };

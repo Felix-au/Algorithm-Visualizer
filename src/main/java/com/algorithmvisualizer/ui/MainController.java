@@ -6,6 +6,8 @@ import com.algorithmvisualizer.model.SelectionSortAlgorithm;
 import com.algorithmvisualizer.model.BubbleSortAlgorithm;
 import com.algorithmvisualizer.model.BinarySearchAlgorithm;
 import com.algorithmvisualizer.model.DepthFirstSearchAlgorithm;
+import com.algorithmvisualizer.model.SudokuAlgorithm;
+import com.algorithmvisualizer.model.MazeAlgorithm;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -39,6 +41,8 @@ public class MainController {
         algorithms.add(new BubbleSortAlgorithm());
         algorithms.add(new BinarySearchAlgorithm());
         algorithms.add(new DepthFirstSearchAlgorithm());
+        algorithms.add(new SudokuAlgorithm());
+        algorithms.add(new MazeAlgorithm());
         
         algorithmList.setItems(algorithms);
         algorithmList.getSelectionModel().selectFirst();
