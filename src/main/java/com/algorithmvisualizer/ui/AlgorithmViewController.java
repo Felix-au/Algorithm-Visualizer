@@ -178,7 +178,7 @@ public class AlgorithmViewController {
             
             Stage stage = (Stage) backButton.getScene().getWindow();
             stage.setScene(mainScene);
-            stage.setTitle("Algorithm Visualizer");
+            stage.setTitle("AlgoQuest");
             
         } catch (IOException e) {
             e.printStackTrace();

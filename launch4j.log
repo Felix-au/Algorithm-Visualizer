@@ -1,0 +1,19 @@
+
+
+Version:	3.50
+CmdLine:	C:\Users\mailt\OneDrive\Desktop\Algorithm Visualizer\AlgoQuest.exe --l4j-debug
+JNI:		No
+WOW64:		Yes
+Working dir:	C:\Users\mailt\OneDrive\Desktop\Algorithm Visualizer\.
+Requires JDK:	No
+Requires 64-Bit: No
+Java min ver:	
+Java max ver:	
+JRE paths:	jre
+Check launcher:	C:\Users\mailt\OneDrive\Desktop\Algorithm Visualizer\jre\bin\javaw.exe (OK)
+Version string: 1.021.000_007 / 64-Bit (OK)
+Substitute:	EXEDIR = C:\Users\mailt\OneDrive\Desktop\Algorithm Visualizer
+Launcher:	C:\Users\mailt\OneDrive\Desktop\Algorithm Visualizer\jre\bin\javaw.exe
+Launcher args:	--module-path "C:\Users\mailt\OneDrive\Desktop\Algorithm Visualizer\openjfx-21.0.7_windows-x64_bin-sdk\javafx-sdk-21.0.7\lib" --add-modules javafx.controls,javafx.fxml -jar "C:\Users\mailt\OneDrive\Desktop\Algorithm Visualizer\AlgoQuest.exe"
+Args length:	241/32768 chars
+Exit code:	0

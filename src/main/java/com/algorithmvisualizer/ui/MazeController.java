@@ -12,6 +12,7 @@ import javafx.animation.Timeline;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
+import javafx.scene.layout.HBox;
 import javafx.util.Duration;
 
 import java.util.*;
@@ -49,16 +50,14 @@ public class MazeController implements AlgorithmViewController.AlgorithmSpecific
     // Params
     private int rows = 15, cols = 15;
     private String genAlgo = "DFS"; // DFS, Prim, Kruskal
-    private String pathAlgo = "BFS"; // BFS, DFS, Dijkstra, A*
-    private int loopsPercent = 0; // extra openings percentage 0..50
+    private String pathAlgo = "BFS"; // BFS, DFS
     private int startR = 0, startC = 0, goalR = 14, goalC = 14;
-    private boolean[][][] lastWalls; // after loops
+    // loops removed; use generator walls directly
 
     // Custom controls
     private ComboBox<String> genAlgoChoice;
     private ComboBox<String> pathAlgoChoice;
-    private Slider loopsSlider;
-    private Label loopsValueLabel;
+    // loops controls removed
     private ToggleButton pickStartBtn;
     private ToggleButton pickGoalBtn;
 
@@ -176,38 +175,29 @@ public class MazeController implements AlgorithmViewController.AlgorithmSpecific
             pathAlgoChoice.getSelectionModel().select(0);
             pathAlgoChoice.valueProperty().addListener((obs, o, n) -> { pathAlgo = n; renderCode(); });
 
-            // Loops slider (extra openings)
-            loopsSlider = new Slider(0, 50, loopsPercent);
-            loopsSlider.setPrefWidth(120);
-            loopsValueLabel = new Label(loopsPercent + "%");
-            loopsSlider.valueProperty().addListener((obs, o, n) -> {
-                loopsPercent = n.intValue();
-                loopsValueLabel.setText(loopsPercent + "%");
-                if (!solvingPhase) {
-                    lastWalls = applyLoopsToWalls(getGeneratorWalls());
-                    gridView.updateWalls(lastWalls);
-                }
-                renderCode();
-            });
-
             // Start/Goal picking
             ToggleGroup pickGroup = new ToggleGroup();
             pickStartBtn = new ToggleButton("Pick Start"); pickStartBtn.setToggleGroup(pickGroup);
             pickGoalBtn = new ToggleButton("Pick Goal"); pickGoalBtn.setToggleGroup(pickGroup);
 
-            parent.paramElementsBox.getChildren().addAll(
-                    new Label("Generate:"), genAlgoChoice,
-                    new Label("Pathfind:"), pathAlgoChoice,
-                    new Label("Loops:"), loopsSlider, loopsValueLabel,
-                    pickStartBtn, pickGoalBtn
-            );
+            // Row 1: algorithm choices
+            HBox algoRow = new HBox(8.0);
+            algoRow.getChildren().addAll(new Label("Generate:"), genAlgoChoice, new Label("Pathfind:"), pathAlgoChoice);
+
+            // Row 2: pick buttons + Apply in same row
+            HBox controlsRow = new HBox(8.0);
+            Button applyInline = new Button("Apply");
+            applyInline.setOnAction(e -> onApply());
+            controlsRow.getChildren().addAll(pickStartBtn, pickGoalBtn, applyInline);
+
+            parent.paramElementsBox.getChildren().addAll(algoRow, controlsRow);
         }
         if (parent.paramElementsField != null) {
             parent.paramElementsField.setVisible(false);
             parent.paramElementsField.setManaged(false);
         }
         if (parent.paramRandomizeButton != null) { parent.paramRandomizeButton.setVisible(false); parent.paramRandomizeButton.setManaged(false); }
-        if (parent.paramApplyButton != null) parent.paramApplyButton.setOnAction(e -> onApply());
+        if (parent.paramApplyButton != null) { parent.paramApplyButton.setVisible(false); parent.paramApplyButton.setManaged(false); }
 
         // Solutions panel header
         if (parent.solutionsHeaderBox != null) {
@@ -270,8 +260,6 @@ public class MazeController implements AlgorithmViewController.AlgorithmSpecific
         }
         solver = null;
         gridView.setMaze(rows, cols, getGeneratorWalls());
-        lastWalls = applyLoopsToWalls(getGeneratorWalls());
-        gridView.updateWalls(lastWalls);
         gridView.clearOverlays();
         gridView.setStartGoal(startR, startC, goalR, goalC);
         initProgressLog();
@@ -311,8 +299,6 @@ public class MazeController implements AlgorithmViewController.AlgorithmSpecific
         if (!s.solving) {
             restoreGeneratorState(s.genType, s.genState);
             gridView.setMaze(getGeneratorRows(), getGeneratorCols(), getGeneratorWalls());
-            lastWalls = applyLoopsToWalls(getGeneratorWalls());
-            gridView.updateWalls(lastWalls);
         } else {
             // ensure solver exists
             if (solver == null) ensureSolver();
@@ -329,8 +315,6 @@ public class MazeController implements AlgorithmViewController.AlgorithmSpecific
         solvingPhase = false;
         resetGenerator();
         gridView.setMaze(rows, cols, getGeneratorWalls());
-        lastWalls = applyLoopsToWalls(getGeneratorWalls());
-        gridView.updateWalls(lastWalls);
         gridView.clearOverlays();
         initProgressLog();
         updateVariablesPanel();
@@ -372,7 +356,7 @@ public class MazeController implements AlgorithmViewController.AlgorithmSpecific
         if (solver != null) return;
         solvingPhase = true;
         int sR = startR, sC = startC, gR = goalR, gC = goalC;
-        boolean[][][] walls = (lastWalls != null) ? lastWalls : getGeneratorWalls();
+        boolean[][][] walls = getGeneratorWalls();
         String which = normalizePathAlgo(pathAlgo);
         switch (which) {
             case "DFS": {
@@ -427,8 +411,6 @@ public class MazeController implements AlgorithmViewController.AlgorithmSpecific
                 gridView.clearOverlays();
                 appendProgress("✅ Maze generation complete");
                 if (parent != null) parent.stepDescription.setText("Maze generated. Ready to solve.");
-                lastWalls = applyLoopsToWalls(getGeneratorWalls());
-                gridView.updateWalls(lastWalls);
                 break;
         }
         updateVariablesPanel();
@@ -495,7 +477,7 @@ public class MazeController implements AlgorithmViewController.AlgorithmSpecific
     private void initProgressLog() {
         if (parent == null || parent.progressArea == null) return;
         parent.progressArea.clear();
-        appendProgress("Maze: " + rows + "x" + cols + ", generator=" + genAlgo + ", pathfinder=" + pathAlgo + ", loops=" + loopsPercent + "% start=(" + startR + "," + startC + ") goal=(" + goalR + "," + goalC + ")");
+        appendProgress("Maze: " + rows + "x" + cols + ", generator=" + genAlgo + ", pathfinder=" + pathAlgo + ", start=(" + startR + "," + startC + ") goal=(" + goalR + "," + goalC + ")");
     }
 
     private void beginLogGroup() { countLogsForStep = true; currentStepLogLines = 0; }
@@ -541,8 +523,7 @@ public class MazeController implements AlgorithmViewController.AlgorithmSpecific
                 "cols: " + cols,
                 "phase: " + (solvingPhase ? "SOLVE" : "GENERATE"),
                 "start: (" + startR + "," + startC + ")",
-                "goal: (" + goalR + "," + goalC + ")",
-                "loops%: " + loopsPercent
+                "goal: (" + goalR + "," + goalC + ")"
         );
         // Add queue size etc. if solving
         if (solvingPhase && solver != null) {
@@ -565,13 +546,29 @@ public class MazeController implements AlgorithmViewController.AlgorithmSpecific
         VBox summary = new VBox(3.0);
         summary.getChildren().addAll(
                 new Label("Path Summary"),
-                new Label("Algorithm: " + normalizePathAlgo(pathAlgo)),
+                new Label("Generator: " + genAlgo + " — " + describeGenerator(genAlgo)),
+                new Label("Solver: " + normalizePathAlgo(pathAlgo) + " — " + describeSolver(normalizePathAlgo(pathAlgo))),
                 new Label("Start: (" + startR + "," + startC + ")  Goal: (" + goalR + "," + goalC + ")"),
                 new Label("Visited cells: " + visitedCells.size()),
                 new Label("Steps: " + stepsTaken),
                 new Label("Path length: " + (pathFound ? pathCells.size() : -1))
         );
         parent.solutionsContent.getChildren().add(summary);
+    }
+
+    private String describeGenerator(String g) {
+        switch (g) {
+            case "Prim": return "Randomized Prim’s: grows MST-like spanning tree from a seed, carving shortest frontier edges.";
+            case "Kruskal": return "Randomized Kruskal’s: shuffles edges and joins disjoint sets, creating a spanning tree.";
+            default: return "DFS Backtracker: depth-first carve with backtracking, producing long corridors and few junctions.";
+        }
+    }
+
+    private String describeSolver(String s) {
+        switch (s) {
+            case "DFS": return "Explores depth-first with a stack, not guaranteed shortest but simple and backtracks visibly.";
+            default: return "Breadth-First Search: explores in layers and guarantees a shortest path in unweighted grids.";
+        }
     }
 
 
@@ -625,10 +622,10 @@ public class MazeController implements AlgorithmViewController.AlgorithmSpecific
     private Object snapshotSolver() { try { return solver.getClass().getMethod("snapshot").invoke(solver); } catch (Exception e) { return null; } }
     private void restoreSolverState(String type, Object state) {
         if ("DFS".equals(type) && !(solver instanceof PathSolverDFS)) {
-            PathSolverDFS ps = new PathSolverDFS(rows, cols, lastWalls != null ? lastWalls : getGeneratorWalls(), startR, startC, goalR, goalC);
+            PathSolverDFS ps = new PathSolverDFS(rows, cols, getGeneratorWalls(), startR, startC, goalR, goalC);
             ps.setStepListener((t, r, c) -> onSolveStep(t, r, c)); solver = ps;
         } else if ("BFS".equals(type) && !(solver instanceof PathSolverBFS)) {
-            PathSolverBFS ps = new PathSolverBFS(rows, cols, lastWalls != null ? lastWalls : getGeneratorWalls(), startR, startC, goalR, goalC);
+            PathSolverBFS ps = new PathSolverBFS(rows, cols, getGeneratorWalls(), startR, startC, goalR, goalC);
             ps.setStepListener((t, r, c) -> onSolveStep(t, r, c)); solver = ps;
         }
         try { solver.getClass().getMethod("restore", state.getClass()).invoke(solver, state); } catch (Exception ignore) {}
@@ -642,30 +639,7 @@ public class MazeController implements AlgorithmViewController.AlgorithmSpecific
         return s;
     }
 
-    private boolean[][][] applyLoopsToWalls(boolean[][][] walls) {
-        if (walls == null) return null;
-        int r = walls.length, c = walls[0].length;
-        boolean[][][] out = new boolean[r][c][4];
-        for (int i=0;i<r;i++) for (int j=0;j<c;j++) System.arraycopy(walls[i][j],0,out[i][j],0,4);
-        if (loopsPercent <= 0) return out;
-        List<int[]> cand = new ArrayList<>();
-        for (int i=0;i<r;i++) for (int j=0;j<c;j++) {
-            if (j+1 < c && out[i][j][1]) cand.add(new int[]{i,j,1});
-            if (i+1 < r && out[i][j][2]) cand.add(new int[]{i,j,2});
-        }
-        Collections.shuffle(cand, new Random());
-        int openings = Math.max(0, Math.min(cand.size(), (loopsPercent * r * c) / 200));
-        for (int k=0; k<openings; k++) {
-            int[] e = cand.get(k);
-            int i0 = e[0], j0 = e[1], dir = e[2];
-            int ni = i0 + (dir==2?1:0) + (dir==0?-1:0);
-            int nj = j0 + (dir==1?1:0) + (dir==3?-1:0);
-            if (ni<0||nj<0||ni>=r||nj>=c) continue;
-            out[i0][j0][dir] = false;
-            out[ni][nj][(dir+2)%4] = false;
-        }
-        return out;
-    }
+    // removed loops post-processing
 
     // --- Code sample generation ---
     private void renderCode() {
@@ -681,11 +655,9 @@ public class MazeController implements AlgorithmViewController.AlgorithmSpecific
         sb.append("    static final int GOAL_R = ").append(goalR).append(";\n");
         sb.append("    static final int GOAL_C = ").append(goalC).append(";\n");
         sb.append("    static final String GEN = \"").append(genAlgo).append("\";\n");
-        sb.append("    static final String SOLVER = \"").append(which).append("\";\n");
-        sb.append("    static final int LOOPS_PCT = ").append(loopsPercent).append(";\n\n");
+        sb.append("    static final String SOLVER = \"").append(which).append("\";\n\n");
         sb.append("    public static void main(String[] args) {\n");
         sb.append("        boolean[][][] walls = generateMaze(ROWS, COLS, GEN);\n");
-        sb.append("        applyLoops(walls, LOOPS_PCT);\n");
         sb.append("        List<int[]> path = solve(walls, START_R, START_C, GOAL_R, GOAL_C, SOLVER);\n");
         sb.append("        System.out.println(\"Path length: \" + (path==null? -1 : path.size()));\n");
         sb.append("    }\n\n");
@@ -699,7 +671,7 @@ public class MazeController implements AlgorithmViewController.AlgorithmSpecific
         sb.append("    static boolean[][][] genKruskal(int R,int C){ boolean[][][] w=new boolean[R][C][4]; for(int i=0;i<R;i++) for(int j=0;j<C;j++) Arrays.fill(w[i][j], true); int N=R*C; int[] p=new int[N], rk=new int[N]; for(int i=0;i<N;i++){p[i]=i;rk[i]=0;} List<int[]> E=new ArrayList<>(); for(int r=0;r<R;r++) for(int c=0;c<C;c++){ if(c+1<C) E.add(new int[]{r,c,1}); if(r+1<R) E.add(new int[]{r,c,2}); } Collections.shuffle(E,new Random()); int[] dr={-1,0,1,0}, dc={0,1,0,-1}; for(int[] e:E){ int r=e[0],c=e[1],d=e[2]; int nr=r+dr[d], nc=c+dc[d]; int a=r*C+c, b=nr*C+nc; if(find(p,a)!=find(p,b)){ unite(p,rk,a,b); w[r][c][d]=false; w[nr][nc][(d+2)%4]=false; } } return w; }\n");
         sb.append("    static int find(int[] p,int x){ return p[x]==x?x:(p[x]=find(p,p[x])); }\n");
         sb.append("    static void unite(int[] p,int[] rk,int a,int b){ a=find(p,a); b=find(p,b); if(a==b) return; if(rk[a]<rk[b]) p[a]=b; else if(rk[a]>rk[b]) p[b]=a; else{ p[b]=a; rk[a]++; } }\n\n");
-        sb.append("    static void applyLoops(boolean[][][] w,int pct){ if(pct<=0) return; int R=w.length,C=w[0].length; List<int[]> cand=new ArrayList<>(); for(int i=0;i<R;i++) for(int j=0;j<C;j++){ if(j+1<C && w[i][j][1]) cand.add(new int[]{i,j,1}); if(i+1<R && w[i][j][2]) cand.add(new int[]{i,j,2}); } Collections.shuffle(cand,new Random()); int openings=Math.min(cand.size(), (pct*R*C)/200); for(int k=0;k<openings;k++){ int[] e=cand.get(k); int i=e[0],j=e[1],d=e[2]; int ni=i+(d==2?1:0)+(d==0?-1:0), nj=j+(d==1?1:0)+(d==3?-1:0); w[i][j][d]=false; w[ni][nj][(d+2)%4]=false; } }\n\n");
+        
         sb.append("    static List<int[]> solve(boolean[][][] w,int sr,int sc,int gr,int gc,String alg){ alg=alg.toUpperCase(); if(alg.equals(\"DFS\")) return dfs(w,sr,sc,gr,gc); return bfs(w,sr,sc,gr,gc); }\n");
         sb.append("    static List<int[]> bfs(boolean[][][] w,int sr,int sc,int gr,int gc){ int R=w.length,C=w[0].length; boolean[][] vis=new boolean[R][C]; int[][] pr=new int[R][C], pc=new int[R][C]; for(int i=0;i<R;i++){ Arrays.fill(pr[i],-1); Arrays.fill(pc[i],-1);} Deque<int[]> q=new ArrayDeque<>(); q.add(new int[]{sr,sc}); int[] dr={-1,0,1,0}, dc={0,1,0,-1}; while(!q.isEmpty()){ int[] x=q.poll(); int r=x[0],c=x[1]; if(vis[r][c]) continue; vis[r][c]=true; if(r==gr&&c==gc) break; for(int d=0;d<4;d++){ if(w[r][c][d]) continue; int nr=r+dr[d], nc=c+dc[d]; if(nr<0||nc<0||nr>=R||nc>=C) continue; if(!vis[nr][nc] && pr[nr][nc]==-1){ pr[nr][nc]=r; pc[nr][nc]=c; q.add(new int[]{nr,nc}); } } } return buildPath(pr,pc,sr,sc,gr,gc); }\n");
         sb.append("    static List<int[]> dfs(boolean[][][] w,int sr,int sc,int gr,int gc){ int R=w.length,C=w[0].length; boolean[][] vis=new boolean[R][C]; int[][] pr=new int[R][C], pc=new int[R][C]; for(int i=0;i<R;i++){ Arrays.fill(pr[i],-1); Arrays.fill(pc[i],-1);} Deque<int[]> st=new ArrayDeque<>(); st.push(new int[]{sr,sc,0}); int[] dr={-1,0,1,0}, dc={0,1,0,-1}; while(!st.isEmpty()){ int[] top=st.peek(); int r=top[0],c=top[1]; if(!vis[r][c]){ vis[r][c]=true; if(r==gr&&c==gc) break; } if(top[2]>=4){ st.pop(); continue; } int d=top[2]++; if(w[r][c][d]) continue; int nr=r+dr[d], nc=c+dc[d]; if(nr<0||nc<0||nr>=R||nc>=C) continue; if(!vis[nr][nc] && pr[nr][nc]==-1){ pr[nr][nc]=r; pc[nr][nc]=c; st.push(new int[]{nr,nc,0}); } } return buildPath(pr,pc,sr,sc,gr,gc); }\n");

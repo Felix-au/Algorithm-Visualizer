@@ -34,6 +34,7 @@ com\algorithmvisualizer\visualization\GraphRenderer.class
 com\algorithmvisualizer\algorithm\BubbleSortSolver.class
 com\algorithmvisualizer\ui\AlgorithmViewController.class
 com\algorithmvisualizer\algorithm\BinarySearchSolver$Phase.class
+com\algorithmvisualizer\ui\MainController$2.class
 com\algorithmvisualizer\algorithm\SudokuSolver.class
 com\algorithmvisualizer\algorithm\BubbleSortSolver$State.class
 com\algorithmvisualizer\algorithm\NQueensSolver$VisualizationCallback.class
@@ -57,6 +58,7 @@ com\algorithmvisualizer\model\BinarySearchAlgorithm.class
 com\algorithmvisualizer\algorithm\MazeGeneratorKruskal.class
 com\algorithmvisualizer\model\SudokuAlgorithm.class
 com\algorithmvisualizer\algorithm\PathSolverDijkstra.class
+com\algorithmvisualizer\ui\MainController$1.class
 com\algorithmvisualizer\algorithm\MazeGeneratorDFS$State.class
 com\algorithmvisualizer\algorithm\PathSolverAStar$State.class
 com\algorithmvisualizer\algorithm\PathSolverBFS$State.class
