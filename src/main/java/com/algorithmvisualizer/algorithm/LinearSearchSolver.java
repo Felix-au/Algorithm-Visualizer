@@ -123,6 +123,9 @@ public class LinearSearchSolver {
                 }
                 
                 phase = Phase.CHECK;
+                // Emit CHECK_INDEX for the new currentIndex so the controller can
+                // highlight it in YELLOW and pause for 0.5s before comparison
+                emit(StepType.CHECK_INDEX);
                 return;
                 
             case FOUND:

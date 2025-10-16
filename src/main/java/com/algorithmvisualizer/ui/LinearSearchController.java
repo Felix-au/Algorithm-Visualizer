@@ -372,10 +372,6 @@ public class LinearSearchController implements AlgorithmViewController.Algorithm
                 break;
                 
             case CHECK_INDEX:
-                // Start counting logs for this step
-                countLogsForStep = true;
-                currentStepLogLines = 0;
-                
                 // Stop any ongoing blinks
                 stopOngoingBlinks();
                 
@@ -391,12 +387,15 @@ public class LinearSearchController implements AlgorithmViewController.Algorithm
                     }
                 }
                 
-                // Highlight current index in YELLOW
+                // Highlight current index in YELLOW IMMEDIATELY
                 barChart.highlightChecking(currentIndex);
                 arrayView.highlightChecking(currentIndex);
                 
                 int n = currentArray.length;
                 appendProgress("🔍 Checking index " + currentIndex + (currentIndex>=0 && currentIndex<n ? " (value: " + currentArray[currentIndex] + ")" : ""));
+                
+                // CRITICAL: Pause for 0.5s to show YELLOW before comparison
+                // This blocks the next step() call which would trigger NOT_TARGET/FOUND_TARGET
                 pauseFixed(0.5, () -> pendingCheckPause = false, flag -> pendingCheckPause = flag);
                 break;
                 
@@ -404,23 +403,34 @@ public class LinearSearchController implements AlgorithmViewController.Algorithm
                 // Blink YELLOW → RED, persist RED
                 blinkNotTarget(currentIndex, 1.5);
                 appendProgress("❌ Not target. Moving to next...");
+                
+                // End of this comparison step: record log lines
+                if (countLogsForStep) {
+                    progressHistory.push(currentStepLogLines);
+                    countLogsForStep = false;
+                    currentStepLogLines = 0;
+                }
                 break;
                 
             case FOUND_TARGET:
                 // Blink YELLOW → GREEN, persist GREEN
                 blinkFound(currentIndex, 2.0);
                 appendProgress("✅ Target found at index " + currentIndex + "!");
-                break;
                 
-            case MOVE_NEXT:
-                if (parent != null) parent.stepDescription.setText(solver.getCurrentStepDescription());
-                
-                // End of this step: record log lines
+                // End of this comparison step: record log lines
                 if (countLogsForStep) {
                     progressHistory.push(currentStepLogLines);
                     countLogsForStep = false;
                     currentStepLogLines = 0;
                 }
+                break;
+                
+            case MOVE_NEXT:
+                if (parent != null) parent.stepDescription.setText(solver.getCurrentStepDescription());
+                
+                // Start counting logs for NEXT step (the next CHECK_INDEX)
+                countLogsForStep = true;
+                currentStepLogLines = 0;
                 break;
                 
             case DONE_FOUND:
@@ -463,24 +473,20 @@ public class LinearSearchController implements AlgorithmViewController.Algorithm
         if (isPlaying && timeline != null) timeline.pause();
         if (notTargetBlinkTimeline != null) { notTargetBlinkTimeline.stop(); notTargetBlinkTimeline = null; }
         
-        // Keep YELLOW for 0.5s, then blink to RED
+        // YELLOW is already visible for 0.5s from CHECK_INDEX pause
+        // Now just do the blink animation
         notTargetBlinkTimeline = new Timeline(
             new KeyFrame(Duration.seconds(0.0), e -> {
-                // Ensure YELLOW is visible (in case step-back cleared it)
-                barChart.highlightChecking(idx);
-                arrayView.highlightChecking(idx);
-            }),
-            new KeyFrame(Duration.seconds(0.5), e -> {
-                // After 0.5s, blink to RED
+                // Start blink to RED immediately (YELLOW already shown for 0.5s)
                 barChart.setIndexColor(idx, javafx.scene.paint.Color.RED);
                 arrayView.setIndexColor(idx, "RED");
             }),
-            new KeyFrame(Duration.seconds(0.5 + seconds/2.0), e -> {
+            new KeyFrame(Duration.seconds(seconds/2.0), e -> {
                 // Blink back to YELLOW
                 barChart.setIndexColor(idx, javafx.scene.paint.Color.GOLD);
                 arrayView.setIndexColor(idx, "GOLD");
             }),
-            new KeyFrame(Duration.seconds(0.5 + seconds), e -> {
+            new KeyFrame(Duration.seconds(seconds), e -> {
                 // Persist RED (eliminated)
                 barChart.markEliminated(idx);
                 arrayView.markEliminated(idx);
@@ -497,29 +503,25 @@ public class LinearSearchController implements AlgorithmViewController.Algorithm
         if (isPlaying && timeline != null) timeline.pause();
         if (foundBlinkTimeline != null) { foundBlinkTimeline.stop(); foundBlinkTimeline = null; }
         
-        // Keep YELLOW for 0.5s, then blink to GREEN
+        // YELLOW is already visible for 0.5s from CHECK_INDEX pause
+        // Now just do the blink animation
         foundBlinkTimeline = new Timeline(
             new KeyFrame(Duration.seconds(0.0), e -> {
-                // Ensure YELLOW is visible (in case step-back cleared it)
-                barChart.highlightChecking(idx);
-                arrayView.highlightChecking(idx);
-            }),
-            new KeyFrame(Duration.seconds(0.5), e -> {
-                // After 0.5s, blink to GREEN
+                // Start blink to GREEN immediately (YELLOW already shown for 0.5s)
                 barChart.setIndexColor(idx, javafx.scene.paint.Color.FORESTGREEN);
                 arrayView.setIndexColor(idx, "FORESTGREEN");
             }),
-            new KeyFrame(Duration.seconds(0.5 + seconds/3.0), e -> {
+            new KeyFrame(Duration.seconds(seconds/3.0), e -> {
                 // Blink to YELLOW
                 barChart.setIndexColor(idx, javafx.scene.paint.Color.GOLD);
                 arrayView.setIndexColor(idx, "GOLD");
             }),
-            new KeyFrame(Duration.seconds(0.5 + 2.0 * seconds/3.0), e -> {
+            new KeyFrame(Duration.seconds(2.0 * seconds/3.0), e -> {
                 // Blink to GREEN again
                 barChart.setIndexColor(idx, javafx.scene.paint.Color.FORESTGREEN);
                 arrayView.setIndexColor(idx, "FORESTGREEN");
             }),
-            new KeyFrame(Duration.seconds(0.5 + seconds), e -> {
+            new KeyFrame(Duration.seconds(seconds), e -> {
                 // Persist GREEN (found!)
                 barChart.markFound(idx);
                 arrayView.markFound(idx);
