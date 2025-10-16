@@ -5,26 +5,28 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.shape.*?>
 <?import javafx.scene.text.*?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
 
 <BorderPane xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.algorithmvisualizer.ui.AlgorithmViewController">
    <top>
       <VBox spacing="10.0">
          <children>
-            <HBox alignment="CENTER_LEFT" spacing="10.0">
+            <HBox alignment="CENTER_LEFT" spacing="15.0" style="-fx-background-color: white; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 2);">
                <children>
-                  <Button fx:id="backButton" mnemonicParsing="false" onAction="#onBackToMain" text="← Back to Algorithms">
-                     <font>
-                        <Font name="System Bold" size="12.0" />
-                     </font>
+                  <Button fx:id="backButton" mnemonicParsing="false" onAction="#onBackToMain" text="Back to Algorithms" style="-fx-background-color: #6c757d; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 10 20; -fx-font-weight: bold; -fx-cursor: hand;">
+                     <graphic>
+                        <FontIcon iconLiteral="fas-arrow-left" iconSize="14" iconColor="white" />
+                     </graphic>
                   </Button>
-                  <Label fx:id="algorithmTitle" styleClass="title" text="Algorithm Name">
+                  <Separator orientation="VERTICAL" prefHeight="30.0" />
+                  <Label fx:id="algorithmTitle" styleClass="title" text="Algorithm Name" style="-fx-text-fill: #2b4c7e;">
                      <font>
-                        <Font name="System Bold" size="20.0" />
+                        <Font name="System Bold" size="22.0" />
                      </font>
                   </Label>
                </children>
                <padding>
-                  <Insets bottom="10.0" left="20.0" right="20.0" top="20.0" />
+                  <Insets bottom="15.0" left="25.0" right="25.0" top="15.0" />
                </padding>
             </HBox>
             <Separator />
@@ -38,40 +40,50 @@
             <VBox fx:id="visualSection" spacing="10.0">
                <children>
                   <!-- Play Controls -->
-                  <HBox alignment="CENTER" spacing="15.0">
+                  <HBox alignment="CENTER" spacing="10.0" style="-fx-background-color: #f8f9fa; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 6, 0, 0, 2);">
                      <children>
-                        <Button fx:id="stepBackButton" mnemonicParsing="false" onAction="#onStepBack" text="⏮ Step Back">
-                           <font>
-                              <Font name="System Bold" size="12.0" />
-                           </font>
+                        <Button fx:id="stepBackButton" mnemonicParsing="false" onAction="#onStepBack" text="Step Back" style="-fx-background-color: #4a90e2; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 10 16; -fx-font-weight: bold; -fx-cursor: hand; -fx-font-size: 12px;">
+                           <graphic>
+                              <FontIcon iconLiteral="fas-step-backward" iconSize="14" iconColor="white" />
+                           </graphic>
                         </Button>
-                        <Button fx:id="pauseButton" mnemonicParsing="false" onAction="#onPause" text="⏸ Pause" disable="true">
-                           <font>
-                              <Font name="System Bold" size="12.0" />
-                           </font>
+                        <Button fx:id="pauseButton" mnemonicParsing="false" onAction="#onPause" text="Pause" disable="true" style="-fx-background-color: #ffc107; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 10 16; -fx-font-weight: bold; -fx-cursor: hand; -fx-font-size: 12px;">
+                           <graphic>
+                              <FontIcon iconLiteral="fas-pause" iconSize="14" iconColor="white" />
+                           </graphic>
                         </Button>
-                        <Button fx:id="playButton" mnemonicParsing="false" onAction="#onPlay" text="▶ Play">
-                           <font>
-                              <Font name="System Bold" size="12.0" />
-                           </font>
+                        <Button fx:id="playButton" mnemonicParsing="false" onAction="#onPlay" text="Play" style="-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 10 20; -fx-font-weight: bold; -fx-cursor: hand; -fx-font-size: 13px;">
+                           <graphic>
+                              <FontIcon iconLiteral="fas-play" iconSize="14" iconColor="white" />
+                           </graphic>
                         </Button>
-                        <Button fx:id="stepForwardButton" mnemonicParsing="false" onAction="#onStepForward" text="⏭ Step Forward">
-                           <font>
-                              <Font name="System Bold" size="12.0" />
-                           </font>
+                        <Button fx:id="stepForwardButton" mnemonicParsing="false" onAction="#onStepForward" text="Step Forward" style="-fx-background-color: #4a90e2; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 10 16; -fx-font-weight: bold; -fx-cursor: hand; -fx-font-size: 12px;">
+                           <graphic>
+                              <FontIcon iconLiteral="fas-step-forward" iconSize="14" iconColor="white" />
+                           </graphic>
                         </Button>
-                        <Button fx:id="resetButton" mnemonicParsing="false" onAction="#onReset" text="⏹ Reset">
-                           <font>
-                              <Font name="System Bold" size="12.0" />
-                           </font>
+                        <Button fx:id="resetButton" mnemonicParsing="false" onAction="#onReset" text="Reset" style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 10 20; -fx-font-weight: bold; -fx-cursor: hand; -fx-font-size: 12px;">
+                           <graphic>
+                              <FontIcon iconLiteral="fas-redo-alt" iconSize="14" iconColor="white" />
+                           </graphic>
                         </Button>
-                        <Separator orientation="VERTICAL" />
-                        <Label text="Speed:" />
-                        <Slider fx:id="speedSlider" max="10.0" min="1.0" value="5.0" prefWidth="100.0" />
-                        <Label fx:id="speedLabel" text="5x" />
+                        <Separator orientation="VERTICAL" prefHeight="35.0" style="-fx-padding: 0 5 0 5;" />
+                        <VBox spacing="3.0" alignment="CENTER">
+                           <children>
+                              <Label text="Playback Speed" style="-fx-font-weight: bold; -fx-font-size: 11px; -fx-text-fill: #2b4c7e;" />
+                              <HBox spacing="8.0" alignment="CENTER">
+                                 <children>
+                                    <Label text="1x" style="-fx-font-size: 10px; -fx-text-fill: #6c757d;" />
+                                    <Slider fx:id="speedSlider" max="20.0" min="1.0" value="1.0" prefWidth="120.0" snapToTicks="true" majorTickUnit="1.0" minorTickCount="0" showTickMarks="false" style="-fx-cursor: hand;" />
+                                    <Label text="20x" style="-fx-font-size: 10px; -fx-text-fill: #6c757d;" />
+                                    <Label fx:id="speedLabel" text="1x" style="-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: #2b4c7e; -fx-min-width: 45; -fx-alignment: center-right;" />
+                                 </children>
+                              </HBox>
+                           </children>
+                        </VBox>
                      </children>
                      <padding>
-                        <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
+                        <Insets bottom="12.0" left="20.0" right="20.0" top="12.0" />
                      </padding>
                   </HBox>
                   
@@ -171,7 +183,12 @@
                         <!-- Progress (75%) -->
                         <VBox spacing="5.0">
                            <children>
-                              <Label text="Progress" style="-fx-font-weight: bold; -fx-font-size: 14px;" />
+                              <HBox spacing="8.0" alignment="CENTER_LEFT">
+                                 <children>
+                                    <FontIcon iconLiteral="fas-list-ul" iconSize="16" iconColor="#2b4c7e" />
+                                    <Label text="Progress Log" style="-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #2b4c7e;" />
+                                 </children>
+                              </HBox>
                               <TextArea fx:id="progressArea" editable="false" prefHeight="250.0" wrapText="true" />
                            </children>
                            <padding>
@@ -181,7 +198,12 @@
                         <!-- Variables (20%) -->
                         <VBox spacing="5.0">
                            <children>
-                              <Label text="Variables" style="-fx-font-weight: bold; -fx-font-size: 14px;" />
+                              <HBox spacing="8.0" alignment="CENTER_LEFT">
+                                 <children>
+                                    <FontIcon iconLiteral="fas-database" iconSize="16" iconColor="#2b4c7e" />
+                                    <Label text="Variables" style="-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #2b4c7e;" />
+                                 </children>
+                              </HBox>
                               <ListView fx:id="variableList" prefHeight="250.0" />
                            </children>
                            <padding>
@@ -199,7 +221,12 @@
                   <!-- Parameters Section -->
                   <VBox spacing="5.0">
                      <children>
-                        <Label text="Parameters" style="-fx-font-weight: bold; -fx-font-size: 14px;" />
+                        <HBox spacing="8.0" alignment="CENTER_LEFT">
+                           <children>
+                              <FontIcon iconLiteral="fas-sliders-h" iconSize="16" iconColor="#2b4c7e" />
+                              <Label text="Parameters" style="-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #2b4c7e;" />
+                           </children>
+                        </HBox>
                         <!-- Two-row parameters layout to support Selection Sort input -->
                         <VBox spacing="6.0">
                            <children>
@@ -223,8 +250,16 @@
                                     <TextField fx:id="paramElementsField" promptText="e.g. 5, 3, 8, 4, 2" prefWidth="220.0" />
                                     <HBox spacing="8.0">
                                        <children>
-                                          <Button fx:id="paramRandomizeButton" text="Randomize" />
-                                          <Button fx:id="paramApplyButton" text="Apply" />
+                                          <Button fx:id="paramRandomizeButton" text="Randomize" style="-fx-background-color: #7b68ee; -fx-text-fill: white; -fx-background-radius: 6; -fx-padding: 6 14; -fx-font-weight: bold; -fx-cursor: hand; -fx-font-size: 11px;">
+                                             <graphic>
+                                                <FontIcon iconLiteral="fas-random" iconSize="12" iconColor="white" />
+                                             </graphic>
+                                          </Button>
+                                          <Button fx:id="paramApplyButton" text="Apply" style="-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-background-radius: 6; -fx-padding: 6 18; -fx-font-weight: bold; -fx-cursor: hand; -fx-font-size: 11px;">
+                                             <graphic>
+                                                <FontIcon iconLiteral="fas-check" iconSize="12" iconColor="white" />
+                                             </graphic>
+                                          </Button>
                                        </children>
                                     </HBox>
                                  </children>
@@ -238,7 +273,12 @@
                   <!-- Algorithm Code Section -->
                   <VBox spacing="5.0">
                      <children>
-                        <Label text="Algorithm Code" style="-fx-font-weight: bold; -fx-font-size: 14px;" />
+                        <HBox spacing="8.0" alignment="CENTER_LEFT">
+                           <children>
+                              <FontIcon iconLiteral="fas-code" iconSize="16" iconColor="#2b4c7e" />
+                              <Label text="Algorithm Code" style="-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #2b4c7e;" />
+                           </children>
+                        </HBox>
                         <TextArea fx:id="codeArea" editable="false" prefHeight="520.0" prefWidth="300.0" style="-fx-font-family: 'Courier New'; -fx-font-size: 11px;" wrapText="false">
                            <VBox.margin>
                               <Insets bottom="10.0" />
@@ -250,7 +290,12 @@
                   <!-- Step Description -->
                   <VBox spacing="5.0">
                      <children>
-                        <Label text="Current Step" style="-fx-font-weight: bold; -fx-font-size: 14px;" />
+                        <HBox spacing="8.0" alignment="CENTER_LEFT">
+                           <children>
+                              <FontIcon iconLiteral="fas-info-circle" iconSize="16" iconColor="#2b4c7e" />
+                              <Label text="Current Step" style="-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #2b4c7e;" />
+                           </children>
+                        </HBox>
                         <TextArea fx:id="stepDescription" editable="false" prefHeight="80.0" prefWidth="300.0" wrapText="true" />
                      </children>
                   </VBox>

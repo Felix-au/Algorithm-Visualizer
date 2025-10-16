@@ -298,7 +298,7 @@ public class SudokuController implements AlgorithmViewController.AlgorithmSpecif
 
     private void rebuildTimelineWithCurrentSpeed() {
         if (timeline != null) { timeline.stop(); timeline = null; }
-        double speed = parent != null ? parent.speedSlider.getValue() : 5.0;
+        double speed = parent != null ? parent.speedSlider.getValue() : 1.0;
         double fps = Math.max(1.0, speed);
         Duration frame = Duration.millis(1000.0 / fps);
         timeline = new Timeline(new KeyFrame(frame, e -> {

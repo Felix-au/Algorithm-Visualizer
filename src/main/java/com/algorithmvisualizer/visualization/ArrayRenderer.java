@@ -145,6 +145,19 @@ public class ArrayRenderer {
     }
 
     private boolean valid(int idx) { return cells != null && idx >= 0 && idx < cells.length; }
+    
+    // ---- Additional helpers for Linear Search visualization ----
+    public void highlightChecking(int idx) {
+        if (!valid(idx)) return;
+        if (cells[idx].getStyle().contains("FORESTGREEN")) return; // don't override found
+        cells[idx].setStyle("-fx-background-color: GOLD; -fx-border-color: #333; -fx-padding: 6;");
+    }
+    
+    public void markEliminated(int idx) {
+        if (!valid(idx)) return;
+        if (cells[idx].getStyle().contains("FORESTGREEN")) return; // don't override found
+        cells[idx].setStyle("-fx-background-color: RED; -fx-border-color: #333; -fx-padding: 6;");
+    }
 }
 
 

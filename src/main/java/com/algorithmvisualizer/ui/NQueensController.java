@@ -490,7 +490,7 @@ public class NQueensController implements AlgorithmViewController.AlgorithmSpeci
             timeline.stop();
             timeline = null;
         }
-        double speed = parentController != null ? parentController.speedSlider.getValue() : 5.0;
+        double speed = parentController != null ? parentController.speedSlider.getValue() : 1.0;
         double fps = Math.max(1.0, speed);
         Duration frame = Duration.millis(1000.0 / fps);
         timeline = new Timeline(new KeyFrame(frame, e -> {

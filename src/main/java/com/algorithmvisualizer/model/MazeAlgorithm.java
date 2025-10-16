@@ -5,7 +5,8 @@ public class MazeAlgorithm extends Algorithm {
         super(
             "Maze: Generate + Pathfind",
             "Generate a maze (DFS) and find the shortest path (BFS) on a grid.",
-            "Pathfinding"
+            "Pathfinding",
+            "Practical Applications"
         );
     }
 

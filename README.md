@@ -1,118 +1,351 @@
-# Algorithm Visualizer
+# AlgoQuest - Algorithm Visualizer
 
-A Java application for visualizing algorithms step by step, starting with the N-Queens problem.
+<div align="center">
 
-## Features
+![AlgoQuest Logo](src/main/resources/Logo.png)
 
-- **Interactive GUI** with JavaFX
-- **Step-by-step algorithm execution** with variable tracking
-- **Visual representation** of algorithm progress
-- **Editable parameters** (board size, execution speed)
-- **Control panel** with Play, Pause, Step, and Reset functionality
+**An interactive desktop application for visualizing computer science algorithms**
 
-## Current Algorithms
+[![Java](https://img.shields.io/badge/Java-11+-orange.svg)](https://www.oracle.com/java/)
+[![JavaFX](https://img.shields.io/badge/JavaFX-17.0.2-blue.svg)](https://openjfx.io/)
+[![Maven](https://img.shields.io/badge/Maven-3.6+-red.svg)](https://maven.apache.org/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-- **N-Queens Problem**: Place N queens on an N×N chessboard so that no two queens attack each other
+</div>
 
-## Requirements
+---
 
-- Java 11 or higher
-- Maven 3.6 or higher
+## 📖 About
 
-## How to Run
+**AlgoQuest** is an educational tool designed to help students, educators, and programming enthusiasts understand how algorithms work through interactive visualizations. Watch algorithms execute step-by-step, control playback speed, and see exactly how data structures change during execution.
 
-1. **Clone or download** this project to your local machine
+### Supported Algorithm Categories
 
-2. **Navigate to the project directory**:
-   ```bash
-   cd Algorithm-Visualizer
-   ```
+- **🔍 Searching Algorithms**: Binary Search, Linear Search, Jump Search
+- **📊 Sorting Algorithms**: Bubble Sort, Selection Sort, Insertion Sort, Merge Sort, Quick Sort, Heap Sort
+- **🌳 Graph Algorithms**: BFS, DFS, Dijkstra's Algorithm, Prim's Algorithm, Kruskal's Algorithm
+- **🧩 Puzzle Solvers**: N-Queens, Sudoku, Maze Generation and Solving
+- **🔗 Pathfinding**: A* Search, Best-First Search
 
-3. **Compile and run the application**:
-   ```bash
-   mvn clean javafx:run
-   ```
+---
 
-   Or if you prefer to compile first:
-   ```bash
-   mvn clean compile
-   mvn javafx:run
-   ```
+## ✨ Features
 
-## How to Use
+- **🎬 Step-by-Step Visualization**: Watch algorithms execute one step at a time
+- **⏯️ Playback Controls**: Play, Pause, Step Forward, Step Backward
+- **⚡ Adjustable Speed**: Control animation speed with an intuitive slider
+- **📊 Multiple Visualizations**: Bar charts, arrays, graphs, grids, and chessboards
+- **📝 Variable Tracking**: Monitor algorithm variables in real-time
+- **💻 Code Display**: View algorithm pseudocode alongside visualization
+- **🎨 Clean UI**: Modern JavaFX interface with intuitive controls
+- **📦 Standalone Executable**: Includes embedded JRE—no Java installation required
 
-1. **Start the application** - You'll see the main menu with available algorithms
-2. **Select N-Queens** from the list and click "Select Algorithm"
-3. **Set the board size** using the spinner (4-12 queens)
-4. **Click "Generate Board"** to create the chessboard
-5. **Use the controls**:
-   - **Play**: Run the algorithm automatically
-   - **Step**: Execute one step at a time
-   - **Pause**: Pause the current execution
-   - **Reset**: Reset the algorithm to the beginning
-6. **Watch the visualization** as queens are placed and conflicts are highlighted
-7. **Track variables** in the right panel to see algorithm state
+---
 
-## Project Structure
+## 🚀 Quick Start
 
-```
-src/main/java/com/algorithmvisualizer/
-├── Main.java                          # Application entry point
-├── model/
-│   ├── Algorithm.java                 # Base algorithm class
-│   └── NQueensAlgorithm.java          # N-Queens algorithm definition
-├── algorithm/
-│   └── NQueensSolver.java             # N-Queens backtracking implementation
-├── visualization/
-│   └── ChessboardRenderer.java        # Chessboard visualization
-└── ui/
-    ├── MainController.java            # Main menu controller
-    ├── AlgorithmViewController.java   # Base algorithm view controller
-    └── NQueensController.java         # N-Queens specific controller
+### Prerequisites
+
+- **Java Development Kit (JDK) 11 or higher** - [Download here](https://www.oracle.com/java/technologies/javase-downloads.html)
+- **Apache Maven 3.6+** - [Download here](https://maven.apache.org/download.cgi)
+
+### Running from Source
+
+#### Windows
+```bash
+run.bat
 ```
 
-## Features in Detail
+#### Linux/Mac
+```bash
+chmod +x run.sh
+./run.sh
+```
 
-### N-Queens Visualization
-- **Chessboard display** with alternating light/dark squares
-- **Queen placement** with visual feedback
-- **Conflict highlighting** showing attacking positions
-- **Step-by-step execution** showing backtracking
-- **Variable tracking** displaying current row, column, and queens placed
-- **Solution counting** showing total solutions found
+### Using Maven Directly
 
-### Controls
-- **Board Size**: Adjustable from 4 to 12 queens
-- **Speed Control**: Slider to adjust execution speed
-- **Step Execution**: Manual step-by-step progression
-- **Reset Functionality**: Return to initial state
+```bash
+# Compile the project
+mvn clean compile
 
-## Future Enhancements
+# Run the application
+mvn javafx:run
+```
 
-- Additional algorithms (Sorting, Pathfinding, etc.)
-- Animation speed controls
-- Export functionality for solutions
-- Algorithm comparison mode
-- Custom input data support
+### Running the Executable (Windows Only)
 
-## Troubleshooting
+If you have the pre-built `AlgoQuest.exe`:
+1. Double-click `AlgoQuest.exe`
+2. No Java installation required—JRE is embedded!
 
-If you encounter issues:
+---
 
-1. **JavaFX not found**: Make sure you have JavaFX installed or use a JDK that includes it
-2. **Maven issues**: Ensure Maven is properly installed and configured
-3. **Java version**: Verify you're using Java 11 or higher
+## 🏗️ Building from Source
 
-## Contributing
+### Build JAR File
 
-This project is designed to be extensible. To add new algorithms:
+```bash
+# Standard JAR (requires JavaFX on system)
+mvn clean package
 
-1. Create a new algorithm class extending `Algorithm`
-2. Implement the algorithm logic with step tracking
-3. Create a visualization component
-4. Add a controller for the algorithm-specific UI
-5. Register the algorithm in the main controller
+# Shaded JAR (includes all dependencies)
+mvn clean package
+```
 
-## License
+Output: `target/algorithm-visualizer-1.0.0.jar`
 
-This project is open source and available under the MIT License.
+### Create Windows Executable
+
+1. **Build the shaded JAR**:
+   ```bash
+   mvn clean package
+   ```
+
+2. **Use Launch4j**:
+   - Install [Launch4j](http://launch4j.sourceforge.net/)
+   - Open `PrashnaSetu.xml` in Launch4j
+   - Click "Build wrapper" to generate `AlgoQuest.exe`
+
+3. **Package for distribution**:
+   - Include `AlgoQuest.exe`
+   - Include `jre/` directory (embedded JRE)
+   - Include `openjfx-21.0.7_windows-x64_bin-sdk/` (JavaFX SDK)
+
+---
+
+## 🎮 How to Use
+
+### 1. Select an Algorithm
+- Launch the application
+- Browse the algorithm list by category
+- Click on an algorithm to open its visualization
+
+### 2. Configure Parameters
+- Set input size, target values, or other algorithm-specific parameters
+- Click **"Generate"** or **"Start"** to initialize
+
+### 3. Control Playback
+- **▶️ Play**: Auto-advance through algorithm steps
+- **⏸️ Pause**: Pause automatic playback
+- **⏭️ Step**: Advance one step forward
+- **⏮️ Step Back**: Go back one step
+- **🔄 Reset**: Return to initial state
+
+### 4. Adjust Speed
+- Use the speed slider to control animation speed
+- Slower speeds help understand complex operations
+- Faster speeds good for observing overall behavior
+
+### 5. Monitor Execution
+- **Visualization Area**: Watch the algorithm in action
+- **Progress Log**: Read textual descriptions of each step
+- **Variable List**: Track variable values during execution
+- **Code Display**: View the algorithm's pseudocode
+
+---
+
+## 🏛️ Project Structure
+
+```
+algorithm-visualizer/
+├── src/main/
+│   ├── java/com/algorithmvisualizer/
+│   │   ├── Main.java                   # Application entry point
+│   │   ├── algorithm/                  # Algorithm implementations
+│   │   │   ├── BinarySearchSolver.java
+│   │   │   ├── BubbleSortSolver.java
+│   │   │   ├── DFSSolver.java
+│   │   │   └── ...
+│   │   ├── model/                      # Algorithm metadata
+│   │   │   ├── Algorithm.java          # Abstract base class
+│   │   │   ├── BinarySearchAlgorithm.java
+│   │   │   └── ...
+│   │   ├── ui/                         # UI controllers
+│   │   │   ├── MainController.java
+│   │   │   ├── AlgorithmViewController.java
+│   │   │   └── ...
+│   │   └── visualization/              # Renderers
+│   │       ├── BarChartRenderer.java
+│   │       ├── GraphRenderer.java
+│   │       └── ...
+│   └── resources/
+│       ├── fxml/                       # UI layouts
+│       │   ├── main-view.fxml
+│       │   ├── algorithm-view-new.fxml
+│       │   └── ...
+│       └── Logo.png
+├── jre/                                # Embedded JRE (for distribution)
+├── openjfx-21.0.7_windows-x64_bin-sdk/ # JavaFX SDK (for distribution)
+├── pom.xml                             # Maven configuration
+├── PrashnaSetu.xml                     # Launch4j configuration
+├── run.bat                             # Windows run script
+├── run.sh                              # Unix/Linux run script
+└── README.md                           # This file
+```
+
+---
+
+## 🛠️ Technology Stack
+
+- **Language**: Java 11
+- **UI Framework**: JavaFX 17.0.2
+- **Build Tool**: Apache Maven
+- **Packaging**: Launch4j (Windows executable creation)
+- **Architecture**: Model-View-Controller (MVC)
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions! Whether it's adding new algorithms, improving visualizations, or fixing bugs, your help is appreciated.
+
+### Adding a New Algorithm
+
+1. **Create Algorithm Model** (`model/[Name]Algorithm.java`):
+   ```java
+   public class NewAlgorithm extends Algorithm {
+       public NewAlgorithm() {
+           super("Algorithm Name", "Description", Category.SORTING);
+       }
+       
+       @Override
+       public String getVisualizationFxml() {
+           return "/fxml/newalgorithm-view.fxml";
+       }
+       
+       @Override
+       public Class<?> getControllerClass() {
+           return NewAlgorithmController.class;
+       }
+   }
+   ```
+
+2. **Implement Algorithm Logic** (`algorithm/[Name]Solver.java`):
+   ```java
+   public class NewAlgorithmSolver {
+       public List<StepData> solve(Parameters params) {
+           // Your algorithm implementation
+       }
+   }
+   ```
+
+3. **Create Controller** (`ui/[Name]Controller.java`):
+   - Implement `AlgorithmViewController.AlgorithmSpecificController`
+   - Handle parameter input and visualization updates
+
+4. **Create or Reuse Renderer** (`visualization/[Name]Renderer.java`):
+   - Render algorithm state to JavaFX Canvas or Pane
+
+5. **Create FXML View** (`resources/fxml/[name]-view.fxml`):
+   - Link to your controller
+
+6. **Register Algorithm**:
+   - Add to `MainController.getAlgorithms()` method
+
+For detailed contribution guidelines, see [AI_AGENT_ONBOARDING.md](AI_AGENT_ONBOARDING.md).
+
+---
+
+## 📚 Documentation
+
+- **[AI Agent Onboarding Guide](AI_AGENT_ONBOARDING.md)**: Comprehensive developer documentation
+- **[JavaDoc](target/site/apidocs/)**: API documentation (generated via `mvn javadoc:javadoc`)
+
+---
+
+## 🐛 Known Issues
+
+- No automated tests currently exist
+- Code display feature is not fully implemented for all algorithms
+- Step-back functionality may have issues with certain puzzle algorithms
+- Linux/Mac executable not available (currently Windows only via Launch4j)
+
+---
+
+## 🗺️ Roadmap
+
+### Version 2.0 (Planned)
+- [ ] Add automated tests (JUnit)
+- [ ] Implement complete code display for all algorithms
+- [ ] Add dark mode theme
+- [ ] Export visualization as video/GIF
+- [ ] Linux and macOS native packages
+- [ ] Enhanced graph algorithm visualizations
+- [ ] Tutorial mode for beginners
+- [ ] Algorithm comparison mode
+
+### Future Enhancements
+- [ ] Dynamic programming visualizations
+- [ ] String matching algorithms
+- [ ] Tree traversal animations
+- [ ] Interactive parameter tuning
+- [ ] Performance metrics display
+- [ ] Multi-language support (i18n)
+- [ ] Web-based version
+
+---
+
+## 🧪 Testing
+
+Currently, the project lacks automated tests. To test manually:
+
+1. **Run the application**: `mvn javafx:run`
+2. **Test each algorithm category**:
+   - Select an algorithm
+   - Configure parameters
+   - Verify visualization renders correctly
+   - Test all playback controls (Play, Pause, Step, Step Back, Reset)
+   - Adjust speed and verify responsiveness
+3. **Check edge cases**:
+   - Minimum input size
+   - Maximum input size
+   - Already sorted arrays (for sorting algorithms)
+   - Graph with cycles vs. acyclic graphs
+
+---
+
+## 💡 Tips for Educators
+
+- **Start with Simple Algorithms**: Begin with Binary Search or Selection Sort
+- **Use Step-by-Step Mode**: Pause and discuss each step with students
+- **Vary Input Sizes**: Show how algorithm behavior changes with data size
+- **Compare Algorithms**: Demonstrate different approaches to the same problem
+- **Encourage Exploration**: Let students adjust parameters and observe results
+
+---
+
+## 🙏 Acknowledgments
+
+- Built with ❤️ using [JavaFX](https://openjfx.io/)
+- Icons and UI inspired by modern design principles
+- Educational content based on standard computer science curriculum
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 📧 Contact & Support
+
+- **Issues**: Report bugs or request features via [GitHub Issues](https://github.com/Felix-au/Algorithm-Visualizer/issues)
+- **Discussions**: Join conversations in [GitHub Discussions](https://github.com/Felix-au/Algorithm-Visualizer/discussions)
+- **Email**: [Your contact email]
+
+---
+
+## 🌟 Star History
+
+If you find this project helpful, please consider giving it a ⭐ on GitHub!
+
+---
+
+<div align="center">
+
+**Made with 🧠 for algorithm enthusiasts**
+
+[⬆ Back to Top](#algoquest---algorithm-visualizer)
+
+</div>

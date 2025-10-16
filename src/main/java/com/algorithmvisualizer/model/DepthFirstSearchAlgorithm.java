@@ -9,7 +9,8 @@ public class DepthFirstSearchAlgorithm extends Algorithm {
         super(
             "Depth-First Search (DFS)",
             "Traverse a graph by exploring as far as possible along each branch before backtracking",
-            "Graph Traversal"
+            "Graph Algorithms",
+            "Backtracking"
         );
     }
 

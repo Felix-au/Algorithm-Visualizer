@@ -222,4 +222,17 @@ public class BarChartRenderer {
     }
 
     private boolean valid(int idx) { return bars != null && idx >= 0 && idx < bars.length; }
+    
+    // ---- Additional helpers for Linear Search visualization ----
+    public void highlightChecking(int idx) {
+        if (!valid(idx)) return;
+        if (bars[idx].getFill() == Color.FORESTGREEN) return; // don't override found
+        bars[idx].setFill(Color.GOLD); // YELLOW for checking
+    }
+    
+    public void markEliminated(int idx) {
+        if (!valid(idx)) return;
+        if (bars[idx].getFill() == Color.FORESTGREEN) return; // don't override found
+        bars[idx].setFill(Color.RED); // RED for not target
+    }
 }
