@@ -2,7 +2,7 @@
 <launch4jConfig>
   <dontWrapJar>false</dontWrapJar>
   <headerType>gui</headerType>
-  <jar>C:\Users\mailt\OneDrive\Desktop\Algorithm Visualizer\target\algorithm-visualizer-1.0.0-all.jar</jar>
+  <jar>C:\Users\gg\Desktop\Algorithm Visualizer\target\algorithm-visualizer-1.0.0-all.jar</jar>
   <outfile>C:\Users\mailt\OneDrive\Desktop\Algorithm Visualizer\AlgoQuest.exe</outfile>
   <errTitle></errTitle>
   <cmdLine></cmdLine>
