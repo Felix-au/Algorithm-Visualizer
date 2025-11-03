@@ -16,10 +16,12 @@ import javafx.util.Duration;
 import java.util.*;
 
 /**
- * Renders an undirected graph with nodes arranged on a circle.
+ * Renders an undirected graph with nodes arranged on a circle or tree layout.
  * Provides helpers to highlight current node, visited nodes, and edges.
  */
 public class GraphRenderer {
+
+    public enum LayoutMode { CIRCULAR, TREE }
 
     private final Pane container;
     private final Map<Integer, Circle> nodeCircles = new HashMap<>();
@@ -27,6 +29,8 @@ public class GraphRenderer {
     private final Map<String, Line> edgeLines = new HashMap<>();
     private final Map<String, Boolean> activePath = new HashMap<>();
     private int nodeCount = 0;
+    private List<List<Integer>> adjacency = new ArrayList<>();
+    private LayoutMode layoutMode = LayoutMode.CIRCULAR;
 
     public GraphRenderer() {
         container = new Pane();
@@ -40,6 +44,7 @@ public class GraphRenderer {
 
     public void setGraph(int n, List<List<Integer>> adj) {
         nodeCount = Math.max(0, n);
+        this.adjacency = adj != null ? copyAdj(adj) : new ArrayList<>();
         container.getChildren().clear();
         nodeCircles.clear();
         nodeLabels.clear();
@@ -175,30 +180,39 @@ public class GraphRenderer {
         tl.play();
     }
 
+    /**
+     * Set the layout mode (CIRCULAR or TREE) and rebuild positions
+     */
+    public void setLayoutMode(LayoutMode mode) {
+        this.layoutMode = mode;
+        rebuildPositions();
+    }
+
+    public LayoutMode getLayoutMode() {
+        return layoutMode;
+    }
+
     private void rebuildPositions() {
-        double w = Math.max(300, container.getWidth());
-        double h = Math.max(300, container.getHeight());
-        double cx = w / 2.0;
-        double cy = h / 2.0;
-        double radius = Math.max(100, Math.min(w, h) / 2.5);
-        // Positions
-        Map<Integer, double[]> pos = new HashMap<>();
+        Map<Integer, double[]> pos = (layoutMode == LayoutMode.TREE) 
+            ? computeTreeLayout() 
+            : computeCircularLayout();
+        
+        // Update node positions
         for (int i = 0; i < nodeCount; i++) {
-            double angle = 2 * Math.PI * i / Math.max(1, nodeCount);
-            double x = cx + radius * Math.cos(angle);
-            double y = cy + radius * Math.sin(angle);
-            pos.put(i, new double[]{x, y});
+            double[] p = pos.get(i);
+            if (p == null) continue;
             Circle c = nodeCircles.get(i);
             Text t = nodeLabels.get(i);
             if (c != null) {
-                c.setCenterX(x);
-                c.setCenterY(y);
+                c.setCenterX(p[0]);
+                c.setCenterY(p[1]);
             }
             if (t != null) {
-                t.setX(x - 4);
-                t.setY(y + 4);
+                t.setX(p[0] - 4);
+                t.setY(p[1] + 4);
             }
         }
+        
         // Update edges
         for (Map.Entry<String, Line> e : edgeLines.entrySet()) {
             String[] uv = e.getKey().split("-");
@@ -214,6 +228,139 @@ public class GraphRenderer {
                 l.setEndY(pv[1]);
             }
         }
+    }
+
+    private Map<Integer, double[]> computeCircularLayout() {
+        double w = Math.max(300, container.getWidth());
+        double h = Math.max(300, container.getHeight());
+        double cx = w / 2.0;
+        double cy = h / 2.0;
+        double radius = Math.max(100, Math.min(w, h) / 2.5);
+        
+        Map<Integer, double[]> pos = new HashMap<>();
+        for (int i = 0; i < nodeCount; i++) {
+            double angle = 2 * Math.PI * i / Math.max(1, nodeCount);
+            double x = cx + radius * Math.cos(angle);
+            double y = cy + radius * Math.sin(angle);
+            pos.put(i, new double[]{x, y});
+        }
+        return pos;
+    }
+
+    private Map<Integer, double[]> computeTreeLayout() {
+        double w = Math.max(300, container.getWidth());
+        double h = Math.max(300, container.getHeight());
+        
+        Map<Integer, double[]> pos = new HashMap<>();
+        if (nodeCount == 0) return pos;
+        
+        // Build tree structure using BFS from node 0
+        boolean[] visited = new boolean[nodeCount];
+        Map<Integer, Integer> parent = new HashMap<>();
+        Map<Integer, List<Integer>> children = new HashMap<>();
+        Map<Integer, Integer> depth = new HashMap<>();
+        
+        for (int i = 0; i < nodeCount; i++) {
+            children.put(i, new ArrayList<>());
+        }
+        
+        // BFS to build tree
+        Queue<Integer> queue = new LinkedList<>();
+        queue.offer(0);
+        visited[0] = true;
+        depth.put(0, 0);
+        int maxDepth = 0;
+        
+        while (!queue.isEmpty()) {
+            int u = queue.poll();
+            int d = depth.get(u);
+            maxDepth = Math.max(maxDepth, d);
+            
+            if (adjacency != null && u < adjacency.size()) {
+                for (int v : adjacency.get(u)) {
+                    if (!visited[v]) {
+                        visited[v] = true;
+                        parent.put(v, u);
+                        children.get(u).add(v);
+                        depth.put(v, d + 1);
+                        queue.offer(v);
+                    }
+                }
+            }
+        }
+        
+        // Handle disconnected components
+        for (int i = 0; i < nodeCount; i++) {
+            if (!visited[i]) {
+                visited[i] = true;
+                depth.put(i, maxDepth + 1);
+            }
+        }
+        maxDepth = Math.max(maxDepth, depth.values().stream().max(Integer::compare).orElse(0));
+        
+        // Compute positions using recursive layout
+        double verticalSpacing = Math.min(80, h / Math.max(1, maxDepth + 2));
+        Map<Integer, Integer> subtreeSize = new HashMap<>();
+        computeSubtreeSize(0, children, subtreeSize);
+        
+        layoutTree(0, children, depth, subtreeSize, pos, 0, w, verticalSpacing, 40);
+        
+        // Position disconnected nodes
+        double disconnectedY = h - 40;
+        double disconnectedX = 40;
+        for (int i = 0; i < nodeCount; i++) {
+            if (!pos.containsKey(i)) {
+                pos.put(i, new double[]{disconnectedX, disconnectedY});
+                disconnectedX += 60;
+                if (disconnectedX > w - 40) {
+                    disconnectedX = 40;
+                    disconnectedY -= 60;
+                }
+            }
+        }
+        
+        return pos;
+    }
+
+    private int computeSubtreeSize(int node, Map<Integer, List<Integer>> children, Map<Integer, Integer> subtreeSize) {
+        int size = 1;
+        for (int child : children.get(node)) {
+            size += computeSubtreeSize(child, children, subtreeSize);
+        }
+        subtreeSize.put(node, size);
+        return size;
+    }
+
+    private void layoutTree(int node, Map<Integer, List<Integer>> children, Map<Integer, Integer> depth,
+                           Map<Integer, Integer> subtreeSize, Map<Integer, double[]> pos,
+                           double leftX, double rightX, double verticalSpacing, double topMargin) {
+        int d = depth.getOrDefault(node, 0);
+        double y = topMargin + d * verticalSpacing;
+        double x = (leftX + rightX) / 2.0;
+        pos.put(node, new double[]{x, y});
+        
+        List<Integer> kids = children.get(node);
+        if (kids.isEmpty()) return;
+        
+        // Distribute children horizontally based on subtree sizes
+        double currentX = leftX;
+        double totalWidth = rightX - leftX;
+        int totalSize = subtreeSize.get(node) - 1; // exclude current node
+        
+        for (int child : kids) {
+            int childSize = subtreeSize.get(child);
+            double childWidth = totalSize > 0 ? (childSize * totalWidth / totalSize) : (totalWidth / kids.size());
+            layoutTree(child, children, depth, subtreeSize, pos, currentX, currentX + childWidth, verticalSpacing, topMargin);
+            currentX += childWidth;
+        }
+    }
+
+    private List<List<Integer>> copyAdj(List<List<Integer>> src) {
+        List<List<Integer>> out = new ArrayList<>();
+        for (List<Integer> row : src) {
+            out.add(new ArrayList<>(row));
+        }
+        return out;
     }
 
     private String edgeKey(int u, int v) {

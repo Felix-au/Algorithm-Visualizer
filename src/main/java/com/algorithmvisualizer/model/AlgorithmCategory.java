@@ -18,7 +18,8 @@ public enum AlgorithmCategory {
     BACKTRACKING("Backtracking", "Solve constraint satisfaction problems", FontAwesomeSolid.UNDO),
     PATHFINDING("Pathfinding", "Find optimal paths in grids and graphs", MaterialDesignM.MAP_MARKER_PATH),
     REAL_WORLD("Real-World Problems", "Practical applications and puzzles", FontAwesomeSolid.PUZZLE_PIECE),
-    PRACTICAL("Practical Applications", "Real-world problem solving and applications", MaterialDesignC.COGS);
+    PRACTICAL("Practical Applications", "Real-world problem solving and applications", MaterialDesignC.COGS),
+    CONCEPTS("Concepts", "Data structure fundamentals: Stack, Queue, Linked List", FontAwesomeSolid.LAYER_GROUP);
     
     private final String displayName;
     private final String description;
@@ -61,6 +62,9 @@ public enum AlgorithmCategory {
             case "real-world problems": return REAL_WORLD;
             case "practical":
             case "practical applications": return PRACTICAL;
+            case "concepts":
+            case "data structures":
+            case "data structure concepts": return CONCEPTS;
             default: return ALL;
         }
     }

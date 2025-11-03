@@ -47,6 +47,7 @@ public class DFSController implements AlgorithmViewController.AlgorithmSpecificC
     private int nodeCount = 6;
     private List<List<Integer>> adj = new ArrayList<>();
     private int startNode = 0;
+    private boolean allowCycles = true; // Toggle for cycle generation
 
     @FXML
     private void initialize() {
@@ -70,14 +71,33 @@ public class DFSController implements AlgorithmViewController.AlgorithmSpecificC
             parent.chessboardContainer.getChildren().add(graphView.getNode());
         }
 
-        // Header and legend
+        // Header and legend with layout toggle
         if (parent.chessboardHeaderBox != null) {
             parent.chessboardHeaderBox.setVisible(true);
             parent.chessboardHeaderBox.setManaged(true);
             parent.chessboardHeaderBox.getChildren().clear();
             Label hdr = new Label("Depth-First Search (DFS)");
             hdr.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
-            parent.chessboardHeaderBox.getChildren().addAll(hdr, new Separator());
+            
+            // Add toggle button for layout switching
+            ToggleButton layoutToggle = new ToggleButton("Tree View");
+            layoutToggle.setStyle("-fx-background-color: #4a90e2; -fx-text-fill: white; -fx-background-radius: 6; -fx-padding: 5 12; -fx-font-size: 11px; -fx-cursor: hand;");
+            layoutToggle.setOnAction(e -> {
+                if (layoutToggle.isSelected()) {
+                    graphView.setLayoutMode(GraphRenderer.LayoutMode.TREE);
+                    layoutToggle.setText("Circular View");
+                    layoutToggle.setStyle("-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-background-radius: 6; -fx-padding: 5 12; -fx-font-size: 11px; -fx-cursor: hand;");
+                } else {
+                    graphView.setLayoutMode(GraphRenderer.LayoutMode.CIRCULAR);
+                    layoutToggle.setText("Tree View");
+                    layoutToggle.setStyle("-fx-background-color: #4a90e2; -fx-text-fill: white; -fx-background-radius: 6; -fx-padding: 5 12; -fx-font-size: 11px; -fx-cursor: hand;");
+                }
+            });
+            
+            javafx.scene.layout.Region spacer = new javafx.scene.layout.Region();
+            javafx.scene.layout.HBox.setHgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
+            
+            parent.chessboardHeaderBox.getChildren().addAll(hdr, spacer, layoutToggle, new Separator());
         }
         if (parent.chessboardLegendBox != null) {
             parent.chessboardLegendBox.setVisible(true);
@@ -125,7 +145,36 @@ public class DFSController implements AlgorithmViewController.AlgorithmSpecificC
             parent.paramElementsField.setPromptText("e.g. 0-1, 1-2, 2-3, 0-4");
             parent.paramElementsField.setText(edgesToString(adj));
         }
-        if (parent.paramRandomizeButton != null) parent.paramRandomizeButton.setOnAction(e -> onRandomizeGraph());
+        // Add Cycles toggle next to Randomize button
+        if (parent.paramRandomizeButton != null) {
+            // Create a ToggleButton for cycles toggle with modern styling
+            ToggleButton cyclesToggle = new ToggleButton("Cycles: ON");
+            cyclesToggle.setSelected(allowCycles);
+            cyclesToggle.setStyle("-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-background-radius: 6; -fx-padding: 6 14; -fx-font-weight: bold; -fx-cursor: hand; -fx-font-size: 11px;");
+            cyclesToggle.setOnAction(e -> {
+                allowCycles = cyclesToggle.isSelected();
+                if (allowCycles) {
+                    cyclesToggle.setText("Cycles: ON");
+                    cyclesToggle.setStyle("-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-background-radius: 6; -fx-padding: 6 14; -fx-font-weight: bold; -fx-cursor: hand; -fx-font-size: 11px;");
+                } else {
+                    cyclesToggle.setText("Cycles: OFF");
+                    cyclesToggle.setStyle("-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-background-radius: 6; -fx-padding: 6 14; -fx-font-weight: bold; -fx-cursor: hand; -fx-font-size: 11px;");
+                }
+            });
+            
+            // Find the HBox containing the Randomize button
+            javafx.scene.Parent buttonParent = parent.paramRandomizeButton.getParent();
+            if (buttonParent instanceof javafx.scene.layout.HBox) {
+                javafx.scene.layout.HBox buttonBox = (javafx.scene.layout.HBox) buttonParent;
+                // Add the toggle button after the Randomize button
+                int randomizeIndex = buttonBox.getChildren().indexOf(parent.paramRandomizeButton);
+                if (randomizeIndex >= 0) {
+                    buttonBox.getChildren().add(randomizeIndex + 1, cyclesToggle);
+                }
+            }
+            
+            parent.paramRandomizeButton.setOnAction(e -> onRandomizeGraph());
+        }
         if (parent.paramApplyButton != null) parent.paramApplyButton.setOnAction(e -> onApplyGraph());
 
         // Solutions side: traversal array
@@ -162,7 +211,7 @@ public class DFSController implements AlgorithmViewController.AlgorithmSpecificC
     }
 
     private void onRandomizeGraph() {
-        adj = randomConnectedGraph(nodeCount);
+        adj = randomConnectedGraph(nodeCount, allowCycles);
         if (parent != null && parent.paramElementsField != null) parent.paramElementsField.setText(edgesToString(adj));
         refreshAll();
     }
@@ -526,7 +575,7 @@ public class DFSController implements AlgorithmViewController.AlgorithmSpecificC
         if (!adj.get(v).contains(u)) adj.get(v).add(u);
     }
 
-    private static List<List<Integer>> randomConnectedGraph(int n) {
+    private static List<List<Integer>> randomConnectedGraph(int n, boolean allowCycles) {
         Random rnd = new Random();
         List<List<Integer>> g = new ArrayList<>();
         for (int i = 0; i < n; i++) g.add(new ArrayList<>());
@@ -539,11 +588,13 @@ public class DFSController implements AlgorithmViewController.AlgorithmSpecificC
             int v = order.get(rnd.nextInt(i));
             if (!g.get(u).contains(v)) { g.get(u).add(v); g.get(v).add(u); }
         }
-        // add extra random edges
-        int extra = Math.max(0, n);
-        for (int k = 0; k < extra; k++) {
-            int u = rnd.nextInt(n), v = rnd.nextInt(n);
-            if (u != v && !g.get(u).contains(v)) { g.get(u).add(v); g.get(v).add(u); }
+        // add extra random edges only if cycles are allowed
+        if (allowCycles) {
+            int extra = Math.max(0, n);
+            for (int k = 0; k < extra; k++) {
+                int u = rnd.nextInt(n), v = rnd.nextInt(n);
+                if (u != v && !g.get(u).contains(v)) { g.get(u).add(v); g.get(v).add(u); }
+            }
         }
         for (List<Integer> row : g) Collections.sort(row);
         return g;

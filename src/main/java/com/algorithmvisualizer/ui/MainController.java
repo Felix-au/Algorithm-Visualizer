@@ -61,6 +61,9 @@ public class MainController {
             new BubbleSortAlgorithm(),
             new SelectionSortAlgorithm(),
             new DepthFirstSearchAlgorithm(),
+            new BreadthFirstSearchAlgorithm(),
+            new QueueConceptAlgorithm(),
+            new StackConceptAlgorithm(),
             new NQueensAlgorithm(),
             new SudokuAlgorithm(),
             new MazeAlgorithm()
@@ -115,6 +118,7 @@ public class MainController {
             AlgorithmCategory.GRAPH,
             AlgorithmCategory.BACKTRACKING,
             AlgorithmCategory.PATHFINDING,
+            AlgorithmCategory.CONCEPTS,
             AlgorithmCategory.PRACTICAL,
             AlgorithmCategory.REAL_WORLD
         };
@@ -127,6 +131,7 @@ public class MainController {
         categoryColors.put(AlgorithmCategory.GRAPH, "#4ecdc4");
         categoryColors.put(AlgorithmCategory.BACKTRACKING, "#f39c12");
         categoryColors.put(AlgorithmCategory.PATHFINDING, "#2ecc71");
+        categoryColors.put(AlgorithmCategory.CONCEPTS, "#00bcd4");
         categoryColors.put(AlgorithmCategory.PRACTICAL, "#9b59b6");
         categoryColors.put(AlgorithmCategory.REAL_WORLD, "#e74c3c");
         
@@ -184,7 +189,7 @@ public class MainController {
         desc.setAlignment(Pos.CENTER);
         desc.setMaxWidth(180);
         
-        card.getChildren().addAll(icon, name, countLabel);
+        card.getChildren().addAll(icon, name, countLabel, desc);
         
         // Hover effect
         addHoverEffect(card);
