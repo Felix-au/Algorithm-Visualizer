@@ -1,8 +1,8 @@
-# AlgoQuest - Algorithm Visualizer
+# AlgoBuddy - Algorithm Visualizer
 
 <div align="center">
 
-![AlgoQuest Logo](src/main/resources/Logo.png)
+![AlgoBuddy Logo](src/main/resources/Logo.png)
 
 **An interactive desktop application for visualizing computer science algorithms**
 
@@ -17,7 +17,7 @@
 
 ## 📖 About
 
-**AlgoQuest** is an educational tool designed to help students, educators, and programming enthusiasts understand how algorithms work through interactive visualizations. Watch algorithms execute step-by-step, control playback speed, and see exactly how data structures change during execution.
+**AlgoBuddy** is an educational tool designed to help students, educators, and programming enthusiasts understand how algorithms work through interactive visualizations. Watch algorithms execute step-by-step, control playback speed, and see exactly how data structures change during execution.
 
 ### Supported Algorithm Categories
 
@@ -74,8 +74,8 @@ mvn javafx:run
 
 ### Running the Executable (Windows Only)
 
-If you have the pre-built `AlgoQuest.exe`:
-1. Double-click `AlgoQuest.exe`
+If you have the pre-built `AlgoBuddy.exe`:
+1. Double-click `AlgoBuddy.exe`
 2. No Java installation required—JRE is embedded!
 
 ---
@@ -103,11 +103,11 @@ Output: `target/algorithm-visualizer-1.0.0.jar`
 
 2. **Use Launch4j**:
    - Install [Launch4j](http://launch4j.sourceforge.net/)
-   - Open `PrashnaSetu.xml` in Launch4j
-   - Click "Build wrapper" to generate `AlgoQuest.exe`
+   - Open `algobuddy.xml` in Launch4j
+   - Click "Build wrapper" to generate `AlgoBuddy.exe`
 
 3. **Package for distribution**:
-   - Include `AlgoQuest.exe`
+   - Include `AlgoBuddy.exe`
    - Include `jre/` directory (embedded JRE)
    - Include `openjfx-21.0.7_windows-x64_bin-sdk/` (JavaFX SDK)
 
@@ -177,7 +177,7 @@ algorithm-visualizer/
 ├── jre/                                # Embedded JRE (for distribution)
 ├── openjfx-21.0.7_windows-x64_bin-sdk/ # JavaFX SDK (for distribution)
 ├── pom.xml                             # Maven configuration
-├── PrashnaSetu.xml                     # Launch4j configuration
+├── algobuddy.xml                       # Launch4j configuration
 ├── run.bat                             # Windows run script
 ├── run.sh                              # Unix/Linux run script
 └── README.md                           # This file
@@ -346,6 +346,6 @@ If you find this project helpful, please consider giving it a ⭐ on GitHub!
 
 **Made with 🧠 for algorithm enthusiasts**
 
-[⬆ Back to Top](#algoquest---algorithm-visualizer)
+[⬆ Back to Top](#algobuddy---algorithm-visualizer)
 
 </div>
