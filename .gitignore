@@ -1,0 +1,41 @@
+# Maven build output
+target/
+*.jar
+*.war
+*.zip
+*.tar.gz
+*.rar
+
+# Compilers
+mingw64/
+jdk-17.0.18
+python-3.11.8
+
+# IDEs and Editors
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Logging and Temp Files
+*.log
+tmp/
+temp/
+
+# Executables
+AlgoBuddy.exe
+AlgoQuest.exe
+
+# Local Configuration
+.env
+
+# OS-specific files
+Thumbs.db
+db.lck
+.DS_Store
