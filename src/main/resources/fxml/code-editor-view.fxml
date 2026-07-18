@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<BorderPane xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" 
+            fx:controller="com.algorithmvisualizer.ui.CodeEditorViewController"
+            style="-fx-background-color: #f5f5f5;">
+   
+   <!-- Top Bar with Controls -->
+   <top>
+      <VBox spacing="0">
+         <children>
+            <!-- Header -->
+            <HBox alignment="CENTER_LEFT" spacing="15.0" 
+                  style="-fx-background-color: linear-gradient(to right, #667eea 0%, #764ba2 100%); 
+                         -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0, 0, 3);">
+               <children>
+                  <FontIcon iconLiteral="fas-code" iconSize="24" iconColor="white" />
+                  <Label fx:id="algorithmNameLabel" text="Code Editor" 
+                         style="-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold;" />
+                  <Region HBox.hgrow="ALWAYS" />
+               </children>
+               <padding>
+                  <Insets bottom="20.0" left="25.0" right="25.0" top="20.0" />
+               </padding>
+            </HBox>
+            
+            <!-- Control Bar -->
+            <HBox alignment="CENTER_LEFT" spacing="15.0" 
+                  style="-fx-background-color: white; 
+                         -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 2);">
+               <children>
+                  <!-- Language Selector -->
+                  <HBox spacing="8.0" alignment="CENTER_LEFT">
+                     <children>
+                        <FontIcon iconLiteral="fas-language" iconSize="16" iconColor="#667eea" />
+                        <Label text="Language:" style="-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: #333;" />
+                        <ComboBox fx:id="languageSelector" prefWidth="140.0" 
+                                  style="-fx-font-size: 12px; 
+                                         -fx-background-color: white;
+                                         -fx-border-color: #e0e0e0;
+                                         -fx-border-radius: 6;
+                                         -fx-background-radius: 6;
+                                         -fx-padding: 6 12;" />
+                     </children>
+                  </HBox>
+                  
+                  <Separator orientation="VERTICAL" prefHeight="30.0" />
+                  
+                  <!-- Theme Toggle -->
+                  <Button fx:id="themeToggleButton" 
+                          style="-fx-background-color: #6c757d; 
+                                 -fx-text-fill: white; 
+                                 -fx-background-radius: 8; 
+                                 -fx-padding: 10 14; 
+                                 -fx-cursor: hand;
+                                 -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 4, 0, 0, 2);">
+                     <graphic>
+                        <FontIcon fx:id="themeToggleIcon" iconLiteral="fas-sun" iconSize="16" iconColor="white" />
+                     </graphic>
+                     <tooltip>
+                        <Tooltip text="Toggle Light/Dark Mode" />
+                     </tooltip>
+                  </Button>
+                  
+                  <Region HBox.hgrow="ALWAYS" />
+                  
+                  <!-- Execute Button -->
+                  <Button fx:id="executeButton" text="Execute Code" 
+                          style="-fx-background-color: linear-gradient(to bottom, #28a745 0%, #218838 100%); 
+                                 -fx-text-fill: white; 
+                                 -fx-background-radius: 8; 
+                                 -fx-padding: 12 24; 
+                                 -fx-font-weight: bold; 
+                                 -fx-cursor: hand; 
+                                 -fx-font-size: 13px;
+                                 -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 6, 0, 0, 2);">
+                     <graphic>
+                        <FontIcon iconLiteral="fas-play-circle" iconSize="16" iconColor="white" />
+                     </graphic>
+                  </Button>
+                  
+                  <!-- Close Button -->
+                  <Button fx:id="closeButton" text="Close" 
+                          style="-fx-background-color: #e74c3c; 
+                                 -fx-text-fill: white; 
+                                 -fx-background-radius: 8; 
+                                 -fx-padding: 12 20; 
+                                 -fx-font-weight: bold; 
+                                 -fx-cursor: hand; 
+                                 -fx-font-size: 13px;
+                                 -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 6, 0, 0, 2);">
+                     <graphic>
+                        <FontIcon iconLiteral="fas-times-circle" iconSize="16" iconColor="white" />
+                     </graphic>
+                  </Button>
+               </children>
+               <padding>
+                  <Insets bottom="15.0" left="25.0" right="25.0" top="15.0" />
+               </padding>
+            </HBox>
+         </children>
+      </VBox>
+   </top>
+   
+   <!-- Main Content Area -->
+   <center>
+      <SplitPane dividerPositions="0.6" style="-fx-background-color: transparent;">
+         <items>
+            <!-- Left: Code Editor -->
+            <VBox spacing="0" style="-fx-background-color: white; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 2);">
+               <children>
+                  <!-- Code Editor Header -->
+                  <HBox alignment="CENTER_LEFT" spacing="10.0" 
+                        style="-fx-background-color: #f8f9fa; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;">
+                     <children>
+                        <FontIcon iconLiteral="fas-file-code" iconSize="14" iconColor="#667eea" />
+                        <Label text="Code Editor" 
+                               style="-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: #333;" />
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Label fx:id="lineCountLabel" text="Lines: 0" 
+                               style="-fx-font-size: 11px; -fx-text-fill: #6c757d;" />
+                     </children>
+                     <padding>
+                        <Insets bottom="10.0" left="15.0" right="15.0" top="10.0" />
+                     </padding>
+                  </HBox>
+                  
+                  <!-- Code Area Container -->
+                  <StackPane fx:id="codeAreaContainer" VBox.vgrow="ALWAYS">
+                     <VBox.margin>
+                        <Insets bottom="0.0" left="0.0" right="0.0" top="0.0" />
+                     </VBox.margin>
+                  </StackPane>
+               </children>
+               <padding>
+                  <Insets bottom="0.0" left="0.0" right="0.0" top="0.0" />
+               </padding>
+            </VBox>
+            
+            <!-- Right: Output Area -->
+            <VBox spacing="0" style="-fx-background-color: white; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 2);">
+               <children>
+                  <!-- Output Header -->
+                  <HBox alignment="CENTER_LEFT" spacing="10.0" 
+                        style="-fx-background-color: #f8f9fa; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;">
+                     <children>
+                        <FontIcon iconLiteral="fas-terminal" iconSize="14" iconColor="#28a745" />
+                        <Label text="Execution Output" 
+                               style="-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: #333;" />
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Label fx:id="executionStatusLabel" text="Ready" 
+                               style="-fx-font-size: 11px; -fx-text-fill: #6c757d;" />
+                     </children>
+                     <padding>
+                        <Insets bottom="10.0" left="15.0" right="15.0" top="10.0" />
+                     </padding>
+                  </HBox>
+                  
+                  <!-- Interactive Output Panel Container -->
+                  <StackPane fx:id="outputPanelContainer" VBox.vgrow="ALWAYS">
+                     <VBox.margin>
+                        <Insets bottom="0.0" left="0.0" right="0.0" top="0.0" />
+                     </VBox.margin>
+                     <padding>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                     </padding>
+                  </StackPane>
+               </children>
+               <padding>
+                  <Insets bottom="0.0" left="0.0" right="0.0" top="0.0" />
+               </padding>
+            </VBox>
+         </items>
+      </SplitPane>
+   </center>
+   
+   <padding>
+      <Insets bottom="15.0" left="15.0" right="15.0" top="0.0" />
+   </padding>
+</BorderPane>
