@@ -1,0 +1,227 @@
+/* Syntax Highlighting Styles for Code Editor */
+
+/* ============================================ */
+/* DARK MODE (default in this file)            */
+/* ============================================ */
+
+.code-area.dark-mode {
+    -fx-font-family: 'Courier New', monospace;
+    -fx-font-size: 11px;
+    -fx-background-color: #1e1e1e;
+}
+
+.code-area.dark-mode .text {
+    -fx-fill: #d4d4d4;
+}
+
+/* Line numbers */
+.code-area.dark-mode .lineno {
+    -fx-background-color: #2d2d30;
+    -fx-text-fill: #858585;
+    -fx-font-family: 'Courier New', monospace;
+    -fx-font-size: 11px;
+    -fx-padding: 0 5px 0 5px;
+}
+
+/* Keywords (if, for, while, class, def, etc.) */
+.code-area.dark-mode .keyword {
+    -fx-fill: #569cd6;
+    -fx-font-weight: bold;
+}
+
+/* Strings */
+.code-area.dark-mode .string {
+    -fx-fill: #ce9178;
+}
+
+/* Comments */
+.code-area.dark-mode .comment {
+    -fx-fill: #6a9955;
+    -fx-font-style: italic;
+}
+
+/* Numbers */
+.code-area.dark-mode .number {
+    -fx-fill: #b5cea8;
+}
+
+/* Parentheses */
+.code-area.dark-mode .paren {
+    -fx-fill: #ffd700;
+    -fx-font-weight: bold;
+}
+
+/* Braces */
+.code-area.dark-mode .brace {
+    -fx-fill: #ffd700;
+    -fx-font-weight: bold;
+}
+
+/* Brackets */
+.code-area.dark-mode .bracket {
+    -fx-fill: #ffd700;
+    -fx-font-weight: bold;
+}
+
+/* Semicolons */
+.code-area.dark-mode .semicolon {
+    -fx-fill: #d4d4d4;
+}
+
+/* Caret (cursor) */
+.code-area.dark-mode .caret {
+    -fx-stroke: #aeafad;
+    -fx-stroke-width: 1px;
+}
+
+/* Selection */
+.code-area.dark-mode .selection {
+    -fx-fill: #264f78;
+}
+
+/* Scrollbar styling */
+.code-area.dark-mode .scroll-bar {
+    -fx-background-color: #1e1e1e;
+}
+
+.code-area.dark-mode .scroll-bar .thumb {
+    -fx-background-color: #424242;
+    -fx-background-radius: 5px;
+}
+
+.code-area.dark-mode .scroll-bar .thumb:hover {
+    -fx-background-color: #4e4e4e;
+}
+
+.code-area.dark-mode .scroll-bar .track {
+    -fx-background-color: #1e1e1e;
+}
+
+.code-area.dark-mode .scroll-bar .increment-button,
+.code-area.dark-mode .scroll-bar .decrement-button {
+    -fx-background-color: #1e1e1e;
+}
+
+/* Paragraph box (line background) */
+.code-area.dark-mode .paragraph-box {
+    -fx-background-color: #1e1e1e;
+}
+
+/* Current line highlight */
+.code-area.dark-mode .paragraph-box:has-caret {
+    -fx-background-color: #2a2a2a;
+}
+
+
+/* ============================================ */
+/* LIGHT MODE                                   */
+/* ============================================ */
+
+.code-area.light-mode {
+    -fx-font-family: 'Courier New', monospace;
+    -fx-font-size: 11px;
+    -fx-background-color: #ffffff;
+}
+
+.code-area.light-mode .text {
+    -fx-fill: #000000;
+}
+
+/* Line numbers */
+.code-area.light-mode .lineno {
+    -fx-background-color: #f0f0f0;
+    -fx-text-fill: #6e7681;
+    -fx-font-family: 'Courier New', monospace;
+    -fx-font-size: 11px;
+    -fx-padding: 0 5px 0 5px;
+}
+
+/* Keywords (if, for, while, class, def, etc.) */
+.code-area.light-mode .keyword {
+    -fx-fill: #0000ff;
+    -fx-font-weight: bold;
+}
+
+/* Strings */
+.code-area.light-mode .string {
+    -fx-fill: #a31515;
+}
+
+/* Comments */
+.code-area.light-mode .comment {
+    -fx-fill: #008000;
+    -fx-font-style: italic;
+}
+
+/* Numbers */
+.code-area.light-mode .number {
+    -fx-fill: #098658;
+}
+
+/* Parentheses */
+.code-area.light-mode .paren {
+    -fx-fill: #0431fa;
+    -fx-font-weight: bold;
+}
+
+/* Braces */
+.code-area.light-mode .brace {
+    -fx-fill: #0431fa;
+    -fx-font-weight: bold;
+}
+
+/* Brackets */
+.code-area.light-mode .bracket {
+    -fx-fill: #0431fa;
+    -fx-font-weight: bold;
+}
+
+/* Semicolons */
+.code-area.light-mode .semicolon {
+    -fx-fill: #000000;
+}
+
+/* Caret (cursor) */
+.code-area.light-mode .caret {
+    -fx-stroke: #000000;
+    -fx-stroke-width: 1px;
+}
+
+/* Selection */
+.code-area.light-mode .selection {
+    -fx-fill: #add6ff;
+}
+
+/* Scrollbar styling */
+.code-area.light-mode .scroll-bar {
+    -fx-background-color: #ffffff;
+}
+
+.code-area.light-mode .scroll-bar .thumb {
+    -fx-background-color: #c1c1c1;
+    -fx-background-radius: 5px;
+}
+
+.code-area.light-mode .scroll-bar .thumb:hover {
+    -fx-background-color: #a8a8a8;
+}
+
+.code-area.light-mode .scroll-bar .track {
+    -fx-background-color: #f5f5f5;
+}
+
+.code-area.light-mode .scroll-bar .increment-button,
+.code-area.light-mode .scroll-bar .decrement-button {
+    -fx-background-color: #f5f5f5;
+}
+
+/* Paragraph box (line background) */
+.code-area.light-mode .paragraph-box {
+    -fx-background-color: #ffffff;
+}
+
+/* Current line highlight */
+.code-area.light-mode .paragraph-box:has-caret {
+    -fx-background-color: #f5f5f5;
+}
+
