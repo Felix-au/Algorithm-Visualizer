@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.algorithmvisualizer.ui.FractionalKnapsackController"
+      spacing="15" style="-fx-background-color: white; -fx-padding: 20;">
+
+    <!-- Header -->
+    <Label text="Fractional Knapsack Configuration" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #2b4c7e;"/>
+    <Separator/>
+
+    <!-- Number of Items -->
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="Number of Items:" style="-fx-font-size: 14px; -fx-min-width: 140px;"/>
+        <Spinner fx:id="numItemsSpinner" prefWidth="100" editable="true"/>
+        <Label text="(1-10 items)" style="-fx-text-fill: #6c757d; -fx-font-size: 12px;"/>
+    </HBox>
+
+    <!-- Knapsack Capacity -->
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="Knapsack Capacity:" style="-fx-font-size: 14px; -fx-min-width: 140px;"/>
+        <Spinner fx:id="capacitySpinner" prefWidth="100" editable="true"/>
+        <Label text="(weight units)" style="-fx-text-fill: #6c757d; -fx-font-size: 12px;"/>
+    </HBox>
+
+    <!-- Items Table -->
+    <VBox spacing="8">
+        <Label text="Items (Weight &amp; Value):" style="-fx-font-size: 14px; -fx-font-weight: bold;"/>
+        <TableView fx:id="itemsTable" prefHeight="200" editable="true">
+            <placeholder>
+                <Label text="No items. Adjust number of items above."/>
+            </placeholder>
+        </TableView>
+        <Label text="💡 Tip: Double-click cells to edit weight and value" style="-fx-text-fill: #6c757d; -fx-font-size: 11px; -fx-font-style: italic;"/>
+    </VBox>
+
+    <!-- Action Buttons -->
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Button fx:id="randomizeButton" text="🎲 Randomize Items" 
+                style="-fx-background-color: #4a90e2; -fx-text-fill: white; -fx-background-radius: 6; -fx-padding: 8 16; -fx-font-weight: bold; -fx-cursor: hand;"/>
+        <Button fx:id="applyButton" text="✓ Apply &amp; Solve" 
+                style="-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-background-radius: 6; -fx-padding: 8 16; -fx-font-weight: bold; -fx-cursor: hand;"/>
+    </HBox>
+
+    <!-- Status -->
+    <Label fx:id="statusLabel" text="Ready to solve" style="-fx-text-fill: #2ecc71; -fx-font-size: 12px; -fx-font-style: italic;"/>
+
+    <!-- Info Box -->
+    <VBox spacing="8" style="-fx-background-color: #f8f9fa; -fx-padding: 15; -fx-background-radius: 8; -fx-border-color: #dee2e6; -fx-border-radius: 8;">
+        <Label text="ℹ️ Fractional Knapsack Information" style="-fx-font-weight: bold; -fx-font-size: 13px;"/>
+        <Label text="• Greedy Algorithm: Sort by value/weight ratio, take items greedily" wrapText="true" style="-fx-font-size: 12px;"/>
+        <Label text="• Time Complexity: O(n log n) for sorting + O(n) for selection" wrapText="true" style="-fx-font-size: 12px;"/>
+        <Label text="• Items can be broken into fractions to maximize total value" wrapText="true" style="-fx-font-size: 12px;"/>
+        <Label text="• Always produces optimal solution (unlike 0/1 Knapsack)" wrapText="true" style="-fx-font-size: 12px;"/>
+        <Label text="• Watch how items are sorted by ratio and selected greedily!" wrapText="true" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #4a90e2;"/>
+    </VBox>
+
+</VBox>
