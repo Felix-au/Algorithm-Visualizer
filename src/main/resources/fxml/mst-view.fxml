@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.algorithmvisualizer.ui.MSTController"
+      spacing="10" style="-fx-padding: 10;">
+    
+    <!-- This is a placeholder FXML. The actual UI is built programmatically in the controller -->
+    <Label text="MST Visualization" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+    
+</VBox>
