@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.algorithmvisualizer.ui.QuickSortController"
+      spacing="15" style="-fx-background-color: white; -fx-padding: 20;">
+
+    <!-- Header -->
+    <Label text="Quick Sort Configuration" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #2b4c7e;"/>
+    <Separator/>
+
+    <!-- Array Size -->
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="Array Size:" style="-fx-font-size: 14px; -fx-min-width: 120px;"/>
+        <Spinner fx:id="arraySizeSpinner" prefWidth="100" editable="true"/>
+        <Label text="(1-15 elements)" style="-fx-text-fill: #6c757d; -fx-font-size: 12px;"/>
+    </HBox>
+
+    <!-- Pivot Strategy -->
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="Pivot Strategy:" style="-fx-font-size: 14px; -fx-min-width: 120px;"/>
+        <ComboBox fx:id="pivotStrategyCombo" prefWidth="200"/>
+        <Label text="(affects tree balance)" style="-fx-text-fill: #6c757d; -fx-font-size: 12px;"/>
+    </HBox>
+
+    <!-- Array Elements -->
+    <VBox spacing="8">
+        <Label text="Array Elements:" style="-fx-font-size: 14px; -fx-font-weight: bold;"/>
+        <FlowPane fx:id="arrayElementsBox" hgap="8" vgap="8" prefWrapLength="500"/>
+        <TextField fx:id="arrayElementsField" promptText="Or enter comma-separated values" visible="false" managed="false"/>
+    </VBox>
+
+    <!-- Action Buttons -->
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Button fx:id="randomizeButton" text="🎲 Randomize" 
+                style="-fx-background-color: #4a90e2; -fx-text-fill: white; -fx-background-radius: 6; -fx-padding: 8 16; -fx-font-weight: bold; -fx-cursor: hand;"/>
+        <Button fx:id="applyArrayButton" text="✓ Apply Array" 
+                style="-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-background-radius: 6; -fx-padding: 8 16; -fx-font-weight: bold; -fx-cursor: hand;"/>
+    </HBox>
+
+    <!-- Status -->
+    <Label fx:id="statusLabel" text="Ready to sort" style="-fx-text-fill: #2ecc71; -fx-font-size: 12px; -fx-font-style: italic;"/>
+
+    <!-- Info Box -->
+    <VBox spacing="8" style="-fx-background-color: #f8f9fa; -fx-padding: 15; -fx-background-radius: 8; -fx-border-color: #dee2e6; -fx-border-radius: 8;">
+        <Label text="ℹ️ Quick Sort Information" style="-fx-font-weight: bold; -fx-font-size: 13px;"/>
+        <Label text="• Time Complexity: O(n log n) average, O(n²) worst case" wrapText="true" style="-fx-font-size: 12px;"/>
+        <Label text="• Space Complexity: O(log n) for recursion stack" wrapText="true" style="-fx-font-size: 12px;"/>
+        <Label text="• In-place sorting algorithm (no auxiliary array)" wrapText="true" style="-fx-font-size: 12px;"/>
+        <Label text="• Pivot choice affects performance and tree balance" wrapText="true" style="-fx-font-size: 12px;"/>
+        <Label text="• Watch how different pivot strategies create different tree structures!" wrapText="true" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #4a90e2;"/>
+    </VBox>
+
+</VBox>
