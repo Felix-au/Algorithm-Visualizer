@@ -11,7 +11,7 @@ import javafx.scene.image.Image;
 import java.io.IOException;
 
 /**
- * Main class for the AlgoQuest application
+ * Main class for the AlgoBuddy application
  */
 public class Main extends Application {
     
@@ -34,7 +34,7 @@ public class Main extends Application {
         stage.setX((screenBounds.getWidth() - width) / 2);
         stage.setY((screenBounds.getHeight() - height) / 2);
         
-        stage.setTitle("AlgoQuest");
+        stage.setTitle("AlgoBuddy");
         try { stage.getIcons().add(new Image(Main.class.getResourceAsStream("/Logo.png"))); } catch (Exception ignore) {}
         stage.setScene(scene);
         stage.setResizable(true);
