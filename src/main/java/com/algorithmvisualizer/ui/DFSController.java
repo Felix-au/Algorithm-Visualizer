@@ -197,6 +197,7 @@ public class DFSController implements AlgorithmViewController.AlgorithmSpecificC
         if (parent.pauseButton != null) { parent.pauseButton.setVisible(false); parent.pauseButton.setManaged(false); }
 
         // Code + logs + variables
+        parent.setCurrentAlgorithmName("DFS", "Python");
         renderCode();
         initProgressLog();
         updateVariablesPanel();
@@ -484,63 +485,29 @@ public class DFSController implements AlgorithmViewController.AlgorithmSpecificC
     }
 
     private void renderCode() {
-        if (parent == null || parent.codeArea == null) return;
-        // Build edges literal from current adjacency (unique undirected pairs i<j)
-        List<String> edgePairs = new ArrayList<>();
+        if (parent == null) return;
+        
+        // Build edges array from current adjacency (unique undirected pairs i<j)
+        List<int[]> edgesList = new ArrayList<>();
         for (int i = 0; i < adj.size(); i++) {
             for (int j : adj.get(i)) {
-                if (i < j) edgePairs.add("{" + i + ", " + j + "}");
+                if (i < j) edgesList.add(new int[]{i, j});
             }
         }
-        String edgesLiteral = edgePairs.isEmpty() ? "" : String.join(", ", edgePairs);
-        String[] lines = new String[] {
-                "import java.util.*;",
-                "",
-                "public class DFSExample {",
-                "    static final int N = " + nodeCount + ";",
-                "    static final int START = " + startNode + ";",
-                "    static final int[][] EDGES = { " + edgesLiteral + " };",
-                "",
-                "    public static void main(String[] args) {",
-                "        List<List<Integer>> adj = new ArrayList<>();",
-                "        for (int i = 0; i < N; i++) adj.add(new ArrayList<>());",
-                "        for (int[] e : EDGES) { int u = e[0], v = e[1]; adj.get(u).add(v); adj.get(v).add(u); }",
-                "        for (int i = 0; i < N; i++) Collections.sort(adj.get(i));",
-                "",
-                "        long startTime = System.currentTimeMillis();",
-                "        List<Integer> order = dfsIterative(START, adj);",
-                "        long endTime = System.currentTimeMillis();",
-                "",
-                "        System.out.println(\"DFS traversal order: \" + order);",
-                "        System.out.println(\"Execution time: \" + (endTime - startTime) + \" ms\");",
-                "    }",
-                "",
-                "    static List<Integer> dfsIterative(int start, List<List<Integer>> adj) {",
-                "        boolean[] visited = new boolean[adj.size()];",
-                "        Deque<Integer> stack = new ArrayDeque<>();",
-                "        List<Integer> order = new ArrayList<>();",
-                "        stack.push(start);",
-                "        while (!stack.isEmpty()) {",
-                "            int u = stack.peek();",
-                "            if (!visited[u]) {",
-                "                visited[u] = true;",
-                "                order.add(u);",
-                "            }",
-                "            boolean advanced = false;",
-                "            for (int v : adj.get(u)) {",
-                "                if (!visited[v]) {",
-                "                    stack.push(v);",
-                "                    advanced = true;",
-                "                    break;",
-                "                }",
-                "            }",
-                "            if (!advanced) stack.pop();",
-                "        }",
-                "        return order;",
-                "    }",
-                "}",
-        };
-        parent.codeArea.setText(String.join("\n", lines));
+        int[][] edges = edgesList.toArray(new int[0][]);
+        
+        // Update DFS code with current parameters
+        com.algorithmvisualizer.code.AlgorithmCode code = 
+            com.algorithmvisualizer.code.CodeRepository.getCode("DFS");
+        
+        if (code instanceof com.algorithmvisualizer.code.implementations.DFSCode) {
+            com.algorithmvisualizer.code.implementations.DFSCode dfsCode = 
+                (com.algorithmvisualizer.code.implementations.DFSCode) code;
+            dfsCode.updateParameters(nodeCount, edges, startNode);
+        }
+        
+        // Notify parent to reload code for current language
+        parent.loadCodeForCurrentLanguage();
     }
 
     // --- Helpers: graph ---
