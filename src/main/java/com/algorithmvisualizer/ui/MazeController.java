@@ -165,28 +165,50 @@ public class MazeController implements AlgorithmViewController.AlgorithmSpecific
             parent.paramElementsBox.setVisible(true);
             parent.paramElementsBox.setManaged(true);
             parent.paramElementsBox.getChildren().clear();
+            
+            // Modern styled ComboBoxes (matching language selector style)
             genAlgoChoice = new ComboBox<>();
-            genAlgoChoice.getItems().addAll("DFS (Backtracker)", "Prim", "Kruskal");
-            genAlgoChoice.getSelectionModel().select(0);
-            genAlgoChoice.valueProperty().addListener((obs, o, n) -> { genAlgo = n.startsWith("DFS") ? "DFS" : n; refreshAll(); });
+            genAlgoChoice.getItems().addAll("DFS", "Prim", "Kruskal");
+            genAlgoChoice.setValue("DFS");
+            genAlgoChoice.setPrefWidth(140);
+            genAlgoChoice.setStyle("-fx-font-size: 12px; -fx-background-color: white; -fx-border-color: #e0e0e0; -fx-border-radius: 6; -fx-background-radius: 6; -fx-padding: 6 12;");
+            genAlgoChoice.valueProperty().addListener((obs, o, n) -> { 
+                genAlgo = n; 
+                renderCode();
+                refreshAll(); 
+            });
 
             pathAlgoChoice = new ComboBox<>();
-            pathAlgoChoice.getItems().addAll("BFS (Shortest Path)", "DFS");
-            pathAlgoChoice.getSelectionModel().select(0);
-            pathAlgoChoice.valueProperty().addListener((obs, o, n) -> { pathAlgo = n; renderCode(); });
+            pathAlgoChoice.getItems().addAll("BFS", "DFS");
+            pathAlgoChoice.setValue("BFS");
+            pathAlgoChoice.setPrefWidth(140);
+            pathAlgoChoice.setStyle("-fx-font-size: 12px; -fx-background-color: white; -fx-border-color: #e0e0e0; -fx-border-radius: 6; -fx-background-radius: 6; -fx-padding: 6 12;");
+            pathAlgoChoice.valueProperty().addListener((obs, o, n) -> { 
+                pathAlgo = n; 
+                renderCode(); 
+            });
 
             // Start/Goal picking
             ToggleGroup pickGroup = new ToggleGroup();
-            pickStartBtn = new ToggleButton("Pick Start"); pickStartBtn.setToggleGroup(pickGroup);
-            pickGoalBtn = new ToggleButton("Pick Goal"); pickGoalBtn.setToggleGroup(pickGroup);
+            pickStartBtn = new ToggleButton("Pick Start"); 
+            pickStartBtn.setToggleGroup(pickGroup);
+            pickStartBtn.setStyle("-fx-background-color: #4a90e2; -fx-text-fill: white; -fx-background-radius: 6; -fx-padding: 6 12; -fx-cursor: hand;");
+            pickGoalBtn = new ToggleButton("Pick Goal"); 
+            pickGoalBtn.setToggleGroup(pickGroup);
+            pickGoalBtn.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-background-radius: 6; -fx-padding: 6 12; -fx-cursor: hand;");
 
             // Row 1: algorithm choices
             HBox algoRow = new HBox(8.0);
-            algoRow.getChildren().addAll(new Label("Generate:"), genAlgoChoice, new Label("Pathfind:"), pathAlgoChoice);
+            Label genLabel = new Label("Generate:");
+            genLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 13px;");
+            Label pathLabel = new Label("Pathfind:");
+            pathLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 13px;");
+            algoRow.getChildren().addAll(genLabel, genAlgoChoice, pathLabel, pathAlgoChoice);
 
             // Row 2: pick buttons + Apply in same row
             HBox controlsRow = new HBox(8.0);
             Button applyInline = new Button("Apply");
+            applyInline.setStyle("-fx-background-color: #10b981; -fx-text-fill: white; -fx-background-radius: 6; -fx-font-weight: bold; -fx-padding: 6 12; -fx-cursor: hand;");
             applyInline.setOnAction(e -> onApply());
             controlsRow.getChildren().addAll(pickStartBtn, pickGoalBtn, applyInline);
 
@@ -227,6 +249,17 @@ public class MazeController implements AlgorithmViewController.AlgorithmSpecific
         initProgressLog();
         updateVariablesPanel();
         if (parent.stepDescription != null) parent.stepDescription.setText("Ready to generate maze.");
+        
+        // Language selector listener - update code when language changes
+        if (parent.languageSelector != null) {
+            parent.languageSelector.valueProperty().addListener((obs, oldLang, newLang) -> {
+                if (newLang != null && !newLang.equals(oldLang)) {
+                    renderCode(); // Reload code in new language
+                }
+            });
+        }
+        
+        parent.setCurrentAlgorithmName("Maze Pathfinding");
         renderCode();
     }
 
@@ -643,40 +676,29 @@ public class MazeController implements AlgorithmViewController.AlgorithmSpecific
 
     // --- Code sample generation ---
     private void renderCode() {
-        if (parent == null || parent.codeArea == null) return;
-        String which = normalizePathAlgo(pathAlgo);
-        StringBuilder sb = new StringBuilder();
-        sb.append("import java.util.*;\n\n");
-        sb.append("public class MazeDemo {\n");
-        sb.append("    static final int ROWS = ").append(rows).append(";\n");
-        sb.append("    static final int COLS = ").append(cols).append(";\n");
-        sb.append("    static final int START_R = ").append(startR).append(";\n");
-        sb.append("    static final int START_C = ").append(startC).append(";\n");
-        sb.append("    static final int GOAL_R = ").append(goalR).append(";\n");
-        sb.append("    static final int GOAL_C = ").append(goalC).append(";\n");
-        sb.append("    static final String GEN = \"").append(genAlgo).append("\";\n");
-        sb.append("    static final String SOLVER = \"").append(which).append("\";\n\n");
-        sb.append("    public static void main(String[] args) {\n");
-        sb.append("        boolean[][][] walls = generateMaze(ROWS, COLS, GEN);\n");
-        sb.append("        List<int[]> path = solve(walls, START_R, START_C, GOAL_R, GOAL_C, SOLVER);\n");
-        sb.append("        System.out.println(\"Path length: \" + (path==null? -1 : path.size()));\n");
-        sb.append("    }\n\n");
-        sb.append("    static boolean[][][] generateMaze(int R, int C, String alg){\n");
-        sb.append("        if (\"Prim\".equalsIgnoreCase(alg)) return genPrim(R,C);\n");
-        sb.append("        if (\"Kruskal\".equalsIgnoreCase(alg)) return genKruskal(R,C);\n");
-        sb.append("        return genDFS(R,C);\n");
-        sb.append("    }\n");
-        sb.append("    static boolean[][][] genDFS(int R,int C){ boolean[][][] w=new boolean[R][C][4]; for(int i=0;i<R;i++) for(int j=0;j<C;j++) Arrays.fill(w[i][j], true); boolean[][] vis=new boolean[R][C]; Deque<int[]> st=new ArrayDeque<>(); st.push(new int[]{0,0}); vis[0][0]=true; Random rnd=new Random(); int[] dr={-1,0,1,0}, dc={0,1,0,-1}; while(!st.isEmpty()){ int[] cur=st.peek(); int r=cur[0],c=cur[1]; List<Integer> dirs=Arrays.asList(0,1,2,3); Collections.shuffle(dirs,rnd); boolean moved=false; for(int d:dirs){ int nr=r+dr[d], nc=c+dc[d]; if(nr<0||nc<0||nr>=R||nc>=C||vis[nr][nc]) continue; w[r][c][d]=false; w[nr][nc][(d+2)%4]=false; vis[nr][nc]=true; st.push(new int[]{nr,nc}); moved=true; break; } if(!moved) st.pop(); } return w; }\n");
-        sb.append("    static boolean[][][] genPrim(int R,int C){ boolean[][][] w=new boolean[R][C][4]; for(int i=0;i<R;i++) for(int j=0;j<C;j++) Arrays.fill(w[i][j], true); boolean[][] inMaze=new boolean[R][C]; List<int[]> F=new ArrayList<>(); int[] dr={-1,0,1,0}, dc={0,1,0,-1}; Random rnd=new Random(); inMaze[0][0]=true; for(int d=0;d<4;d++){int nr=0+dr[d],nc=0+dc[d]; if(nr>=0&&nc>=0&&nr<R&&nc<C) F.add(new int[]{0,0,d});} while(!F.isEmpty()){ int idx=rnd.nextInt(F.size()); int[] e=F.remove(idx); int r=e[0],c=e[1],d=e[2]; int nr=r+dr[d], nc=c+dc[d]; if(nr<0||nc<0||nr>=R||nc>=C) continue; if(!inMaze[nr][nc]){ w[r][c][d]=false; w[nr][nc][(d+2)%4]=false; inMaze[nr][nc]=true; for(int dd=0;dd<4;dd++){int nr2=nr+dr[dd],nc2=nc+dc[dd]; if(nr2>=0&&nc2>=0&&nr2<R&&nc2<C&&!inMaze[nr2][nc2]) F.add(new int[]{nr,nc,dd});} } } return w; }\n");
-        sb.append("    static boolean[][][] genKruskal(int R,int C){ boolean[][][] w=new boolean[R][C][4]; for(int i=0;i<R;i++) for(int j=0;j<C;j++) Arrays.fill(w[i][j], true); int N=R*C; int[] p=new int[N], rk=new int[N]; for(int i=0;i<N;i++){p[i]=i;rk[i]=0;} List<int[]> E=new ArrayList<>(); for(int r=0;r<R;r++) for(int c=0;c<C;c++){ if(c+1<C) E.add(new int[]{r,c,1}); if(r+1<R) E.add(new int[]{r,c,2}); } Collections.shuffle(E,new Random()); int[] dr={-1,0,1,0}, dc={0,1,0,-1}; for(int[] e:E){ int r=e[0],c=e[1],d=e[2]; int nr=r+dr[d], nc=c+dc[d]; int a=r*C+c, b=nr*C+nc; if(find(p,a)!=find(p,b)){ unite(p,rk,a,b); w[r][c][d]=false; w[nr][nc][(d+2)%4]=false; } } return w; }\n");
-        sb.append("    static int find(int[] p,int x){ return p[x]==x?x:(p[x]=find(p,p[x])); }\n");
-        sb.append("    static void unite(int[] p,int[] rk,int a,int b){ a=find(p,a); b=find(p,b); if(a==b) return; if(rk[a]<rk[b]) p[a]=b; else if(rk[a]>rk[b]) p[b]=a; else{ p[b]=a; rk[a]++; } }\n\n");
+        if (parent == null || parent.codeArea == null || parent.languageSelector == null) return;
         
-        sb.append("    static List<int[]> solve(boolean[][][] w,int sr,int sc,int gr,int gc,String alg){ alg=alg.toUpperCase(); if(alg.equals(\"DFS\")) return dfs(w,sr,sc,gr,gc); return bfs(w,sr,sc,gr,gc); }\n");
-        sb.append("    static List<int[]> bfs(boolean[][][] w,int sr,int sc,int gr,int gc){ int R=w.length,C=w[0].length; boolean[][] vis=new boolean[R][C]; int[][] pr=new int[R][C], pc=new int[R][C]; for(int i=0;i<R;i++){ Arrays.fill(pr[i],-1); Arrays.fill(pc[i],-1);} Deque<int[]> q=new ArrayDeque<>(); q.add(new int[]{sr,sc}); int[] dr={-1,0,1,0}, dc={0,1,0,-1}; while(!q.isEmpty()){ int[] x=q.poll(); int r=x[0],c=x[1]; if(vis[r][c]) continue; vis[r][c]=true; if(r==gr&&c==gc) break; for(int d=0;d<4;d++){ if(w[r][c][d]) continue; int nr=r+dr[d], nc=c+dc[d]; if(nr<0||nc<0||nr>=R||nc>=C) continue; if(!vis[nr][nc] && pr[nr][nc]==-1){ pr[nr][nc]=r; pc[nr][nc]=c; q.add(new int[]{nr,nc}); } } } return buildPath(pr,pc,sr,sc,gr,gc); }\n");
-        sb.append("    static List<int[]> dfs(boolean[][][] w,int sr,int sc,int gr,int gc){ int R=w.length,C=w[0].length; boolean[][] vis=new boolean[R][C]; int[][] pr=new int[R][C], pc=new int[R][C]; for(int i=0;i<R;i++){ Arrays.fill(pr[i],-1); Arrays.fill(pc[i],-1);} Deque<int[]> st=new ArrayDeque<>(); st.push(new int[]{sr,sc,0}); int[] dr={-1,0,1,0}, dc={0,1,0,-1}; while(!st.isEmpty()){ int[] top=st.peek(); int r=top[0],c=top[1]; if(!vis[r][c]){ vis[r][c]=true; if(r==gr&&c==gc) break; } if(top[2]>=4){ st.pop(); continue; } int d=top[2]++; if(w[r][c][d]) continue; int nr=r+dr[d], nc=c+dc[d]; if(nr<0||nc<0||nr>=R||nc>=C) continue; if(!vis[nr][nc] && pr[nr][nc]==-1){ pr[nr][nc]=r; pc[nr][nc]=c; st.push(new int[]{nr,nc,0}); } } return buildPath(pr,pc,sr,sc,gr,gc); }\n");
-        sb.append("    static List<int[]> buildPath(int[][] pr,int[][] pc,int sr,int sc,int gr,int gc){ List<int[]> path=new ArrayList<>(); int r=gr,c=gc; if(pr[r][c]==-1 && !(r==sr&&c==sc)) return null; path.add(new int[]{r,c}); while(!(r==sr&&c==sc)){ int prr=pr[r][c], pcc=pc[r][c]; if(prr==-1) break; r=prr; c=pcc; path.add(new int[]{r,c}); } Collections.reverse(path); return path; }\n");
-        sb.append("}\n");
-        parent.codeArea.setText(sb.toString());
+        // Get the code implementation
+        com.algorithmvisualizer.code.AlgorithmCode code = com.algorithmvisualizer.code.CodeRepository.getCode("Maze Pathfinding");
+        if (code instanceof com.algorithmvisualizer.code.implementations.MazePathfindingCode) {
+            com.algorithmvisualizer.code.implementations.MazePathfindingCode mazeCode = 
+                (com.algorithmvisualizer.code.implementations.MazePathfindingCode) code;
+            mazeCode.updateParameters(rows, cols, startR, startC, goalR, goalC, genAlgo, pathAlgo);
+        }
+        
+        // Load and display the code for the current language
+        if (code != null) {
+            String selectedLanguage = parent.languageSelector.getValue();
+            if (selectedLanguage != null) {
+                String codeText = code.getCodeForLanguage(selectedLanguage);
+                if (codeText != null && !codeText.isEmpty()) {
+                    parent.codeArea.replaceText(codeText);
+                    // Apply syntax highlighting
+                    javafx.application.Platform.runLater(() -> {
+                        com.algorithmvisualizer.ui.CodeHighlighter.applyHighlighting(parent.codeArea, selectedLanguage);
+                    });
+                }
+            }
+        }
     }
 }
