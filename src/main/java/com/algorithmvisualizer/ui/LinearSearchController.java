@@ -1,6 +1,9 @@
 package com.algorithmvisualizer.ui;
 
 import com.algorithmvisualizer.algorithm.LinearSearchSolver;
+import com.algorithmvisualizer.code.AlgorithmCode;
+import com.algorithmvisualizer.code.CodeRepository;
+import com.algorithmvisualizer.code.implementations.LinearSearchCode;
 import com.algorithmvisualizer.visualization.ArrayRenderer;
 import com.algorithmvisualizer.visualization.BarChartRenderer;
 import javafx.animation.Animation;
@@ -52,6 +55,7 @@ public class LinearSearchController implements AlgorithmViewController.Algorithm
     // Data
     private int[] currentArray = new int[] { 15, 8, 23, 42, 7, 19, 33, 12, 51, 28 };
     private int targetValue = 23;
+    private LinearSearchCode codeImpl; // Multi-language code implementation
 
     @FXML
     private void initialize() {
@@ -61,6 +65,10 @@ public class LinearSearchController implements AlgorithmViewController.Algorithm
 
         solver = new LinearSearchSolver(currentArray, targetValue);
         solver.setStepListener(this::onStepEvent);
+        
+        // Initialize code implementation
+        codeImpl = new LinearSearchCode();
+        codeImpl.updateParameters(currentArray, targetValue);
     }
 
     @Override
@@ -137,6 +145,11 @@ public class LinearSearchController implements AlgorithmViewController.Algorithm
         }
         
         // Target control (reuse Queens spinner)
+        if (parent.paramTargetLabel != null) {
+            parent.paramTargetLabel.setVisible(true);
+            parent.paramTargetLabel.setManaged(true);
+            parent.paramTargetLabel.setText("Target:");
+        }
         if (parent.paramNumQueensSpinner != null) {
             parent.paramNumQueensSpinner.setVisible(true);
             parent.paramNumQueensSpinner.setManaged(true);
@@ -192,6 +205,7 @@ public class LinearSearchController implements AlgorithmViewController.Algorithm
         }
 
         // Code + logs + variables
+        parent.setCurrentAlgorithmName("Linear Search");
         renderCode();
         initProgressLog();
         updateVariablesPanel();
@@ -581,6 +595,35 @@ public class LinearSearchController implements AlgorithmViewController.Algorithm
 
     private void renderCode() {
         if (parent == null || parent.codeArea == null) return;
+        
+        // Update code implementation with current parameters
+        if (codeImpl != null) {
+            codeImpl.updateParameters(currentArray, targetValue);
+        }
+        
+        // Check if we should use multi-language code from repository
+        AlgorithmCode repoCode = CodeRepository.getCode("Linear Search");
+        if (repoCode instanceof LinearSearchCode && parent.languageSelector != null) {
+            // Update the repository code with current parameters
+            ((LinearSearchCode) repoCode).updateParameters(currentArray, targetValue);
+            
+            // Use code from repository (supports multiple languages)
+            String selectedLanguage = parent.languageSelector.getValue();
+            if (selectedLanguage != null && !parent.isUpdatingCode) {
+                parent.isUpdatingCode = true;
+                try {
+                    String code = repoCode.getCodeForLanguage(selectedLanguage);
+                    if (code != null && !code.isEmpty()) {
+                        parent.codeArea.replaceText(code);
+                        return;
+                    }
+                } finally {
+                    parent.isUpdatingCode = false;
+                }
+            }
+        }
+        
+        // Fallback to original Java code if repository code not available
         int size = currentArray.length;
         String arrayValues = Arrays.toString(currentArray).replaceAll("[\\[\\]]", "");
         String[] lines = new String[] {
@@ -637,7 +680,7 @@ public class LinearSearchController implements AlgorithmViewController.Algorithm
             "    }",
             "}",
         };
-        parent.codeArea.setText(String.join("\n", lines));
+        parent.codeArea.replaceText(String.join("\n", lines));
     }
 
     // --- Helpers: array editing ---
