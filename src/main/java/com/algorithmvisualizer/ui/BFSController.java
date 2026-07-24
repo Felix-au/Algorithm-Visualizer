@@ -195,6 +195,7 @@ public class BFSController implements AlgorithmViewController.AlgorithmSpecificC
         if (parent.pauseButton != null) { parent.pauseButton.setVisible(false); parent.pauseButton.setManaged(false); }
 
         // Code + logs + variables
+        parent.setCurrentAlgorithmName("BFS", "Python");
         renderCode();
         initProgressLog();
         updateVariablesPanel();
@@ -478,59 +479,29 @@ public class BFSController implements AlgorithmViewController.AlgorithmSpecificC
     }
 
     private void renderCode() {
-        if (parent == null || parent.codeArea == null) return;
-        // Build edges literal from current adjacency (unique undirected pairs i<j)
-        List<String> edgePairs = new ArrayList<>();
+        if (parent == null) return;
+        
+        // Build edges array from current adjacency (unique undirected pairs i<j)
+        List<int[]> edgesList = new ArrayList<>();
         for (int i = 0; i < adj.size(); i++) {
             for (int j : adj.get(i)) {
-                if (i < j) edgePairs.add("{" + i + ", " + j + "}");
+                if (i < j) edgesList.add(new int[]{i, j});
             }
         }
-        String edgesLiteral = edgePairs.isEmpty() ? "" : String.join(", ", edgePairs);
-        String[] lines = new String[] {
-                "import java.util.*;",
-                "",
-                "public class BFSExample {",
-                "    static final int N = " + nodeCount + ";",
-                "    static final int START = " + startNode + ";",
-                "    static final int[][] EDGES = { " + edgesLiteral + " };",
-                "",
-                "    public static void main(String[] args) {",
-                "        List<List<Integer>> adj = new ArrayList<>();",
-                "        for (int i = 0; i < N; i++) adj.add(new ArrayList<>());",
-                "        for (int[] e : EDGES) { int u = e[0], v = e[1]; adj.get(u).add(v); adj.get(v).add(u); }",
-                "        for (int i = 0; i < N; i++) Collections.sort(adj.get(i));",
-                "",
-                "        long startTime = System.currentTimeMillis();",
-                "        List<Integer> order = bfs(START, adj);",
-                "        long endTime = System.currentTimeMillis();",
-                "",
-                "        System.out.println(\"BFS traversal order: \" + order);",
-                "        System.out.println(\"Execution time: \" + (endTime - startTime) + \" ms\");",
-                "    }",
-                "",
-                "    static List<Integer> bfs(int start, List<List<Integer>> adj) {",
-                "        boolean[] visited = new boolean[adj.size()];",
-                "        Queue<Integer> queue = new LinkedList<>();",
-                "        List<Integer> order = new ArrayList<>();",
-                "        queue.offer(start);",
-                "        while (!queue.isEmpty()) {",
-                "            int u = queue.poll();",
-                "            if (!visited[u]) {",
-                "                visited[u] = true;",
-                "                order.add(u);",
-                "                for (int v : adj.get(u)) {",
-                "                    if (!visited[v]) {",
-                "                        queue.offer(v);",
-                "                    }",
-                "                }",
-                "            }",
-                "        }",
-                "        return order;",
-                "    }",
-                "}",
-        };
-        parent.codeArea.setText(String.join("\n", lines));
+        int[][] edges = edgesList.toArray(new int[0][]);
+        
+        // Update BFS code with current parameters
+        com.algorithmvisualizer.code.AlgorithmCode code = 
+            com.algorithmvisualizer.code.CodeRepository.getCode("BFS");
+        
+        if (code instanceof com.algorithmvisualizer.code.implementations.BFSCode) {
+            com.algorithmvisualizer.code.implementations.BFSCode bfsCode = 
+                (com.algorithmvisualizer.code.implementations.BFSCode) code;
+            bfsCode.updateParameters(nodeCount, edges, startNode);
+        }
+        
+        // Notify parent to reload code for current language
+        parent.loadCodeForCurrentLanguage();
     }
 
     // --- Helpers: graph ---
