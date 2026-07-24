@@ -137,6 +137,7 @@ public class BubbleSortController implements AlgorithmViewController.AlgorithmSp
         if (parent.paramSizeLabel != null) parent.paramSizeLabel.setText("Array size:");
         if (parent.pauseButton != null) { parent.pauseButton.setVisible(false); parent.pauseButton.setManaged(false); }
 
+        parent.setCurrentAlgorithmName("Bubble Sort");
         renderCode();
         initProgressLog();
         updateVariablesPanel();
@@ -448,56 +449,20 @@ public class BubbleSortController implements AlgorithmViewController.AlgorithmSp
     }
 
     private void renderCode() {
-        if (parent == null || parent.codeArea == null) return;
-        int size = currentArray.length;
-        String arrayValues = java.util.Arrays.toString(currentArray).replaceAll("[\\[\\]]", "");
-        String[] lines = new String[] {
-                "public class BubbleSortExample {",
-                "    static final int SIZE = " + size + ";",
-                "    static int[] arr = {" + arrayValues + "};",
-                "",
-                "    public static void main(String[] args) {",
-                "        System.out.println(\"Bubble Sort for array of size \" + SIZE);",
-                "        System.out.println(\"=====================================\");",
-                "",
-                "        System.out.print(\"Original Array: \");",
-                "        printArray(arr);",
-                "",
-                "        long startTime = System.currentTimeMillis();",
-                "",
-                "        bubbleSort(arr);",
-                "",
-                "        long endTime = System.currentTimeMillis();",
-                "        System.out.println(\"=====================================\");",
-                "        System.out.print(\"Sorted Array:   \");",
-                "        printArray(arr);",
-                "        System.out.println(\"Execution time: \" + (endTime - startTime) + \" ms\");",
-                "    }",
-                "",
-                "    static void bubbleSort(int[] arr) {",
-                "        int n = arr.length;",
-                "        for (int i = 0; i < n - 1; i++) {",
-                "            for (int j = 0; j < n - 1 - i; j++) {",
-                "                if (arr[j] > arr[j + 1]) {",
-                "                    int temp = arr[j];",
-                "                    arr[j] = arr[j + 1];",
-                "                    arr[j + 1] = temp;",
-                "                }",
-                "            }",
-                "            System.out.print(\"After pass \" + (i + 1) + \": \");",
-                "            printArray(arr);",
-                "        }",
-                "    }",
-                "",
-                "    static void printArray(int[] arr) {",
-                "        for (int num : arr) {",
-                "            System.out.print(num + \" \" );",
-                "        }",
-                "        System.out.println();",
-                "    }",
-                "}"
-        };
-        parent.codeArea.setText(String.join("\n", lines));
+        if (parent == null) return;
+        
+        // Update Bubble Sort code with current parameters
+        com.algorithmvisualizer.code.AlgorithmCode code = 
+            com.algorithmvisualizer.code.CodeRepository.getCode("Bubble Sort");
+        
+        if (code instanceof com.algorithmvisualizer.code.implementations.BubbleSortCode) {
+            com.algorithmvisualizer.code.implementations.BubbleSortCode bsCode = 
+                (com.algorithmvisualizer.code.implementations.BubbleSortCode) code;
+            bsCode.updateParameters(currentArray);
+        }
+        
+        // Notify parent to reload code for current language
+        parent.loadCodeForCurrentLanguage();
     }
 
     private void initProgressLog() {
