@@ -128,6 +128,11 @@ public class BinarySearchController implements AlgorithmViewController.Algorithm
             parent.paramElementsField.setManaged(false);
         }
         // Reuse the hidden Queens controls as Target control
+        if (parent.paramTargetLabel != null) {
+            parent.paramTargetLabel.setVisible(true);
+            parent.paramTargetLabel.setManaged(true);
+            parent.paramTargetLabel.setText("Target:");
+        }
         if (parent.paramNumQueensSpinner != null) {
             parent.paramNumQueensSpinner.setVisible(true);
             parent.paramNumQueensSpinner.setManaged(true);
@@ -183,6 +188,7 @@ public class BinarySearchController implements AlgorithmViewController.Algorithm
         }
 
         // Code + logs + variables
+        parent.setCurrentAlgorithmName("Binary Search");
         renderCode();
         initProgressLog();
         updateVariablesPanel();
@@ -527,68 +533,20 @@ public class BinarySearchController implements AlgorithmViewController.Algorithm
     }
 
     private void renderCode() {
-        if (parent == null || parent.codeArea == null) return;
-        int size = currentArray.length;
-        String arrayValues = Arrays.toString(currentArray).replaceAll("[\\[\\]]", "");
-        String[] lines = new String[] {
-                "public class BinarySearchExample {",
-                "    static final int[] arr = {" + arrayValues + "};",
-                "    static final int SIZE = " + size + ";",
-                "    static final int TARGET = " + targetValue + ";",
-                "",
-                "    public static void main(String[] args) {",
-                "        System.out.println(\"Binary Search in sorted array of size \" + SIZE);",
-                "        System.out.println(\"=====================================\");",
-                "        System.out.print(\"Array: \");",
-                "        printArray(arr);",
-                "        System.out.println(\"Element to search: \" + TARGET);",
-                "",
-                "        long startTime = System.currentTimeMillis();",
-                "",
-                "        int result = binarySearch(arr, TARGET);",
-                "",
-                "        long endTime = System.currentTimeMillis();",
-                "        System.out.println(\"=====================================\");",
-                "",
-                "        if (result == -1) {",
-                "            System.out.println(\"Element \" + TARGET + \" not found.\");",
-                "        } else {",
-                "            System.out.println(\"Element \" + TARGET + \" found at index \" + result);",
-                "        }",
-                "",
-                "        System.out.println(\"Execution time: \" + (endTime - startTime) + \" ms\");",
-                "    }",
-                "",
-                "    static int binarySearch(int[] arr, int target) {",
-                "        int left = 0, right = arr.length - 1;",
-                "        int step = 1;",
-                "",
-                "        while (left <= right) {",
-                "            int mid = (left + right) / 2;",
-                "            System.out.println(\"Step \" + step + \": left=\" + left + \" right=\" + right + \" mid=\" + mid + \" (value=\" + arr[mid] + \")\");",
-                "            step++;",
-                "",
-                "            if (arr[mid] == target) {",
-                "                return mid;",
-                "            }",
-                "            if (arr[mid] < target) {",
-                "                left = mid + 1;",
-                "            } else {",
-                "                right = mid - 1;",
-                "            }",
-                "        }",
-                "        return -1;",
-                "    }",
-                "",
-                "    static void printArray(int[] arr) {",
-                "        for (int num : arr) {",
-                "            System.out.print(num + \" \" );",
-                "        }",
-                "        System.out.println();",
-                "    }",
-                "}",
-        };
-        parent.codeArea.setText(String.join("\n", lines));
+        if (parent == null) return;
+        
+        // Update Binary Search code with current parameters
+        com.algorithmvisualizer.code.AlgorithmCode code = 
+            com.algorithmvisualizer.code.CodeRepository.getCode("Binary Search");
+        
+        if (code instanceof com.algorithmvisualizer.code.implementations.BinarySearchCode) {
+            com.algorithmvisualizer.code.implementations.BinarySearchCode bsCode = 
+                (com.algorithmvisualizer.code.implementations.BinarySearchCode) code;
+            bsCode.updateParameters(currentArray, targetValue);
+        }
+        
+        // Notify parent to reload code for current language
+        parent.loadCodeForCurrentLanguage();
     }
 
     // --- Helpers: array editing ---
