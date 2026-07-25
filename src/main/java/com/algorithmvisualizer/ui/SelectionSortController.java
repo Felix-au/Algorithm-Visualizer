@@ -181,6 +181,7 @@ public class SelectionSortController implements AlgorithmViewController.Algorith
         if (parent.pauseButton != null) { parent.pauseButton.setVisible(false); parent.pauseButton.setManaged(false); }
 
         // Code and logs
+        parent.setCurrentAlgorithmName("Selection Sort");
         renderCode();
         initProgressLog();
         updateVariablesPanel();
@@ -655,62 +656,20 @@ public class SelectionSortController implements AlgorithmViewController.Algorith
     }
 
     private void renderCode() {
-        if (parent == null || parent.codeArea == null) return;
+        if (parent == null) return;
         
-        // Get current array values for dynamic display
-        int size = currentArray.length;
-        String arrayValues = java.util.Arrays.toString(currentArray).replaceAll("[\\[\\]]", "");
+        // Update Selection Sort code with current parameters
+        com.algorithmvisualizer.code.AlgorithmCode code = 
+            com.algorithmvisualizer.code.CodeRepository.getCode("Selection Sort");
         
-        String[] lines = new String[] {
-                "public class SelectionSortExample {",
-                "    static final int SIZE = " + size + ";",
-                "    static int[] arr = {" + arrayValues + "};",
-                "",
-                "    public static void main(String[] args) {",
-                "        System.out.println(\"Selection Sort for array of size \" + SIZE);",
-                "        System.out.println(\"=====================================\");",
-                "",
-                "        System.out.print(\"Original Array: \");",
-                "        printArray(arr);",
-                "",
-                "        long startTime = System.currentTimeMillis();",
-                "",
-                "        selectionSort(arr);",
-                "",
-                "        long endTime = System.currentTimeMillis();",
-                "        System.out.println(\"=====================================\");",
-                "        System.out.print(\"Sorted Array:   \");",
-                "        printArray(arr);",
-                "        System.out.println(\"Execution time: \" + (endTime - startTime) + \" ms\");",
-                "    }",
-                "",
-                "    static void selectionSort(int[] arr) {",
-                "        int n = arr.length;",
-                "        for (int i = 0; i < n - 1; i++) {",
-                "            int minIdx = i;",
-                "            for (int j = i + 1; j < n; j++) {",
-                "                if (arr[j] < arr[minIdx]) {",
-                "                    minIdx = j;",
-                "                }",
-                "            }",
-                "            int temp = arr[minIdx];",
-                "            arr[minIdx] = arr[i];",
-                "            arr[i] = temp;",
-                "",
-                "            System.out.print(\"After pass \" + (i + 1) + \": \");",
-                "            printArray(arr);",
-                "        }",
-                "    }",
-                "",
-                "    static void printArray(int[] arr) {",
-                "        for (int num : arr) {",
-                "            System.out.print(num + \" \");",
-                "        }",
-                "        System.out.println();",
-                "    }",
-                "}"
-        };
-        parent.codeArea.setText(String.join("\n", lines));
+        if (code instanceof com.algorithmvisualizer.code.implementations.SelectionSortCode) {
+            com.algorithmvisualizer.code.implementations.SelectionSortCode ssCode = 
+                (com.algorithmvisualizer.code.implementations.SelectionSortCode) code;
+            ssCode.updateParameters(currentArray);
+        }
+        
+        // Notify parent to reload code for current language
+        parent.loadCodeForCurrentLanguage();
     }
 
     private void initProgressLog() {
