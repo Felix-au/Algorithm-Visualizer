@@ -134,7 +134,14 @@ public class QueueController implements AlgorithmSpecificController {
 
         initProgressLog();
         updateVariables();
+        parent.setCurrentAlgorithmName("Queue");
         renderCode();
+        
+        // Add language selector listener
+        if (parent.languageSelector != null) {
+            parent.languageSelector.valueProperty().addListener((obs, oldVal, newVal) -> renderCode());
+        }
+        
         if (parent.stepDescription != null) parent.stepDescription.setText("Ready.");
 
         onInitialize();
@@ -372,53 +379,17 @@ public class QueueController implements AlgorithmSpecificController {
 
     private void renderCode() {
         if (parent == null || parent.codeArea == null) return;
-        int cap = solver != null ? solver.capacity() : 10;
-        String[] lines = new String[] {
-            "class ArrayQueue {",
-            "    int[] a = new int[" + cap + "];",
-            "    int size = 0;",
-            "",
-            "    boolean isEmpty() { return size == 0; }",
-            "    boolean isFull()  { return size >= a.length; }",
-            "",
-            "    void enqueue(int x) {",
-            "        if (isFull()) throw new RuntimeException(\"overflow\");",
-            "        a[size++] = x;",
-            "    }",
-            "",
-            "    int dequeue() {",
-            "        if (isEmpty()) throw new RuntimeException(\"underflow\");",
-            "        int val = a[0];",
-            "        for (int i=1;i<size;i++) a[i-1]=a[i];",
-            "        size--;",
-            "        return val;",
-            "    }",
-            "",
-            "    // returns index from front (0-based) or -1",
-            "    int search(int x) {",
-            "        for (int i=0;i<size;i++) if (a[i]==x) return i;",
-            "        return -1;",
-            "    }",
-            "",
-            "    // removes x if present, preserves order",
-            "    boolean searchAndDequeue(int x) {",
-            "        int n=size; int[] auxQ = new int[n]; int k=0; boolean removed=false;",
-            "        for (int i=0;i<n;i++) {",
-            "            int v = dequeue();",
-            "            if (!removed && v==x) { removed=true; } else { auxQ[k++]=v; }",
-            "        }",
-            "        for (int i=0;i<k;i++) enqueue(auxQ[i]);",
-            "        return removed;",
-            "    }",
-            "",
-            "    void reverse() {",
-            "        int[] auxS = new int[size]; int top=-1;",
-            "        while (!isEmpty()) { auxS[++top] = dequeue(); }",
-            "        while (top>=0) { enqueue(auxS[top--]); }",
-            "    }",
-            "}"
-        };
-        parent.codeArea.setText(String.join("\n", lines));
+        com.algorithmvisualizer.code.AlgorithmCode code = 
+            com.algorithmvisualizer.code.CodeRepository.getCode("Queue");
+        if (code == null) {
+            parent.codeArea.replaceText(0, parent.codeArea.getLength(), 
+                "// Code not available");
+            return;
+        }
+        String selectedLang = parent.languageSelector != null ? 
+            parent.languageSelector.getValue() : "Java";
+        String codeText = code.getCodeForLanguage(selectedLang);
+        parent.codeArea.replaceText(0, parent.codeArea.getLength(), codeText);
     }
 
     private javafx.scene.Node bullet(String text) {
