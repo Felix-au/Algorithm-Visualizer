@@ -99,8 +99,8 @@ public class NQueensController implements AlgorithmViewController.AlgorithmSpeci
             numQueensSpinner.getValueFactory().setValue(n);
         });
         
-        // Initialize views
-        generateViews();
+        // Don't initialize views here - wait for setParentController to be called
+        // generateViews() will be called in setParentController()
         setupCodeBindings();
         initProgressLog();
 
@@ -168,8 +168,13 @@ public class NQueensController implements AlgorithmViewController.AlgorithmSpeci
     }
     
     private void generateViews() {
+        // Ensure parent controller is set before generating views
+        if (parentController == null) {
+            return;
+        }
+        
         // Board - use parent controller's containers
-        if (parentController != null && parentController.chessboardContainer != null) {
+        if (parentController.chessboardContainer != null) {
             parentController.chessboardContainer.getChildren().clear();
             chessboardRenderer = new ChessboardRenderer(currentBoardSize);
             parentController.chessboardContainer.getChildren().add(chessboardRenderer.getChessboard());
@@ -187,7 +192,7 @@ public class NQueensController implements AlgorithmViewController.AlgorithmSpeci
         }
 
         // Initialize solutions display
-        if (parentController != null && parentController.solutionsContent != null) {
+        if (parentController.solutionsContent != null) {
             parentController.solutionsContent.getChildren().clear();
             parentController.solutionsContent.getChildren().add(new Label("No solutions found yet"));
         }
@@ -200,6 +205,17 @@ public class NQueensController implements AlgorithmViewController.AlgorithmSpeci
         history.clear();
 
         // Code view
+        parentController.setCurrentAlgorithmName("N-Queens");
+        
+        // Language selector listener - update code when language changes
+        if (parentController.languageSelector != null) {
+            parentController.languageSelector.valueProperty().addListener((obs, oldLang, newLang) -> {
+                if (newLang != null && !newLang.equals(oldLang)) {
+                    renderCode(); // Reload code in new language
+                }
+            });
+        }
+        
         renderCode();
 
         // Initialize variable and loop tracking
@@ -540,74 +556,29 @@ public class NQueensController implements AlgorithmViewController.AlgorithmSpeci
     }
 
     private void renderCode() {
-        if (parentController != null && parentController.codeArea != null) {
-            String[] lines = new String[] {
-                    "public class NQueens {",
-                    "    static final int N = " + currentBoardSize + ";",
-                    "    static int solutionCount = 0;",
-                    "",
-                    "    public static void main(String[] args) {",
-                    "        System.out.println(\"Solving N-Queens problem for \" + N + \"x\" + N + \" board:\");",
-                    "        System.out.println(\"=====================================\");",
-                    "",
-                    "        long startTime = System.currentTimeMillis();",
-                    "",
-                    "        int[] queens = new int[N]; // queens[i] = column of queen at row i",
-                    "        solve(0, queens);",
-                    "",
-                    "        long endTime = System.currentTimeMillis();",
-                    "        System.out.println(\"=====================================\");",
-                    "        System.out.println(\"Total solutions found: \" + solutionCount);",
-                    "        System.out.println(\"Execution time: \" + (endTime - startTime) + \" ms\");",
-                    "    }",
-                    "",
-                    "    static void solve(int row, int[] queens) {",
-                    "        if (row == N) {",
-                    "            solutionCount++;",
-                    "            printSolution(queens);",
-                    "            return;",
-                    "        }",
-                    "",
-                    "        for (int col = 0; col < N; col++) {",
-                    "            if (isSafe(row, col, queens)) {",
-                    "                queens[row] = col;",
-                    "                solve(row + 1, queens);",
-                    "            }",
-                    "        }",
-                    "    }",
-                    "",
-                    "    static boolean isSafe(int row, int col, int[] queens) {",
-                    "        for (int i = 0; i < row; i++) {",
-                    "            int otherCol = queens[i];",
-                    "            if (otherCol == col || Math.abs(otherCol - col) == Math.abs(i - row)) {",
-                    "                return false;",
-                    "            }",
-                    "        }",
-                    "        return true;",
-                    "    }",
-                    "",
-                    "    static void printSolution(int[] queens) {",
-                    "        System.out.println(\"\\nSolution #\" + solutionCount + \":\");",
-                    "        for (int row = 0; row < N; row++) {",
-                    "            for (int col = 0; col < N; col++) {",
-                    "                if (queens[row] == col) {",
-                    "                    System.out.print(\"Q \");",
-                    "                } else {",
-                    "                    System.out.print(\". \");",
-                    "                }",
-                    "            }",
-                    "            System.out.println();",
-                    "        }",
-                    "",
-                    "        System.out.print(\"Queen positions:\");",
-                    "        for (int row = 0; row < N; row++) {",
-                    "            System.out.print(\" (\" + row + \",\" + queens[row] + \")\");",
-                    "        }",
-                    "        System.out.println();",
-                    "    }",
-                    "}"
-            };
-            parentController.codeArea.setText(String.join("\n", lines));
+        if (parentController == null || parentController.codeArea == null || parentController.languageSelector == null) return;
+        
+        // Get the code implementation
+        com.algorithmvisualizer.code.AlgorithmCode code = com.algorithmvisualizer.code.CodeRepository.getCode("N-Queens");
+        if (code instanceof com.algorithmvisualizer.code.implementations.NQueensCode) {
+            com.algorithmvisualizer.code.implementations.NQueensCode nqCode = 
+                (com.algorithmvisualizer.code.implementations.NQueensCode) code;
+            nqCode.updateParameters(currentBoardSize);
+        }
+        
+        // Load and display the code for the current language
+        if (code != null) {
+            String selectedLanguage = parentController.languageSelector.getValue();
+            if (selectedLanguage != null) {
+                String codeText = code.getCodeForLanguage(selectedLanguage);
+                if (codeText != null && !codeText.isEmpty()) {
+                    parentController.codeArea.replaceText(codeText);
+                    // Apply syntax highlighting
+                    javafx.application.Platform.runLater(() -> {
+                        com.algorithmvisualizer.ui.CodeHighlighter.applyHighlighting(parentController.codeArea, selectedLanguage);
+                    });
+                }
+            }
         }
     }
 
@@ -622,7 +593,7 @@ public class NQueensController implements AlgorithmViewController.AlgorithmSpeci
         
         // Update the code without any highlighting or cursor movement
         String updated = String.join("\n", lines);
-        parentController.codeArea.setText(updated);
+        parentController.codeArea.replaceText(0, parentController.codeArea.getLength(), updated);
     }
 
     private int findLine(String[] lines, String needle) {
