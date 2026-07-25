@@ -166,7 +166,14 @@ public class StackController implements AlgorithmViewController.AlgorithmSpecifi
         // Panels
         initProgressLog();
         updateVariables();
+        parent.setCurrentAlgorithmName("Stack");
         renderCode();
+        
+        // Add language selector listener
+        if (parent.languageSelector != null) {
+            parent.languageSelector.valueProperty().addListener((obs, oldVal, newVal) -> renderCode());
+        }
+        
         if (parent.stepDescription != null) parent.stepDescription.setText("Ready.");
 
         // Apply initial capacity
@@ -559,37 +566,16 @@ public class StackController implements AlgorithmViewController.AlgorithmSpecifi
 
     private void renderCode() {
         if (parent == null || parent.codeArea == null) return;
-        int cap = solver != null ? solver.capacity() : 10;
-        String[] lines = new String[] {
-                "class ArrayStack {",
-                "    int[] a = new int[" + cap + "];",
-                "    int top = -1;",
-                "",
-                "    boolean isEmpty() { return top < 0; }",
-                "    boolean isFull()  { return top + 1 >= a.length; }",
-                "",
-                "    void push(int x) {",
-                "        if (isFull()) throw new RuntimeException(\"overflow\");",
-                "        a[++top] = x;",
-                "    }",
-                "",
-                "    int pop() {",
-                "        if (isEmpty()) throw new RuntimeException(\"underflow\");",
-                "        return a[top--];",
-                "    }",
-                "",
-                "    int peek() {",
-                "        if (isEmpty()) throw new RuntimeException(\"underflow\");",
-                "        return a[top];",
-                "    }",
-                "",
-                "    // returns position from top (1-based) or -1",
-                "    int search(int x) {",
-                "        for (int i = top; i >= 0; i--) if (a[i] == x) return top - i + 1;",
-                "        return -1;",
-                "    }",
-                "}",
-        };
-        parent.codeArea.setText(String.join("\n", lines));
+        com.algorithmvisualizer.code.AlgorithmCode code = 
+            com.algorithmvisualizer.code.CodeRepository.getCode("Stack");
+        if (code == null) {
+            parent.codeArea.replaceText(0, parent.codeArea.getLength(), 
+                "// Code not available");
+            return;
+        }
+        String selectedLang = parent.languageSelector != null ? 
+            parent.languageSelector.getValue() : "Java";
+        String codeText = code.getCodeForLanguage(selectedLang);
+        parent.codeArea.replaceText(0, parent.codeArea.getLength(), codeText);
     }
 }
