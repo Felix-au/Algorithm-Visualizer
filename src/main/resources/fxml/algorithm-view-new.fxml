@@ -235,7 +235,7 @@
                                  <children>
                                     <Label fx:id="paramSizeLabel" text="Board size and number of queens (N):" />
                                     <Spinner fx:id="paramBoardSizeSpinner" editable="true" initialValue="4" max="50" min="1" prefWidth="90.0" />
-                                    <Label text="Number of Queens:" visible="false" managed="false" />
+                                    <Label fx:id="paramTargetLabel" text="Number of Queens:" visible="false" managed="false" />
                                     <Spinner fx:id="paramNumQueensSpinner" editable="true" initialValue="4" max="10" min="1" prefWidth="90.0" visible="false" managed="false" />
                                     <Region HBox.hgrow="ALWAYS" />
                                  </children>
@@ -279,11 +279,57 @@
                               <Label text="Algorithm Code" style="-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #2b4c7e;" />
                            </children>
                         </HBox>
-                        <TextArea fx:id="codeArea" editable="false" prefHeight="520.0" prefWidth="300.0" style="-fx-font-family: 'Courier New'; -fx-font-size: 11px;" wrapText="false">
+                        <!-- Language Selector and Execute Button -->
+                        <HBox spacing="10.0" alignment="CENTER_LEFT">
+                           <children>
+                              <Label text=">" style="-fx-font-weight: bold; -fx-font-size: 12px;" />
+                              <ComboBox fx:id="languageSelector" prefWidth="140.0" 
+                                        style="-fx-font-size: 12px; 
+                                               -fx-background-color: white;
+                                               -fx-border-color: #e0e0e0;
+                                               -fx-border-radius: 6;
+                                               -fx-background-radius: 6;
+                                               -fx-padding: 6 12;" />
+                              <Region HBox.hgrow="ALWAYS" />
+                              <Button fx:id="openEditorButton" 
+                                      style="-fx-background-color: #667eea; 
+                                             -fx-text-fill: white; 
+                                             -fx-background-radius: 6; 
+                                             -fx-padding: 8 12; 
+                                             -fx-cursor: hand; 
+                                             -fx-font-size: 11px;
+                                             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 4, 0, 0, 2);">
+                                 <graphic>
+                                    <FontIcon iconLiteral="fas-external-link-alt" iconSize="14" iconColor="white" />
+                                 </graphic>
+                                 <tooltip>
+                                    <Tooltip text="Open Full-Screen Code Editor" />
+                                 </tooltip>
+                              </Button>
+                              <Button fx:id="themeToggleButton" style="-fx-background-color: #6c757d; -fx-text-fill: white; -fx-background-radius: 6; -fx-padding: 8 12; -fx-cursor: hand; -fx-font-size: 11px;">
+                                 <graphic>
+                                    <FontIcon fx:id="themeToggleIcon" iconLiteral="fas-sun" iconSize="14" iconColor="white" />
+                                 </graphic>
+                                 <tooltip>
+                                    <Tooltip text="Toggle Light/Dark Mode" />
+                                 </tooltip>
+                              </Button>
+                              <Button fx:id="executeButton" text="Run" style="-fx-background-color: #28a745; -fx-text-fill: white; -fx-background-radius: 6; -fx-padding: 8 16; -fx-font-weight: bold; -fx-cursor: hand; -fx-font-size: 11px;">
+                                 <graphic>
+                                    <FontIcon iconLiteral="fas-play-circle" iconSize="14" iconColor="white" />
+                                 </graphic>
+                              </Button>
+                           </children>
+                           <VBox.margin>
+                              <Insets bottom="5.0" />
+                           </VBox.margin>
+                        </HBox>
+                        <!-- Code Area Container (CodeArea will be added programmatically) -->
+                        <StackPane fx:id="codeAreaContainer" prefHeight="520.0" prefWidth="300.0">
                            <VBox.margin>
                               <Insets bottom="10.0" />
                            </VBox.margin>
-                        </TextArea>
+                        </StackPane>
                      </children>
                   </VBox>
                   
