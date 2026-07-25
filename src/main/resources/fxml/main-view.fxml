@@ -19,7 +19,7 @@
                         <Image url="@/Logo.png" />
                      </image>
                   </ImageView>
-                  <Label text="AlgoQuest">
+                  <Label text="AlgoBuddy">
                      <font>
                         <Font name="System Bold" size="28.0" />
                      </font>
@@ -66,7 +66,7 @@
                   
                   <!-- Category Grid -->
                   <FlowPane fx:id="categoryGrid" hgap="20.0" vgap="20.0" 
-                           alignment="CENTER" prefWrapLength="1000.0">
+                           alignment="CENTER">
                      <!-- Categories will be added dynamically -->
                   </FlowPane>
                   
@@ -90,7 +90,7 @@
                         
                         <!-- Algorithm Cards Grid -->
                         <FlowPane fx:id="algorithmGrid" hgap="20.0" vgap="20.0" 
-                                 alignment="CENTER_LEFT" prefWrapLength="1200.0">
+                                 alignment="CENTER_LEFT">
                            <!-- Algorithm cards will be added dynamically -->
                         </FlowPane>
                      </children>
@@ -104,7 +104,20 @@
       <HBox alignment="CENTER" spacing="20.0" 
            style="-fx-background-color: white; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, -2);">
          <children>
-            <Label text="Version 1.0.0" style="-fx-text-fill: #6c757d;">
+            <HBox alignment="CENTER_LEFT" spacing="10.0" HBox.hgrow="ALWAYS">
+               <children>
+                  <Button fx:id="updateButton" text="Check for Updates" 
+                          onAction="#checkForUpdates"
+                          style="-fx-background-color: #2b4c7e; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 8 15; -fx-cursor: hand; -fx-font-weight: bold; -fx-font-size: 11px;">
+                  </Button>
+               </children>
+            </HBox>
+            <Label text="Version" style="-fx-text-fill: #6c757d;">
+               <font>
+                  <Font size="12.0" />
+               </font>
+            </Label>
+            <Label fx:id="versionLabel" text="0.0" style="-fx-text-fill: #2b4c7e; -fx-font-weight: bold;">
                <font>
                   <Font size="12.0" />
                </font>
