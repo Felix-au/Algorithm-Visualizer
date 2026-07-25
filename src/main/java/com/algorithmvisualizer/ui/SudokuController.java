@@ -124,6 +124,16 @@ public class SudokuController implements AlgorithmViewController.AlgorithmSpecif
         if (parent.speedSlider != null) parent.speedSlider.valueProperty().addListener((obs, o, n) -> updatePlaybackSpeed());
         if (parent.pauseButton != null) { parent.pauseButton.setVisible(false); parent.pauseButton.setManaged(false); }
 
+        // Language selector listener - update code when language changes
+        if (parent.languageSelector != null) {
+            parent.languageSelector.valueProperty().addListener((obs, oldLang, newLang) -> {
+                if (newLang != null && !newLang.equals(oldLang)) {
+                    renderCode(); // Reload code in new language
+                }
+            });
+        }
+
+        parent.setCurrentAlgorithmName("Sudoku Solver");
         renderCode();
         initProgressLog();
         updateVariablesPanel();
@@ -164,44 +174,30 @@ public class SudokuController implements AlgorithmViewController.AlgorithmSpecif
     }
 
     private void renderCode() {
-        if (parent == null || parent.codeArea == null) return;
-        String boardLiteral = gridToJavaLiteral(currentGrid);
-        String[] lines = new String[] {
-                "import java.util.*;",
-                "",
-                "public class SudokuExample {",
-                "    static final int[][] BOARD = " + boardLiteral + ";",
-                "",
-                "    public static void main(String[] args) {",
-                "        long t0 = System.currentTimeMillis();",
-                "        solve(BOARD);",
-                "        long t1 = System.currentTimeMillis();",
-                "        print(BOARD);",
-                "        System.out.println(\"Solved in \" + (t1 - t0) + \" ms\");",
-                "    }",
-                "",
-                "    static boolean solve(int[][] g) {",
-                "        int r=-1,c=-1;",
-                "        for (int i=0;i<9;i++) for (int j=0;j<9;j++) if (g[i][j]==0){ r=i;c=j; i=9; break; }",
-                "        if (r==-1) return true;",
-                "        for (int v=1; v<=9; v++) if (can(g,r,c,v)) { g[r][c]=v; if (solve(g)) return true; g[r][c]=0; }",
-                "        return false;",
-                "    }",
-                "    static boolean can(int[][] g,int r,int c,int v){",
-                "        for(int k=0;k<9;k++) if (g[r][k]==v||g[k][c]==v) return false;",
-                "        int br=(r/3)*3, bc=(c/3)*3;",
-                "        for(int i=0;i<3;i++) for(int j=0;j<3;j++) if (g[br+i][bc+j]==v) return false;",
-                "        return true;",
-                "    }",
-                "    static void print(int[][] g){",
-                "        for(int i=0;i<9;i++){",
-                "            for(int j=0;j<9;j++) System.out.print(g[i][j]+\" \");",
-                "            System.out.println();",
-                "        }",
-                "    }",
-                "}",
-        };
-        parent.codeArea.setText(String.join("\n", lines));
+        if (parent == null || parent.codeArea == null || parent.languageSelector == null) return;
+        
+        // Get the code implementation
+        com.algorithmvisualizer.code.AlgorithmCode code = com.algorithmvisualizer.code.CodeRepository.getCode("Sudoku Solver");
+        if (code instanceof com.algorithmvisualizer.code.implementations.SudokuSolverCode) {
+            com.algorithmvisualizer.code.implementations.SudokuSolverCode sudokuCode = 
+                (com.algorithmvisualizer.code.implementations.SudokuSolverCode) code;
+            sudokuCode.updateParameters(currentGrid);
+        }
+        
+        // Load and display the code for the current language
+        if (code != null) {
+            String selectedLanguage = parent.languageSelector.getValue();
+            if (selectedLanguage != null) {
+                String codeText = code.getCodeForLanguage(selectedLanguage);
+                if (codeText != null && !codeText.isEmpty()) {
+                    parent.codeArea.replaceText(codeText);
+                    // Apply syntax highlighting
+                    javafx.application.Platform.runLater(() -> {
+                        com.algorithmvisualizer.ui.CodeHighlighter.applyHighlighting(parent.codeArea, selectedLanguage);
+                    });
+                }
+            }
+        }
     }
 
     private String gridToJavaLiteral(int[][] g) {
