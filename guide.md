@@ -37,7 +37,7 @@ mvn clean compile
 mvn javafx:run
 ```
 
-On first launch, the application displays a 1.5x sped-up logo reveal splash screen. It then runs an environment check. If local compilers (GCC/JDK/Python) are missing from the project directories, it automatically launches the **Setup Wizard Installer** to let you download and unpack these dependencies.
+On first launch, the application displays a logo reveal splash screen. It then runs an environment check. If local compilers (GCC/JDK/Python) are missing from the project directories, it automatically launches the **Setup Wizard Installer** to let you download and unpack these dependencies.
 
 ### Option B: Standalone Executable (Release)
 
