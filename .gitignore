@@ -8,8 +8,10 @@ target/
 
 # Compilers
 mingw64/
+w64devkit/
 jdk-17.0.18
 python-3.11.8
+
 
 # IDEs and Editors
 .idea/
