@@ -98,13 +98,13 @@ public class EnvInstallerController {
     private void onInstall(ActionEvent event) {
         List<InstallItem> itemsToInstall = new ArrayList<>();
         if (javaCheckbox.isSelected()) {
-            itemsToInstall.add(new InstallItem("Java JDK 17", JAVA_URL, "java_jdk.zip"));
+            itemsToInstall.add(new InstallItem("Java JDK 17", JAVA_URL, "java_jdk.zip", null));
         }
         if (cppCheckbox.isSelected()) {
-            itemsToInstall.add(new InstallItem("C/C++ Compiler (MinGW)", CPP_URL, "mingw_cpp.zip"));
+            itemsToInstall.add(new InstallItem("C/C++ Compiler (MinGW)", CPP_URL, "mingw_cpp.zip", null));
         }
         if (pythonCheckbox.isSelected()) {
-            itemsToInstall.add(new InstallItem("Python 3.11", PYTHON_URL, "python_dist.zip"));
+            itemsToInstall.add(new InstallItem("Python 3.11", PYTHON_URL, "python_dist.zip", "python-3.11.8"));
         }
 
         if (itemsToInstall.isEmpty()) {
@@ -190,7 +190,7 @@ public class EnvInstallerController {
 
                     // 2. Extract
                     updateMessage("Extracting " + item.name + "...");
-                    unzip(zipPath, rootDir, itemStartProgress + (0.7 * itemWeight), itemWeight * 0.3); // Extract takes 30%
+                    unzip(zipPath, rootDir, item.subDirName, itemStartProgress + (0.7 * itemWeight), itemWeight * 0.3); // Extract takes 30%
 
                     // 3. Clean up Zip
                     Files.deleteIfExists(zipPath);
@@ -202,7 +202,13 @@ public class EnvInstallerController {
                 return null;
             }
 
-            private void unzip(Path zipFile, Path destDir, double baseProgress, double progressWeight) throws IOException {
+            private void unzip(Path zipFile, Path destDir, String subDirName, double baseProgress, double progressWeight) throws IOException {
+                Path targetDir = destDir;
+                if (subDirName != null) {
+                    targetDir = destDir.resolve(subDirName);
+                    Files.createDirectories(targetDir);
+                }
+
                 try (ZipFile zf = new ZipFile(zipFile.toFile())) {
                     int totalEntries = zf.size();
                     if (totalEntries == 0) totalEntries = 1;
@@ -211,8 +217,8 @@ public class EnvInstallerController {
                     int extractedEntries = 0;
                     while (entries.hasMoreElements()) {
                         ZipEntry entry = entries.nextElement();
-                        Path filePath = destDir.resolve(entry.getName());
-                        if (!filePath.normalize().startsWith(destDir.normalize())) {
+                        Path filePath = targetDir.resolve(entry.getName());
+                        if (!filePath.normalize().startsWith(targetDir.normalize())) {
                             throw new IOException("Bad zip entry: " + entry.getName());
                         }
 
@@ -305,11 +311,13 @@ public class EnvInstallerController {
         final String name;
         final String url;
         final String tempZipName;
+        final String subDirName;
 
-        InstallItem(String name, String url, String tempZipName) {
+        InstallItem(String name, String url, String tempZipName, String subDirName) {
             this.name = name;
             this.url = url;
             this.tempZipName = tempZipName;
+            this.subDirName = subDirName;
         }
     }
 }
