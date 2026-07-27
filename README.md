@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="src/main/resources/logo.png" width="150" alt="AlgoBuddy Logo"/>
+  <img src="src/main/resources/Logo.png" width="150" alt="AlgoBuddy Logo"/>
 </p>
 <h1 align="center">AlgoBuddy: Your Offline Algorithm Playground</h1>
 <p align="center">
