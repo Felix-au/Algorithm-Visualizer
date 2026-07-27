@@ -79,36 +79,8 @@ public class SplashView {
         }
         finishedCalled = true;
 
-        if (mediaView != null) {
-            // Fade out the mediaView to white (since parent StackPane background is white)
-            Platform.runLater(() -> {
-                try {
-                    javafx.animation.FadeTransition fadeOut = new javafx.animation.FadeTransition(
-                        javafx.util.Duration.millis(200), mediaView
-                    );
-                    fadeOut.setFromValue(1.0);
-                    fadeOut.setToValue(0.0);
-                    fadeOut.setOnFinished(evt -> {
-                        stopAndDisposePlayer();
-                        
-                        // Wait a brief moment on solid white, then transition
-                        javafx.animation.PauseTransition pause = new javafx.animation.PauseTransition(
-                            javafx.util.Duration.millis(100)
-                        );
-                        pause.setOnFinished(pe -> onFinished.run());
-                        pause.play();
-                    });
-                    fadeOut.play();
-                } catch (Exception e) {
-                    // Fallback on transition error
-                    stopAndDisposePlayer();
-                    onFinished.run();
-                }
-            });
-        } else {
-            stopAndDisposePlayer();
-            Platform.runLater(onFinished);
-        }
+        stopAndDisposePlayer();
+        Platform.runLater(onFinished);
     }
 
     private void stopAndDisposePlayer() {

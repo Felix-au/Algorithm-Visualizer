@@ -58,26 +58,8 @@ public class Main extends Application {
             FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource(nextFxml));
             javafx.scene.Parent root = fxmlLoader.load();
 
-            // Create a premium fade-in transition from solid white using a StackPane wrapper
-            javafx.scene.layout.StackPane rootWrapper = new javafx.scene.layout.StackPane(root);
-            javafx.scene.layout.StackPane whiteOverlay = new javafx.scene.layout.StackPane();
-            whiteOverlay.setStyle("-fx-background-color: #ffffff;");
-            rootWrapper.getChildren().add(whiteOverlay);
-
-            Scene scene = new Scene(rootWrapper);
+            Scene scene = new Scene(root);
             stage.setScene(scene);
-
-            // Fade out the white overlay over 700ms to reveal the dashboard contents
-            javafx.animation.FadeTransition fadeIn = new javafx.animation.FadeTransition(
-                javafx.util.Duration.millis(700), whiteOverlay
-            );
-            fadeIn.setFromValue(1.0);
-            fadeIn.setToValue(0.0);
-            fadeIn.setOnFinished(evt -> {
-                rootWrapper.getChildren().clear(); // Free root from the wrapper first
-                scene.setRoot(root); // Restore the original FXML root directly
-            });
-            fadeIn.play();
         } catch (IOException e) {
             e.printStackTrace();
             System.err.println("Failed to load main or installer view: " + e.getMessage());
