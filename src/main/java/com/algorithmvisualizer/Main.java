@@ -17,7 +17,15 @@ public class Main extends Application {
     
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/fxml/main-view.fxml"));
+        // Check if all required environment runtimes are available
+        com.algorithmvisualizer.execution.ExecutionEnvironment env = new com.algorithmvisualizer.execution.ExecutionEnvironment();
+        boolean envsAvailable = env.isLanguageAvailable(com.algorithmvisualizer.execution.LanguageType.JAVA) &&
+                                env.isLanguageAvailable(com.algorithmvisualizer.execution.LanguageType.C) &&
+                                env.isLanguageAvailable(com.algorithmvisualizer.execution.LanguageType.CPP) &&
+                                env.isLanguageAvailable(com.algorithmvisualizer.execution.LanguageType.PYTHON);
+
+        String initialFxml = envsAvailable ? "/fxml/main-view.fxml" : "/fxml/env-installer-view.fxml";
+        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource(initialFxml));
         Scene scene = new Scene(fxmlLoader.load());
         
         // Get primary screen bounds

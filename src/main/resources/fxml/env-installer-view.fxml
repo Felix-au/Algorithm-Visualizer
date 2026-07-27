@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<BorderPane prefHeight="500.0" prefWidth="650.0" 
+            style="-fx-background-color: linear-gradient(to bottom, #f5f7fa 0%, #e8eef5 100%);" 
+            xmlns="http://javafx.com/javafx/11.0.1" 
+            xmlns:fx="http://javafx.com/fxml/1" 
+            fx:controller="com.algorithmvisualizer.ui.EnvInstallerController">
+   <top>
+      <VBox alignment="CENTER" spacing="10.0" style="-fx-background-color: white; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 2);">
+         <children>
+            <HBox alignment="CENTER_LEFT" spacing="15.0">
+               <children>
+                  <FontIcon iconLiteral="fas-tools" iconSize="28" iconColor="#2b4c7e" />
+                  <Label text="AlgoBuddy Environment Setup">
+                     <font>
+                        <Font name="System Bold" size="22.0" />
+                     </font>
+                     <style>-fx-text-fill: #2b4c7e;</style>
+                  </Label>
+               </children>
+               <padding>
+                  <Insets bottom="15.0" left="25.0" right="25.0" top="15.0" />
+               </padding>
+            </HBox>
+         </children>
+      </VBox>
+   </top>
+   <center>
+      <VBox alignment="TOP_CENTER" spacing="20.0">
+         <padding>
+            <Insets bottom="30.0" left="40.0" right="40.0" top="30.0" />
+         </padding>
+         <children>
+            <Label text="To compile and execute C, C++, Java, and Python code directly inside the application, you need to set up local compilers and runtimes. Select the missing environments you wish to download and install automatically:" 
+                   wrapText="true" style="-fx-text-fill: #555555; -fx-font-size: 13px; -fx-line-spacing: 1.2;" textAlignment="CENTER" />
+            
+            <VBox spacing="15.0" style="-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 5, 0, 0, 1);" VBox.vgrow="ALWAYS">
+               <children>
+                  <!-- Java Environment -->
+                  <HBox alignment="CENTER_LEFT" spacing="15.0">
+                     <children>
+                        <CheckBox fx:id="javaCheckbox" mnemonicParsing="false" text="Java JDK 17 (Eclipse Temurin)" style="-fx-font-weight: bold; -fx-font-size: 13px;" />
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Label fx:id="javaStatusLabel" text="Checking..." style="-fx-font-weight: bold; -fx-padding: 3 10; -fx-background-radius: 10;" />
+                     </children>
+                  </HBox>
+                  <Label text="Required to compile and execute Java code templates dynamically." style="-fx-text-fill: #777777; -fx-font-size: 11px; -fx-padding: 0 0 0 28;" />
+                  
+                  <Separator />
+
+                  <!-- C/C++ Environment -->
+                  <HBox alignment="CENTER_LEFT" spacing="15.0">
+                     <children>
+                        <CheckBox fx:id="cppCheckbox" mnemonicParsing="false" text="C/C++ MinGW (w64devkit)" style="-fx-font-weight: bold; -fx-font-size: 13px;" />
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Label fx:id="cppStatusLabel" text="Checking..." style="-fx-font-weight: bold; -fx-padding: 3 10; -fx-background-radius: 10;" />
+                     </children>
+                  </HBox>
+                  <Label text="Required to compile and execute C and C++ programs." style="-fx-text-fill: #777777; -fx-font-size: 11px; -fx-padding: 0 0 0 28;" />
+                  
+                  <Separator />
+
+                  <!-- Python Environment -->
+                  <HBox alignment="CENTER_LEFT" spacing="15.0">
+                     <children>
+                        <CheckBox fx:id="pythonCheckbox" mnemonicParsing="false" text="Python 3.11 interpreter" style="-fx-font-weight: bold; -fx-font-size: 13px;" />
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Label fx:id="pythonStatusLabel" text="Checking..." style="-fx-font-weight: bold; -fx-padding: 3 10; -fx-background-radius: 10;" />
+                     </children>
+                  </HBox>
+                  <Label text="Required to execute Python algorithm scripts." style="-fx-text-fill: #777777; -fx-font-size: 11px; -fx-padding: 0 0 0 28;" />
+               </children>
+            </VBox>
+
+            <!-- Download and progress section -->
+            <VBox fx:id="progressSection" spacing="8.0" visible="false" managed="false" fillWidth="true">
+               <children>
+                  <HBox alignment="CENTER_LEFT">
+                     <children>
+                        <Label fx:id="progressTaskLabel" text="Downloading components..." style="-fx-font-weight: bold; -fx-text-fill: #2b4c7e;" />
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Label fx:id="progressPercentLabel" text="0%" style="-fx-font-weight: bold; -fx-text-fill: #2b4c7e;" />
+                     </children>
+                  </HBox>
+                  <ProgressBar fx:id="progressBar" progress="0.0" maxWidth="Infinity" prefHeight="15.0" style="-fx-accent: #2ecc71;" />
+                  <Label fx:id="progressDetailLabel" text="Idle..." style="-fx-text-fill: #666666; -fx-font-size: 11px;" />
+               </children>
+            </VBox>
+         </children>
+      </VBox>
+   </center>
+   <bottom>
+      <HBox alignment="CENTER_RIGHT" spacing="15.0" style="-fx-background-color: white; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, -2);">
+         <children>
+            <Button fx:id="skipButton" mnemonicParsing="false" onAction="#onSkip" text="Skip &amp; Open App" style="-fx-background-color: #6c757d; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 10 20; -fx-font-weight: bold; -fx-cursor: hand;" />
+            <Button fx:id="installButton" mnemonicParsing="false" onAction="#onInstall" text="Install Selected" style="-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 10 25; -fx-font-weight: bold; -fx-cursor: hand;" />
+         </children>
+         <padding>
+            <Insets bottom="15.0" left="25.0" right="25.0" top="15.0" />
+         </padding>
+      </HBox>
+   </bottom>
+</BorderPane>
