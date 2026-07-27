@@ -41,14 +41,14 @@ public class SplashView {
 
             // Configure layout
             StackPane root = new StackPane(mediaView);
-            root.setStyle("-fx-background-color: #000000;");
+            root.setStyle("-fx-background-color: #ffffff;");
 
             Scene scene = new Scene(root);
             
-            // Bind size dynamically
+            // Bind size dynamically to fit (60% of screen size) instead of fill
             mediaView.setPreserveRatio(true);
-            mediaView.fitWidthProperty().bind(scene.widthProperty());
-            mediaView.fitHeightProperty().bind(scene.heightProperty());
+            mediaView.fitWidthProperty().bind(scene.widthProperty().multiply(0.6));
+            mediaView.fitHeightProperty().bind(scene.heightProperty().multiply(0.6));
 
             // Handle media lifecycle
             mediaPlayer.setOnEndOfMedia(this::finish);
