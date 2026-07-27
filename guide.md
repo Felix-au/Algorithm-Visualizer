@@ -42,9 +42,9 @@ On first launch, the application displays a 1.5x sped-up logo reveal splash scre
 ### Option B: Standalone Executable (Release)
 
 If you have a compiled release distribution:
-1. Double-click the pre-built `AlgoBuddy.exe` in the root folder.
-2. The application runs immediately.
-3. No JRE or Java setup is required on the user's machine, as the runtime is fully embedded inside the wrapper.
+1. Ensure that the `jre/` and OpenJFX SDK (`openjfx-21.0.7_windows-x64_bin-sdk/`) folders reside in the application root directory alongside the executable (these folders are provided in release ZIPs).
+2. Double-click `AlgoBuddy.exe`.
+3. The application runs immediately—no system JRE or Java installation is required on your machine!
 
 ---
 

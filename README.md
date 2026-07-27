@@ -56,7 +56,7 @@ Watch algorithms execute visually, inspect step-by-step state changes, step back
 | **Console Sandbox** | None | Interactive stdin/stdout console with yellow blinking prompt |
 | **Offline Portability** | Requires active internet access | 100% offline—bundles or downloads local compiler runtimes |
 | **Playback Control** | Forward only or simple speed adjustment | Forward, Backward (state restore snapshots), Play/Pause, speed slider |
-| **Windows Launcher** | None (browser-based only) | Standalone Launch4j EXE wrapping shaded JAR with embedded JRE |
+| **Windows Launcher** | None (browser-based only) | Standalone Launch4j EXE wrapping shaded JAR with local JRE and JavaFX folders |
 
 ---
 
@@ -176,8 +176,8 @@ mvn javafx:run
 
 ### Release Standalone EXE
 To launch the packaged release version:
-1. Double-click the compiled `AlgoBuddy.exe`.
-2. The executable runs with its own embedded JRE—no Java installation required!
+1. Ensure the `jre/` and OpenJFX SDK (`openjfx-21.0.7_windows-x64_bin-sdk/`) folders are located in the application root directory alongside the executable (provided in release distributions).
+2. Double-click `AlgoBuddy.exe`. No system Java setup or installation is required!
 
 *Launch4j configuration properties can be customized locally.*
 
