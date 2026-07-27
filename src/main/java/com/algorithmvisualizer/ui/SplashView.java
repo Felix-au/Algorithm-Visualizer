@@ -64,6 +64,7 @@ public class SplashView {
 
             // Show stage and start playback
             stage.setScene(scene);
+            mediaPlayer.setRate(1.5);
             mediaPlayer.play();
 
         } catch (Throwable e) {
