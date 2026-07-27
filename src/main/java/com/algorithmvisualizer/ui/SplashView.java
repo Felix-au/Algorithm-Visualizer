@@ -18,6 +18,7 @@ public class SplashView {
     private final Stage stage;
     private final Runnable onFinished;
     private MediaPlayer mediaPlayer;
+    private MediaView mediaView;
     private boolean finishedCalled = false;
 
     public SplashView(Stage stage, Runnable onFinished) {
@@ -37,7 +38,7 @@ public class SplashView {
             // Create media objects
             Media media = new Media(videoUrl.toExternalForm());
             mediaPlayer = new MediaPlayer(media);
-            MediaView mediaView = new MediaView(mediaPlayer);
+            mediaView = new MediaView(mediaPlayer);
 
             // Configure layout
             StackPane root = new StackPane(mediaView);
@@ -78,14 +79,44 @@ public class SplashView {
         }
         finishedCalled = true;
 
+        if (mediaView != null) {
+            // Fade out the mediaView to white (since parent StackPane background is white)
+            Platform.runLater(() -> {
+                try {
+                    javafx.animation.FadeTransition fadeOut = new javafx.animation.FadeTransition(
+                        javafx.util.Duration.millis(300), mediaView
+                    );
+                    fadeOut.setFromValue(1.0);
+                    fadeOut.setToValue(0.0);
+                    fadeOut.setOnFinished(evt -> {
+                        stopAndDisposePlayer();
+                        
+                        // Wait a brief moment on solid white, then transition
+                        javafx.animation.PauseTransition pause = new javafx.animation.PauseTransition(
+                            javafx.util.Duration.millis(200)
+                        );
+                        pause.setOnFinished(pe -> onFinished.run());
+                        pause.play();
+                    });
+                    fadeOut.play();
+                } catch (Exception e) {
+                    // Fallback on transition error
+                    stopAndDisposePlayer();
+                    onFinished.run();
+                }
+            });
+        } else {
+            stopAndDisposePlayer();
+            Platform.runLater(onFinished);
+        }
+    }
+
+    private void stopAndDisposePlayer() {
         if (mediaPlayer != null) {
             try {
                 mediaPlayer.stop();
                 mediaPlayer.dispose();
             } catch (Exception ignore) {}
         }
-
-        // Run transition on JavaFX Application Thread
-        Platform.runLater(onFinished);
     }
 }
