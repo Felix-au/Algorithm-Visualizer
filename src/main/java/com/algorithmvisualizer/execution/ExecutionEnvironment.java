@@ -110,13 +110,11 @@ public class ExecutionEnvironment {
             }
         }
         
-        // Fallback to system javac (temporarily disabled)
-        /*
+        // Fallback to system javac
         String systemJavac = findInSystemPath("javac.exe");
         if (systemJavac != null) {
             return systemJavac;
         }
-        */
         
         throw new ExecutionException("Java compiler (javac) not found. Please ensure JDK is bundled or installed on the system.");
     }
@@ -136,13 +134,11 @@ public class ExecutionEnvironment {
             }
         }
         
-        // Fallback to system java (temporarily disabled)
-        /*
+        // Fallback to system java
         String systemJava = findInSystemPath("java.exe");
         if (systemJava != null) {
             return systemJava;
         }
-        */
         
         throw new ExecutionException("Java runtime not found. Please ensure JDK is bundled or installed on the system.");
     }
@@ -162,13 +158,11 @@ public class ExecutionEnvironment {
             }
         }
         
-        // Fallback to system Python (temporarily disabled)
-        /*
+        // Fallback to system Python
         String systemPython = findInSystemPath("python.exe");
         if (systemPython != null) {
             return systemPython;
         }
-        */
         
         throw new ExecutionException("Python interpreter not found. Please ensure Python is bundled or installed on the system.");
     }
