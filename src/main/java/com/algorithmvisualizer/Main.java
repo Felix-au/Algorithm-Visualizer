@@ -74,7 +74,7 @@ public class Main extends Application {
             fadeIn.setFromValue(1.0);
             fadeIn.setToValue(0.0);
             fadeIn.setOnFinished(evt -> {
-                rootWrapper.getChildren().remove(whiteOverlay);
+                rootWrapper.getChildren().clear(); // Free root from the wrapper first
                 scene.setRoot(root); // Restore the original FXML root directly
             });
             fadeIn.play();
