@@ -1,9 +1,11 @@
 package com.algorithmvisualizer.execution;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.stream.Stream;
 
 /**
  * Manages paths to bundled compilers and interpreters.
@@ -54,6 +56,10 @@ public class ExecutionEnvironment {
             if (Files.exists(gccPath)) {
                 return gccPath.toAbsolutePath().toString();
             }
+            Path dynamicPath = scanForExecutable("gcc.exe", "mingw", "g++.exe");
+            if (dynamicPath != null) {
+                return dynamicPath.toAbsolutePath().toString();
+            }
         }
         
         // Fallback to system GCC
@@ -73,6 +79,10 @@ public class ExecutionEnvironment {
             Path gppPath = applicationRoot.resolve(MINGW_PATH).resolve("g++.exe");
             if (Files.exists(gppPath)) {
                 return gppPath.toAbsolutePath().toString();
+            }
+            Path dynamicPath = scanForExecutable("g++.exe", "mingw", "gcc.exe");
+            if (dynamicPath != null) {
+                return dynamicPath.toAbsolutePath().toString();
             }
         }
         
@@ -94,6 +104,10 @@ public class ExecutionEnvironment {
             if (Files.exists(javacPath)) {
                 return javacPath.toAbsolutePath().toString();
             }
+            Path dynamicPath = scanForExecutable("javac.exe", "jdk", "java.exe");
+            if (dynamicPath != null) {
+                return dynamicPath.toAbsolutePath().toString();
+            }
         }
         
         // Fallback to system javac
@@ -113,6 +127,10 @@ public class ExecutionEnvironment {
             Path javaPath = applicationRoot.resolve(JDK_PATH).resolve("java.exe");
             if (Files.exists(javaPath)) {
                 return javaPath.toAbsolutePath().toString();
+            }
+            Path dynamicPath = scanForExecutable("java.exe", "jdk", "javac.exe");
+            if (dynamicPath != null) {
+                return dynamicPath.toAbsolutePath().toString();
             }
         }
         
@@ -134,6 +152,10 @@ public class ExecutionEnvironment {
             if (Files.exists(pythonPath)) {
                 return pythonPath.toAbsolutePath().toString();
             }
+            Path dynamicPath = scanForExecutable("python.exe", "python", null);
+            if (dynamicPath != null) {
+                return dynamicPath.toAbsolutePath().toString();
+            }
         }
         
         // Fallback to system Python
@@ -143,6 +165,49 @@ public class ExecutionEnvironment {
         }
         
         throw new ExecutionException("Python interpreter not found. Please ensure Python is bundled or installed on the system.");
+    }
+
+    /**
+     * Dynamically searches for an executable inside the application root directory.
+     * Searches recursively up to a depth of 5.
+     */
+    private Path scanForExecutable(String executableName, String folderNameFilter, String siblingCheckName) {
+        if (!Files.exists(applicationRoot)) return null;
+        try (Stream<Path> stream = Files.walk(applicationRoot, 5)) {
+            return stream
+                .filter(Files::isRegularFile)
+                .filter(path -> path.getFileName().toString().equalsIgnoreCase(executableName))
+                .filter(path -> {
+                    if (folderNameFilter == null) return true;
+                    return path.toAbsolutePath().toString().toLowerCase().contains(folderNameFilter.toLowerCase());
+                })
+                .filter(path -> {
+                    if (siblingCheckName == null) return true;
+                    return Files.exists(path.getParent().resolve(siblingCheckName));
+                })
+                .findFirst()
+                .orElseGet(() -> {
+                    if (folderNameFilter != null) {
+                        try (Stream<Path> fallbackStream = Files.walk(applicationRoot, 5)) {
+                            return fallbackStream
+                                .filter(Files::isRegularFile)
+                                .filter(path -> path.getFileName().toString().equalsIgnoreCase(executableName))
+                                .filter(path -> {
+                                    if (siblingCheckName == null) return true;
+                                    return Files.exists(path.getParent().resolve(siblingCheckName));
+                                })
+                                .findFirst()
+                                .orElse(null);
+                        } catch (IOException e) {
+                            return null;
+                        }
+                    }
+                    return null;
+                });
+        } catch (IOException e) {
+            System.err.println("Error scanning for " + executableName + ": " + e.getMessage());
+            return null;
+        }
     }
     
     /**

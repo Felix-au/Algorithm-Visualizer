@@ -251,9 +251,16 @@ public class CodeExecutor {
         pb.directory(workingDir.toFile());
         pb.redirectErrorStream(false);
         
-        // Add MinGW bin directory to PATH for GCC/G++ to find its libraries
-        Path mingwBinPath = environment.getApplicationRoot().resolve("mingw64/bin");
-        if (Files.exists(mingwBinPath)) {
+        // Add MinGW bin directory to PATH for GCC/G++ to find its libraries (e.g. as.exe)
+        Path mingwBinPath = null;
+        try {
+            String gccPathStr = environment.getGccPath();
+            mingwBinPath = java.nio.file.Paths.get(gccPathStr).getParent();
+        } catch (Exception ignored) {
+            mingwBinPath = environment.getApplicationRoot().resolve("mingw64/bin");
+        }
+
+        if (mingwBinPath != null && Files.exists(mingwBinPath)) {
             String currentPath = pb.environment().get("PATH");
             String newPath = mingwBinPath.toAbsolutePath().toString() + File.pathSeparator + currentPath;
             pb.environment().put("PATH", newPath);
