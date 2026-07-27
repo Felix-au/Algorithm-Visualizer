@@ -19,7 +19,6 @@ We are thrilled to announce the first official stable release of **AlgoBuddy** (
 * **Dynamic Compiler Scan**: Automatic local folder scans (up to depth 5) that dynamically resolve compiler executable paths.
 
 ### ⚡ Core Enhancements
-* **Logo Reveal Splash Screen**: Branded loading splash screen running at `1.5x` playback speed with automatic mouse/keypress skip functionality.
 * **Setup Wizard Installer**: Automated downloader UI with progress indicators to download and extract missing offline toolchains.
 
 ---
