@@ -53,7 +53,7 @@ Watch algorithms execute visually, inspect step-by-step state changes, step back
 | Feature | Traditional Web Visualizers (e.g. VisuAlgo) | AlgoBuddy |
 |---|---|---|
 | **Code Execution** | Static pseudocode line highlighting only | Compiles & executes custom C/C++/Java/Python source code |
-| **Console Sandbox** | None | Interactive stdin/stdout console with yellow blinking prompt |
+| **Console Sandbox** | None | Fully featured interactive execution console supporting real-time stdin/stdout streams, with dynamic prompt animations |
 | **Offline Portability** | Requires active internet access | 100% offline—bundles or downloads local compiler runtimes |
 | **Playback Control** | Forward only or simple speed adjustment | Forward, Backward (state restore snapshots), Play/Pause, speed slider |
 | **Windows Launcher** | None (browser-based only) | Standalone Launch4j EXE wrapping shaded JAR with local JRE and JavaFX folders |
