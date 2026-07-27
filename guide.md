@@ -59,11 +59,17 @@ To build the executable and package it for distribution:
    ```
    This creates `target/algorithm-visualizer-1.0.0-all.jar` containing all compiled classes and JavaFX modules.
 
-2. **Wrap Shaded JAR in Launch4j**:
-   * Open the **Launch4j** visual wrapper compiler.
-   * Open the provided Launch4j config file: [`algobuddy.xml`](algobuddy.xml).
-   * Click **Build wrapper** (gear icon) to compile the executable.
-   * The compiler outputs a fully packaged, self-contained standalone executable: `AlgoBuddy.exe`.
+2. **Configure and Build with Launch4j**:
+   To wrap the shaded JAR into a native Windows `.exe` using Launch4j, apply the following general configuration:
+   * **Output file**: Set the target location for your compiled executable (e.g., `dist/AlgoBuddy.exe`).
+   * **Jar**: Point to the compiled shaded uber-JAR (`target/algorithm-visualizer-1.0.0-all.jar`).
+   * **Icon**: Specify your logo icon file (`src/main/resources/logo.ico`).
+   * **JRE Path**: Set JRE folder resolution to local directory `jre` (e.g., `%EXEDIR%\jre`).
+   * **JVM Options**: Since JavaFX modules are required, append options targeting the OpenJFX SDK module path:
+     ```text
+     --module-path "%EXEDIR%\openjfx-21.0.7_windows-x64_bin-sdk\javafx-sdk-21.0.7\lib" --add-modules javafx.controls,javafx.fxml,javafx.media
+     ```
+   * Click **Build wrapper** to compile the self-contained executable.
 
 ---
 

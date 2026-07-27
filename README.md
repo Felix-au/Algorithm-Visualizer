@@ -179,7 +179,7 @@ To launch the packaged release version:
 1. Double-click the compiled `AlgoBuddy.exe`.
 2. The executable runs with its own embedded JRE—no Java installation required!
 
-*Launch4j configurations can be modified locally in `algobuddy.xml`.*
+*Launch4j configuration properties can be customized locally.*
 
 ---
 
@@ -204,7 +204,7 @@ To launch the packaged release version:
 | Expected Error | Cause | Solution |
 |---|---|---|
 | `CreateProcess: No such file or directory` (GCC `as` error) | GCC assembler (`as.exe`) missing from environment search path | Handled dynamically by `CodeExecutor` automatically prepending the compiler's `bin/` folder to the runtime process environment `PATH`. |
-| `IllegalAccessError` in splash video | `javafx.media` module missing from JRE module path | Fixed in `algobuddy.xml` by adding `javafx.media` to the `--add-modules` Launch4j compiler options. |
+| `IllegalAccessError` in splash video | `javafx.media` module missing from JRE module path | Fixed by adding `javafx.media` to the `--add-modules` JVM options in the Launch4j JRE configuration. |
 | `ZipException` during installation | ZIP extraction fails due to central directory header mismatches | Resolved by using random-access `ZipFile` parser instead of sequential `ZipInputStream`. |
 | Missing local runtimes | Runtimes not downloaded or placed in directory root | Run the built-in Setup Wizard installer to download and unpack compilers automatically. |
 
@@ -216,9 +216,13 @@ To launch the packaged release version:
 
 ## Author
 
-<p align="center">
-  <strong>Felix Au</strong><br/>
-  <a href="https://github.com/Felix-au">GitHub Profile</a> | <a href="mailto:felix.au@example.com">Email Address</a>
-</p>
+**Felix-au** (Harshit Soni)
 
-<p align="center"><sub>Interactive learning that brings code to life, offline.</sub></p>
+- 🔗 GitHub: [github.com/Felix-au](https://github.com/Felix-au)
+- 📧 Email: [felixaugum@gmail.com](mailto:felixaugum@gmail.com)
+
+---
+
+<p align="center">
+  <sub>Interactive learning that brings code to life, offline.</sub>
+</p>
