@@ -84,7 +84,7 @@ public class SplashView {
             Platform.runLater(() -> {
                 try {
                     javafx.animation.FadeTransition fadeOut = new javafx.animation.FadeTransition(
-                        javafx.util.Duration.millis(300), mediaView
+                        javafx.util.Duration.millis(200), mediaView
                     );
                     fadeOut.setFromValue(1.0);
                     fadeOut.setToValue(0.0);
@@ -93,7 +93,7 @@ public class SplashView {
                         
                         // Wait a brief moment on solid white, then transition
                         javafx.animation.PauseTransition pause = new javafx.animation.PauseTransition(
-                            javafx.util.Duration.millis(200)
+                            javafx.util.Duration.millis(100)
                         );
                         pause.setOnFinished(pe -> onFinished.run());
                         pause.play();

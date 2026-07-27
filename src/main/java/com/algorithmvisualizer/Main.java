@@ -71,9 +71,9 @@ public class Main extends Application {
                 Scene scene = new Scene(root);
                 stage.setScene(scene);
                 
-                // Fade out the white overlay over 1.0s to reveal the dashboard contents
+                // Fade out the white overlay over 700ms to reveal the dashboard contents
                 javafx.animation.FadeTransition fadeIn = new javafx.animation.FadeTransition(
-                    javafx.util.Duration.millis(1000), whiteOverlay
+                    javafx.util.Duration.millis(700), whiteOverlay
                 );
                 fadeIn.setFromValue(1.0);
                 fadeIn.setToValue(0.0);
